@@ -15,6 +15,7 @@ public sealed class MainForm : Form
     private readonly CheckBox _inGameOverlayCheck;
     private readonly NumericUpDown _inGameOverlayIntervalInput;
     private readonly CheckBox _useMockUnlockerCheck;
+    private readonly Label _unlockerBadge;
 
     private readonly Label _statusValue;
     private readonly Label _tickValue;
@@ -23,6 +24,7 @@ public sealed class MainForm : Form
     private readonly Label _commandsValue;
     private readonly Label _unlockerValue;
     private readonly RichTextBox _logBox;
+    private readonly ToolTip _toolTip;
 
     private CancellationTokenSource? _runCts;
     private Task? _runTask;
@@ -60,6 +62,17 @@ public sealed class MainForm : Form
         _stopButton = new Button { Text = "Stop", Size = new Size(90, 34), Enabled = false };
         _startButton.Click += StartButton_Click;
         _stopButton.Click += StopButton_Click;
+        _unlockerBadge = new Label
+        {
+            Text = "Unlocker: Unknown",
+            AutoSize = false,
+            Width = 200,
+            Height = 34,
+            TextAlign = ContentAlignment.MiddleCenter,
+            BorderStyle = BorderStyle.FixedSingle,
+            BackColor = Color.Gainsboro,
+            Margin = new Padding(8, 0, 8, 0),
+        };
 
         _telemetryLevelCombo = new ComboBox
         {
@@ -107,6 +120,7 @@ public sealed class MainForm : Form
 
         topControls.Controls.Add(_startButton);
         topControls.Controls.Add(_stopButton);
+        topControls.Controls.Add(_unlockerBadge);
         topControls.Controls.Add(MakeInlineGroup("Telemetry Level", _telemetryLevelCombo));
         topControls.Controls.Add(MakeInlineGroup("Telemetry Interval", _telemetryIntervalInput));
         topControls.Controls.Add(MakeInlineGroup("In-game UI", _inGameOverlayCheck));
@@ -159,6 +173,7 @@ public sealed class MainForm : Form
             ReadOnly = true,
             Font = new Font("Consolas", 10f),
         };
+        _toolTip = new ToolTip();
 
         root.Controls.Add(topControls, 0, 0);
         root.Controls.Add(metrics, 0, 1);
@@ -264,21 +279,7 @@ public sealed class MainForm : Form
 
         BeginInvoke(new Action(() =>
         {
-            _unlockerValue.Text = health.State switch
-            {
-                UnlockerConnectionState.Connected => "Connected",
-                UnlockerConnectionState.Degraded => "Degraded",
-                UnlockerConnectionState.Disconnected => "Disconnected",
-                _ => "Unknown",
-            };
-
-            _unlockerValue.ForeColor = health.State switch
-            {
-                UnlockerConnectionState.Connected => Color.ForestGreen,
-                UnlockerConnectionState.Degraded => Color.DarkOrange,
-                UnlockerConnectionState.Disconnected => Color.Firebrick,
-                _ => SystemColors.ControlText,
-            };
+            UpdateUnlockerUi(health.State, health.Summary);
         }));
     }
 
@@ -306,8 +307,45 @@ public sealed class MainForm : Form
         _statusValue.Text = running ? "Running" : "Stopped";
         if (!running)
         {
-            _unlockerValue.Text = "Unknown";
-            _unlockerValue.ForeColor = SystemColors.ControlText;
+            UpdateUnlockerUi(UnlockerConnectionState.Unknown, "Not running");
+        }
+    }
+
+    private void UpdateUnlockerUi(UnlockerConnectionState state, string summary)
+    {
+        var stateText = state switch
+        {
+            UnlockerConnectionState.Connected => "Connected",
+            UnlockerConnectionState.Degraded => "Degraded",
+            UnlockerConnectionState.Disconnected => "Disconnected",
+            _ => "Unknown",
+        };
+
+        var color = state switch
+        {
+            UnlockerConnectionState.Connected => Color.ForestGreen,
+            UnlockerConnectionState.Degraded => Color.DarkOrange,
+            UnlockerConnectionState.Disconnected => Color.Firebrick,
+            _ => SystemColors.ControlText,
+        };
+
+        _unlockerValue.Text = stateText;
+        _unlockerValue.ForeColor = color;
+
+        _unlockerBadge.Text = $"Unlocker: {stateText}";
+        _unlockerBadge.BackColor = state switch
+        {
+            UnlockerConnectionState.Connected => Color.Honeydew,
+            UnlockerConnectionState.Degraded => Color.LemonChiffon,
+            UnlockerConnectionState.Disconnected => Color.MistyRose,
+            _ => Color.Gainsboro,
+        };
+        _unlockerBadge.ForeColor = color;
+        _unlockerBadge.Refresh();
+
+        if (!string.IsNullOrWhiteSpace(summary))
+        {
+            _toolTip.SetToolTip(_unlockerBadge, summary);
         }
     }
 
