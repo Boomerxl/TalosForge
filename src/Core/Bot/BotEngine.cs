@@ -82,6 +82,18 @@ public sealed class BotEngine : IBotEngine
                 events.Count,
                 commandsCount);
 
+            if (ShouldEmitSnapshotTelemetry(snapshot))
+            {
+                _logger.LogInformation(
+                    "snapshot tick={TickId} success={Success} objects={ObjectCount} player_guid={PlayerGuid} target_guid={TargetGuid} error={Error}",
+                    _tickId,
+                    snapshot.Success,
+                    snapshot.Objects.Count,
+                    FormatGuid(snapshot.Player?.Guid),
+                    FormatGuid(snapshot.Player?.TargetGuid),
+                    snapshot.ErrorMessage ?? "none");
+            }
+
             if (tickMs > _options.WatchdogTimeoutMs)
             {
                 _logger.LogWarning(
@@ -116,6 +128,31 @@ public sealed class BotEngine : IBotEngine
         }
 
         return Math.Clamp(baseInterval, _options.MinTickMs, _options.MaxTickMs);
+    }
+
+    private bool ShouldEmitSnapshotTelemetry(WorldSnapshot snapshot)
+    {
+        if (!_options.EnableSnapshotTelemetry)
+        {
+            return false;
+        }
+
+        if (!snapshot.Success)
+        {
+            return true;
+        }
+
+        if (_options.SnapshotTelemetryEveryTicks <= 0)
+        {
+            return false;
+        }
+
+        return _tickId % _options.SnapshotTelemetryEveryTicks == 0;
+    }
+
+    private static string FormatGuid(ulong? guid)
+    {
+        return guid.HasValue && guid.Value != 0 ? $"0x{guid.Value:X16}" : "none";
     }
 
     private static BotState DetermineState(WorldSnapshot snapshot, IReadOnlyList<BotEvent> events)

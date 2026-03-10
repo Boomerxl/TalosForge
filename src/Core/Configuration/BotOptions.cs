@@ -16,4 +16,6 @@ public sealed class BotOptions
     public int RingCapacityBytes { get; set; } = 1_048_576;
     public int UnlockerTimeoutMs { get; set; } = 250;
     public int UnlockerRetryCount { get; set; } = 2;
+    public int SnapshotTelemetryEveryTicks { get; set; } = 10;
+    public bool EnableSnapshotTelemetry { get; set; } = true;
 }
