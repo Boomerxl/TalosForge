@@ -21,6 +21,7 @@ public sealed class MainForm : Form
     private readonly Label _objectsValue;
     private readonly Label _targetValue;
     private readonly Label _commandsValue;
+    private readonly Label _unlockerValue;
     private readonly RichTextBox _logBox;
 
     private CancellationTokenSource? _runCts;
@@ -116,12 +117,12 @@ public sealed class MainForm : Form
         var metrics = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 10,
+            ColumnCount = 12,
             Padding = new Padding(4, 0, 4, 0),
         };
-        for (var i = 0; i < 10; i++)
+        for (var i = 0; i < 12; i++)
         {
-            metrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));
+            metrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / 12f));
         }
 
         _statusValue = MakeValueLabel("Stopped");
@@ -129,6 +130,7 @@ public sealed class MainForm : Form
         _objectsValue = MakeValueLabel("-");
         _targetValue = MakeValueLabel("-");
         _commandsValue = MakeValueLabel("-");
+        _unlockerValue = MakeValueLabel("Unknown");
 
         metrics.Controls.Add(MakeHeaderLabel("Status"), 0, 0);
         metrics.Controls.Add(_statusValue, 1, 0);
@@ -140,6 +142,8 @@ public sealed class MainForm : Form
         metrics.Controls.Add(_targetValue, 7, 0);
         metrics.Controls.Add(MakeHeaderLabel("Commands"), 8, 0);
         metrics.Controls.Add(_commandsValue, 9, 0);
+        metrics.Controls.Add(MakeHeaderLabel("Unlocker"), 10, 0);
+        metrics.Controls.Add(_unlockerValue, 11, 0);
 
         var logTitle = new Label
         {
@@ -201,7 +205,7 @@ public sealed class MainForm : Form
         };
 
         _runCts = new CancellationTokenSource();
-        var host = new BotRuntimeHost(options, runtime, AppendLogSafe, OnTickSafe);
+        var host = new BotRuntimeHost(options, runtime, AppendLogSafe, OnTickSafe, OnUnlockerHealthSafe);
 
         SetRunningState(true);
         AppendLogSafe("Starting runtime host...");
@@ -251,6 +255,33 @@ public sealed class MainForm : Form
         }));
     }
 
+    private void OnUnlockerHealthSafe(UnlockerHealthSnapshot health)
+    {
+        if (!IsHandleCreated)
+        {
+            return;
+        }
+
+        BeginInvoke(new Action(() =>
+        {
+            _unlockerValue.Text = health.State switch
+            {
+                UnlockerConnectionState.Connected => "Connected",
+                UnlockerConnectionState.Degraded => "Degraded",
+                UnlockerConnectionState.Disconnected => "Disconnected",
+                _ => "Unknown",
+            };
+
+            _unlockerValue.ForeColor = health.State switch
+            {
+                UnlockerConnectionState.Connected => Color.ForestGreen,
+                UnlockerConnectionState.Degraded => Color.DarkOrange,
+                UnlockerConnectionState.Disconnected => Color.Firebrick,
+                _ => SystemColors.ControlText,
+            };
+        }));
+    }
+
     private void AppendLogSafe(string line)
     {
         if (!IsHandleCreated)
@@ -273,6 +304,11 @@ public sealed class MainForm : Form
         _startButton.Enabled = !running;
         _stopButton.Enabled = running;
         _statusValue.Text = running ? "Running" : "Stopped";
+        if (!running)
+        {
+            _unlockerValue.Text = "Unknown";
+            _unlockerValue.ForeColor = SystemColors.ControlText;
+        }
     }
 
     private static TelemetryLevel ParseTelemetryLevel(string? value)

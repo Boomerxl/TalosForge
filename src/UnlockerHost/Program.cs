@@ -71,6 +71,8 @@ public static class Program
         const string ackRetriesArg = "--ack-retries";
         const string ackDelayArg = "--ack-delay-ms";
         const string statsArg = "--stats-interval";
+        const string statusFileArg = "--status-file";
+        const string statusIntervalArg = "--status-interval-ms";
         const string smokeArg = "--smoke";
         const string smokeSecondsArg = "--smoke-seconds";
 
@@ -92,6 +94,8 @@ public static class Program
                 !TryParseOption(args, ref i, ackRetriesArg, out value) &&
                 !TryParseOption(args, ref i, ackDelayArg, out value) &&
                 !TryParseOption(args, ref i, statsArg, out value) &&
+                !TryParseOption(args, ref i, statusFileArg, out value) &&
+                !TryParseOption(args, ref i, statusIntervalArg, out value) &&
                 !TryParseOption(args, ref i, smokeSecondsArg, out value))
             {
                 logger.LogWarning("Unknown argument: {Argument}", arg);
@@ -129,6 +133,19 @@ public static class Program
             else if (arg.StartsWith(statsArg, StringComparison.OrdinalIgnoreCase))
             {
                 options.StatsIntervalSeconds = ParseInt(value, statsArg, options.StatsIntervalSeconds, min: 1, logger);
+            }
+            else if (arg.StartsWith(statusFileArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.StatusFilePath = value;
+            }
+            else if (arg.StartsWith(statusIntervalArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.StatusWriteIntervalMs = ParseInt(
+                    value,
+                    statusIntervalArg,
+                    options.StatusWriteIntervalMs,
+                    min: 100,
+                    logger);
             }
             else if (arg.StartsWith(smokeSecondsArg, StringComparison.OrdinalIgnoreCase))
             {

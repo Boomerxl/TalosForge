@@ -62,4 +62,38 @@ public sealed class UnlockerHostIntegrationTests
         cts.Cancel();
         await hostTask;
     }
+
+    [Fact]
+    public async Task UnlockerHost_Writes_Status_File()
+    {
+        var suffix = Guid.NewGuid().ToString("N");
+        var statusFile = Path.Combine(Path.GetTempPath(), $"TalosForge.UnlockerHost.{suffix}.status.json");
+
+        var hostOptions = new UnlockerHostOptions
+        {
+            CommandRingName = $"TalosForge.Cmd.Status.{suffix}",
+            EventRingName = $"TalosForge.Evt.Status.{suffix}",
+            RingCapacityBytes = 4096,
+            PollDelayMs = 1,
+            StatusWriteIntervalMs = 100,
+            StatusFilePath = statusFile,
+            ExecutorMode = "mock",
+        };
+
+        using var host = new UnlockerHostService(
+            hostOptions,
+            new MockCommandExecutor(),
+            NullLogger<UnlockerHostService>.Instance);
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(250));
+
+        await host.RunAsync(cts.Token);
+
+        Assert.True(File.Exists(statusFile));
+        var json = await File.ReadAllTextAsync(statusFile);
+        var status = System.Text.Json.JsonSerializer.Deserialize<UnlockerHostStatusFile>(json);
+        Assert.NotNull(status);
+        Assert.False(status!.Running);
+
+        File.Delete(statusFile);
+    }
 }

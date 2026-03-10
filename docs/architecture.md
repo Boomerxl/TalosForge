@@ -14,7 +14,9 @@
 - `EventBus`: diffs snapshots and emits typed events.
 - `BotEngine`: adaptive scheduler (`Combat=35ms`, `Movement=70ms`, `Idle=120ms`, clamped `25-150ms`).
 - `SharedMemoryUnlockerClient`: command/ack transport over ring buffers.
+- `SharedMemoryUnlockerClient` telemetry: send/ack/timeout counters + adaptive backoff metrics.
 - `TalosForge.UnlockerHost`: standalone ring endpoint for command execution + ACK publishing.
+- `UnlockerHost` heartbeat: writes status file for UI/runtime health monitoring.
 - `PluginHost`: in-process plugin execution with sandboxed command queue context.
 
 ## Public Contracts

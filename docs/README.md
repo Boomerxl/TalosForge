@@ -44,6 +44,7 @@ Default plugin discovery order:
   - Mock/real unlocker mode toggle
   - Optional plugin directory override
   - Live metrics panel (status, tick, objects, target, commands)
+  - Unlocker health indicator (Connected/Degraded/Disconnected)
   - Live runtime log output
 
 In-game overlay visibility requires:
@@ -58,3 +59,5 @@ In-game overlay visibility requires:
   - `dotnet run --project C:/Utilities/TalosForge/src/UnlockerHost/TalosForge.UnlockerHost.csproj -c Release -- --executor mock`
 - Run Core against host:
   - `dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c Release -- --real-unlocker`
+- Host heartbeat file:
+  - `%TEMP%/TalosForge.UnlockerHost.status.json` (default)

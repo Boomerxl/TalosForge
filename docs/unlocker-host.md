@@ -30,6 +30,8 @@ dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c 
 - `--ack-retries`
 - `--ack-delay-ms`
 - `--stats-interval`
+- `--status-file`
+- `--status-interval-ms`
 - `--smoke`
 - `--smoke-seconds`
 
@@ -41,3 +43,4 @@ dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c 
 - Writes `UnlockerAck` frame with matching `CommandId`.
 - Retries ACK write on temporary ring-full conditions.
 - Emits periodic host stats logs.
+- Writes a heartbeat status file (`%TEMP%/TalosForge.UnlockerHost.status.json` by default).

@@ -55,3 +55,4 @@ Opcodes:
 ## Reference Endpoint
 
 - `src/UnlockerHost/TalosForge.UnlockerHost.csproj` provides a standalone endpoint implementation for this contract.
+- Endpoint heartbeat status file (default): `%TEMP%/TalosForge.UnlockerHost.status.json`.

@@ -19,17 +19,20 @@ public sealed class BotRuntimeHost
     private readonly RuntimeOptions _runtimeOptions;
     private readonly Action<string>? _logSink;
     private readonly Action<BotTickMetrics, WorldSnapshot>? _tickSink;
+    private readonly Action<UnlockerHealthSnapshot>? _unlockerHealthSink;
 
     public BotRuntimeHost(
         BotOptions options,
         RuntimeOptions runtimeOptions,
         Action<string>? logSink = null,
-        Action<BotTickMetrics, WorldSnapshot>? tickSink = null)
+        Action<BotTickMetrics, WorldSnapshot>? tickSink = null,
+        Action<UnlockerHealthSnapshot>? unlockerHealthSink = null)
     {
         _options = options;
         _runtimeOptions = runtimeOptions;
         _logSink = logSink;
         _tickSink = tickSink;
+        _unlockerHealthSink = unlockerHealthSink;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -85,6 +88,10 @@ public sealed class BotRuntimeHost
             using MockUnlockerEndpoint? mockUnlocker = _runtimeOptions.UseMockUnlocker
                 ? new MockUnlockerEndpoint(_options)
                 : null;
+            var statusMonitor = new UnlockerStatusFileMonitor(
+                _options.UnlockerStatusFilePath,
+                TimeSpan.FromMilliseconds(Math.Max(250, _options.UnlockerStatusStaleMs)),
+                TimeSpan.FromMilliseconds(Math.Max(100, _options.UnlockerStatusReadIntervalMs)));
             if (mockUnlocker != null)
             {
                 logger.LogInformation("Using mock unlocker endpoint (in-game actions are simulated).");
@@ -118,6 +125,17 @@ public sealed class BotRuntimeHost
             if (_tickSink != null)
             {
                 botEngine.TickCompleted += _tickSink;
+            }
+            if (_unlockerHealthSink != null)
+            {
+                botEngine.TickCompleted += (_, _) =>
+                {
+                    var health = BuildUnlockerHealthSnapshot(
+                        unlockerClient,
+                        statusMonitor,
+                        _runtimeOptions.UseMockUnlocker);
+                    _unlockerHealthSink(health);
+                };
             }
 
             using var runCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -223,5 +241,53 @@ public sealed class BotRuntimeHost
         }
 
         return null;
+    }
+
+    private static UnlockerHealthSnapshot BuildUnlockerHealthSnapshot(
+        SharedMemoryUnlockerClient unlockerClient,
+        UnlockerStatusFileMonitor statusMonitor,
+        bool usingMockUnlocker)
+    {
+        var metrics = unlockerClient.GetMetricsSnapshot();
+        var hostStatus = statusMonitor.GetStatus();
+        var hostFresh = statusMonitor.IsFresh(hostStatus);
+
+        if (usingMockUnlocker)
+        {
+            return new UnlockerHealthSnapshot(
+                UnlockerConnectionState.Connected,
+                "Mock unlocker active",
+                metrics,
+                null,
+                true);
+        }
+
+        var state = UnlockerConnectionState.Unknown;
+        var summary = "Awaiting unlocker activity";
+
+        if (metrics.ConsecutiveTimeouts >= 3)
+        {
+            state = UnlockerConnectionState.Disconnected;
+            summary = "No ACK from unlocker";
+        }
+        else if (metrics.ConsecutiveTimeouts > 0 || !hostFresh)
+        {
+            state = UnlockerConnectionState.Degraded;
+            summary = metrics.ConsecutiveTimeouts > 0
+                ? $"ACK delays/timeouts ({metrics.ConsecutiveTimeouts} consecutive)"
+                : "Host heartbeat stale";
+        }
+        else if (metrics.Acks > 0 || hostFresh)
+        {
+            state = UnlockerConnectionState.Connected;
+            summary = "Unlocker responding";
+        }
+
+        return new UnlockerHealthSnapshot(
+            state,
+            summary,
+            metrics,
+            hostStatus?.TimestampUtc,
+            hostFresh);
     }
 }

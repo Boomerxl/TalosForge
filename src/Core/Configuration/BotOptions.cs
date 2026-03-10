@@ -16,6 +16,12 @@ public sealed class BotOptions
     public int RingCapacityBytes { get; set; } = 1_048_576;
     public int UnlockerTimeoutMs { get; set; } = 250;
     public int UnlockerRetryCount { get; set; } = 2;
+    public int UnlockerBackoffBaseMs { get; set; } = 50;
+    public int UnlockerBackoffMaxMs { get; set; } = 1_000;
+    public string UnlockerStatusFilePath { get; set; } =
+        Path.Combine(Path.GetTempPath(), "TalosForge.UnlockerHost.status.json");
+    public int UnlockerStatusStaleMs { get; set; } = 3_000;
+    public int UnlockerStatusReadIntervalMs { get; set; } = 500;
     public int SnapshotTelemetryEveryTicks { get; set; } = 10;
     public bool EnableSnapshotTelemetry { get; set; } = true;
     public TelemetryLevel TelemetryLevel { get; set; } = TelemetryLevel.Normal;

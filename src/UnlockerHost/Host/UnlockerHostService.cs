@@ -4,6 +4,7 @@ using TalosForge.Core.Models;
 using TalosForge.UnlockerHost.Abstractions;
 using TalosForge.UnlockerHost.Configuration;
 using TalosForge.UnlockerHost.Models;
+using System.Text.Json;
 
 namespace TalosForge.UnlockerHost.Host;
 
@@ -17,6 +18,7 @@ public sealed class UnlockerHostService : IDisposable
     private readonly ILogger<UnlockerHostService> _logger;
     private readonly SharedMemoryRingBuffer _commandRing;
     private readonly SharedMemoryRingBuffer _eventRing;
+    private readonly DateTimeOffset _startedUtc = DateTimeOffset.UtcNow;
 
     private bool _disposed;
     private long _commandsRead;
@@ -43,6 +45,8 @@ public sealed class UnlockerHostService : IDisposable
         var pollDelayMs = Math.Max(1, _options.PollDelayMs);
         var statsInterval = TimeSpan.FromSeconds(Math.Max(1, _options.StatsIntervalSeconds));
         var nextStatsAt = DateTimeOffset.UtcNow.Add(statsInterval);
+        var statusInterval = TimeSpan.FromMilliseconds(Math.Max(100, _options.StatusWriteIntervalMs));
+        var nextStatusAt = DateTimeOffset.UtcNow;
 
         _logger.LogInformation(
             "UnlockerHost started. cmd_ring={CommandRing} evt_ring={EventRing} executor={Executor}",
@@ -56,6 +60,7 @@ public sealed class UnlockerHostService : IDisposable
             {
                 if (!_commandRing.TryRead(out var commandBytes))
                 {
+                    WriteStatusIfDue(ref nextStatusAt, statusInterval, running: true);
                     EmitStatsIfDue(ref nextStatsAt, statsInterval);
                     await Task.Delay(pollDelayMs, cancellationToken).ConfigureAwait(false);
                     continue;
@@ -72,6 +77,7 @@ public sealed class UnlockerHostService : IDisposable
                 {
                     Interlocked.Increment(ref _decodeFailures);
                     _logger.LogWarning(ex, "Failed to decode command frame. bytes={ByteCount}", commandBytes.Length);
+                    WriteStatusIfDue(ref nextStatusAt, statusInterval, running: true);
                     EmitStatsIfDue(ref nextStatsAt, statsInterval);
                     continue;
                 }
@@ -99,6 +105,7 @@ public sealed class UnlockerHostService : IDisposable
                         command.Opcode);
                 }
 
+                WriteStatusIfDue(ref nextStatusAt, statusInterval, running: true);
                 EmitStatsIfDue(ref nextStatsAt, statsInterval);
             }
         }
@@ -108,6 +115,7 @@ public sealed class UnlockerHostService : IDisposable
         }
         finally
         {
+            WriteStatus(running: false);
             EmitStats(force: true);
             _logger.LogInformation("UnlockerHost stopped.");
         }
@@ -195,5 +203,50 @@ public sealed class UnlockerHostService : IDisposable
             Interlocked.Read(ref _decodeFailures),
             Interlocked.Read(ref _executorFailures),
             force);
+    }
+
+    private void WriteStatusIfDue(ref DateTimeOffset nextStatusAt, TimeSpan interval, bool running)
+    {
+        if (DateTimeOffset.UtcNow < nextStatusAt)
+        {
+            return;
+        }
+
+        WriteStatus(running);
+        nextStatusAt = DateTimeOffset.UtcNow.Add(interval);
+    }
+
+    private void WriteStatus(bool running)
+    {
+        try
+        {
+            var status = new UnlockerHostStatusFile(
+                DateTimeOffset.UtcNow,
+                _startedUtc,
+                Environment.ProcessId,
+                _options.ExecutorMode,
+                Interlocked.Read(ref _commandsRead),
+                Interlocked.Read(ref _acksWritten),
+                Interlocked.Read(ref _acksDropped),
+                Interlocked.Read(ref _decodeFailures),
+                Interlocked.Read(ref _executorFailures),
+                running);
+
+            var directory = Path.GetDirectoryName(_options.StatusFilePath);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var json = JsonSerializer.Serialize(status);
+            var tempFile = _options.StatusFilePath + ".tmp";
+            File.WriteAllText(tempFile, json);
+            File.Copy(tempFile, _options.StatusFilePath, overwrite: true);
+            File.Delete(tempFile);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Unable to write status file {StatusFile}", _options.StatusFilePath);
+        }
     }
 }

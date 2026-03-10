@@ -8,12 +8,24 @@ namespace TalosForge.Core.IPC;
 /// <summary>
 /// Unlocker client backed by shared-memory command/event rings.
 /// </summary>
-public sealed class SharedMemoryUnlockerClient : IUnlockerClient
+public sealed class SharedMemoryUnlockerClient : IUnlockerClient, IUnlockerTelemetrySource
 {
     private readonly BotOptions _options;
     private readonly SharedMemoryRingBuffer _commandRing;
     private readonly SharedMemoryRingBuffer _eventRing;
     private readonly Dictionary<long, UnlockerAck> _pendingAcks = new();
+    private readonly object _metricsLock = new();
+
+    private long _sends;
+    private long _acks;
+    private long _timeouts;
+    private long _consecutiveTimeouts;
+    private long _backoffWaits;
+    private int _lastBackoffMs;
+    private DateTimeOffset? _lastSendUtc;
+    private DateTimeOffset? _lastAckUtc;
+    private DateTimeOffset? _lastTimeoutUtc;
+    private string? _lastError;
 
     public SharedMemoryUnlockerClient(BotOptions options)
     {
@@ -24,6 +36,9 @@ public sealed class SharedMemoryUnlockerClient : IUnlockerClient
 
     public async Task<UnlockerAck> SendAsync(UnlockerCommand command, CancellationToken cancellationToken)
     {
+        RecordSend();
+        await ApplyBackoffIfNeededAsync(cancellationToken).ConfigureAwait(false);
+
         var commandBytes = SerializeCommand(command);
 
         for (var attempt = 0; attempt <= _options.UnlockerRetryCount; attempt++)
@@ -37,11 +52,31 @@ public sealed class SharedMemoryUnlockerClient : IUnlockerClient
             var ack = await WaitForAckAsync(command.CommandId, cancellationToken).ConfigureAwait(false);
             if (ack != null)
             {
+                RecordAck();
                 return ack;
             }
         }
 
+        RecordTimeout($"No unlocker ack for command {command.CommandId}.");
         throw new TimeoutException($"No unlocker ack for command {command.CommandId}.");
+    }
+
+    public UnlockerClientMetrics GetMetricsSnapshot()
+    {
+        lock (_metricsLock)
+        {
+            return new UnlockerClientMetrics(
+                _sends,
+                _acks,
+                _timeouts,
+                _consecutiveTimeouts,
+                _backoffWaits,
+                _lastBackoffMs,
+                _lastSendUtc,
+                _lastAckUtc,
+                _lastTimeoutUtc,
+                _lastError);
+        }
     }
 
     public void Dispose()
@@ -82,6 +117,79 @@ public sealed class SharedMemoryUnlockerClient : IUnlockerClient
             }
 
             await Task.Delay(5, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task ApplyBackoffIfNeededAsync(CancellationToken cancellationToken)
+    {
+        int delayMs;
+
+        lock (_metricsLock)
+        {
+            delayMs = ComputeBackoffDelayMs(DateTimeOffset.UtcNow);
+            if (delayMs > 0)
+            {
+                _backoffWaits++;
+                _lastBackoffMs = delayMs;
+            }
+        }
+
+        if (delayMs > 0)
+        {
+            await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private int ComputeBackoffDelayMs(DateTimeOffset nowUtc)
+    {
+        if (_consecutiveTimeouts <= 0 || _lastTimeoutUtc is null)
+        {
+            return 0;
+        }
+
+        var baseDelay = Math.Max(0, _options.UnlockerBackoffBaseMs);
+        var maxDelay = Math.Max(baseDelay, _options.UnlockerBackoffMaxMs);
+        if (baseDelay == 0)
+        {
+            return 0;
+        }
+
+        var exponent = (int)Math.Clamp(_consecutiveTimeouts - 1, 0, 10);
+        var desiredDelay = Math.Min(maxDelay, baseDelay * (1 << exponent));
+        var elapsedMs = (int)Math.Max(0, (nowUtc - _lastTimeoutUtc.Value).TotalMilliseconds);
+        return Math.Max(0, desiredDelay - elapsedMs);
+    }
+
+    private void RecordSend()
+    {
+        lock (_metricsLock)
+        {
+            _sends++;
+            _lastSendUtc = DateTimeOffset.UtcNow;
+            _lastError = null;
+        }
+    }
+
+    private void RecordAck()
+    {
+        lock (_metricsLock)
+        {
+            _acks++;
+            _consecutiveTimeouts = 0;
+            _lastBackoffMs = 0;
+            _lastAckUtc = DateTimeOffset.UtcNow;
+            _lastError = null;
+        }
+    }
+
+    private void RecordTimeout(string message)
+    {
+        lock (_metricsLock)
+        {
+            _timeouts++;
+            _consecutiveTimeouts++;
+            _lastTimeoutUtc = DateTimeOffset.UtcNow;
+            _lastError = message;
         }
     }
 

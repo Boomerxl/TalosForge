@@ -65,4 +65,55 @@ public sealed class SharedMemoryUnlockerClientTests
         await Assert.ThrowsAsync<TimeoutException>(
             async () => await client.SendAsync(command, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task SendAsync_Tracks_Timeout_And_Backoff_Metrics()
+    {
+        var suffix = Guid.NewGuid().ToString("N");
+        var options = new BotOptions
+        {
+            CommandMmfName = $"TalosForge.Cmd.Test.Metrics.{suffix}",
+            EventMmfName = $"TalosForge.Evt.Test.Metrics.{suffix}",
+            RingCapacityBytes = 4096,
+            UnlockerTimeoutMs = 25,
+            UnlockerRetryCount = 0,
+            UnlockerBackoffBaseMs = 30,
+            UnlockerBackoffMaxMs = 100,
+        };
+
+        using var client = new SharedMemoryUnlockerClient(options);
+
+        await Assert.ThrowsAsync<TimeoutException>(() =>
+            client.SendAsync(
+                new UnlockerCommand(
+                    CommandId: 44,
+                    Opcode: UnlockerOpcode.LuaDoString,
+                    PayloadJson: "{}",
+                    TimestampUtc: DateTimeOffset.UtcNow),
+                CancellationToken.None));
+
+        var afterTimeout = client.GetMetricsSnapshot();
+        Assert.Equal(1, afterTimeout.Timeouts);
+        Assert.Equal(1, afterTimeout.ConsecutiveTimeouts);
+
+        using var mock = new MockUnlockerEndpoint(options);
+        using var cts = new CancellationTokenSource();
+        var pumpTask = Task.Run(async () => await mock.RunAsync(cts.Token));
+
+        var ack = await client.SendAsync(
+            new UnlockerCommand(
+                CommandId: 45,
+                Opcode: UnlockerOpcode.LuaDoString,
+                PayloadJson: "{}",
+                TimestampUtc: DateTimeOffset.UtcNow),
+            CancellationToken.None);
+
+        Assert.True(ack.Success);
+        var afterAck = client.GetMetricsSnapshot();
+        Assert.Equal(0, afterAck.ConsecutiveTimeouts);
+        Assert.True(afterAck.BackoffWaits >= 1);
+
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await pumpTask);
+    }
 }
