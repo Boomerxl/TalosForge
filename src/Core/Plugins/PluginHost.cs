@@ -11,6 +11,11 @@ namespace TalosForge.Core.Plugins;
 /// </summary>
 public sealed class PluginHost : IDisposable
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
+
     private readonly string _pluginDirectory;
     private readonly ILogger<PluginHost> _logger;
     private readonly List<LoadedPlugin> _plugins = new();
@@ -39,7 +44,7 @@ public sealed class PluginHost : IDisposable
         var manifests = Directory.GetFiles(_pluginDirectory, "*.plugin.json", SearchOption.AllDirectories);
         foreach (var manifestPath in manifests)
         {
-            var manifest = JsonSerializer.Deserialize<PluginManifest>(File.ReadAllText(manifestPath));
+            var manifest = JsonSerializer.Deserialize<PluginManifest>(File.ReadAllText(manifestPath), JsonOptions);
             if (manifest == null)
             {
                 _logger.LogWarning("Skipping invalid plugin manifest {ManifestPath}", manifestPath);

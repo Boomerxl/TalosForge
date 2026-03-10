@@ -44,7 +44,7 @@ public sealed class SharedMemoryRingBufferTests
             Assert.Contains("version=1", ring.DebugHeader());
         }
 
-        using (var mmf = MemoryMappedFile.OpenExisting(name))
+        using (var mmf = MemoryMappedFile.CreateOrOpen(name, 20 + capacity))
         using (var accessor = mmf.CreateViewAccessor())
         {
             accessor.Write(0, unchecked((int)0xDEADBEEF));

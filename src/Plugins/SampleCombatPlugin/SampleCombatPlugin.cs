@@ -27,7 +27,7 @@ public sealed class SampleCombatPlugin : IPlugin
         if (targetGuid.HasValue && targetGuid != 0 && targetGuid != _lastTarget)
         {
             var command = new UnlockerCommand(
-                commandId: DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CommandId: DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Opcode: UnlockerOpcode.LuaDoString,
                 PayloadJson: "{\"code\":\"print('TalosForge plugin pulse')\"}",
                 TimestampUtc: DateTimeOffset.UtcNow);

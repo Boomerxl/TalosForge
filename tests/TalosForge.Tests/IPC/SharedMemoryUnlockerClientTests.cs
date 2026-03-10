@@ -27,7 +27,7 @@ public sealed class SharedMemoryUnlockerClientTests
         var pumpTask = Task.Run(async () => await mock.RunAsync(cts.Token));
 
         var command = new UnlockerCommand(
-            commandId: 42,
+            CommandId: 42,
             Opcode: UnlockerOpcode.LuaDoString,
             PayloadJson: "{\"code\":\"print('hello')\"}",
             TimestampUtc: DateTimeOffset.UtcNow);

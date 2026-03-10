@@ -74,9 +74,9 @@ public sealed class SharedMemoryRingBuffer : IDisposable
     public bool TryRead(out byte[] payload)
     {
         ThrowIfDisposed();
-        payload = Array.Empty<byte>();
+        var resultPayload = Array.Empty<byte>();
 
-        return WithLock(() =>
+        var success = WithLock(() =>
         {
             var writeIndex = ReadHeaderInt(12);
             var readIndex = ReadHeaderInt(16);
@@ -100,9 +100,12 @@ public sealed class SharedMemoryRingBuffer : IDisposable
             readIndex = (readIndex + sizeof(int) + frameLength) % _capacity;
             WriteHeaderInt(16, readIndex);
 
-            payload = frameBytes;
+            resultPayload = frameBytes;
             return true;
         });
+
+        payload = resultPayload;
+        return success;
     }
 
     public string DebugHeader()
