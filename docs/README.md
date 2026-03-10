@@ -20,6 +20,8 @@ Use `scripts/clean.ps1` to remove build artifacts (`bin/`, `obj/`, `TestResults/
   - `normal`: tick metrics + periodic snapshot summary
   - `debug`: normal + object preview and detailed snapshot failure reason
 - `--plugin-dir PATH`: override plugin discovery path.
+- `--ingame-ui`: enable lightweight in-game status overlay (via unlocker Lua command).
+- `--ingame-ui-interval N`: overlay update every `N` ticks.
 
 Default plugin discovery order:
 1. `<app>/plugins` when manifests exist
@@ -35,6 +37,7 @@ Default plugin discovery order:
 - Features:
   - Start/Stop runtime loop
   - Telemetry level + interval controls
+  - In-game UI toggle + interval controls
   - Optional plugin directory override
   - Live metrics panel (status, tick, objects, target, commands)
   - Live runtime log output

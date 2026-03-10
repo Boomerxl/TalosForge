@@ -12,6 +12,8 @@ public sealed class MainForm : Form
     private readonly TextBox _pluginDirText;
     private readonly ComboBox _telemetryLevelCombo;
     private readonly NumericUpDown _telemetryIntervalInput;
+    private readonly CheckBox _inGameOverlayCheck;
+    private readonly NumericUpDown _inGameOverlayIntervalInput;
     private readonly Label _statusValue;
     private readonly Label _tickValue;
     private readonly Label _objectsValue;
@@ -44,7 +46,7 @@ public sealed class MainForm : Form
         var topControls = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 8,
+            ColumnCount = 12,
         };
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
@@ -52,6 +54,10 @@ public sealed class MainForm : Form
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
+        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
+        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100));
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
         topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
@@ -83,14 +89,34 @@ public sealed class MainForm : Form
             PlaceholderText = "Optional --plugin-dir override",
         };
 
+        _inGameOverlayCheck = new CheckBox
+        {
+            Dock = DockStyle.Fill,
+            Checked = false,
+            Text = "Enable",
+            TextAlign = ContentAlignment.MiddleLeft,
+        };
+
+        _inGameOverlayIntervalInput = new NumericUpDown
+        {
+            Dock = DockStyle.Fill,
+            Minimum = 1,
+            Maximum = 500,
+            Value = 10,
+        };
+
         topControls.Controls.Add(_startButton, 0, 0);
         topControls.Controls.Add(_stopButton, 1, 0);
         topControls.Controls.Add(new Label { Text = "Telemetry Level", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 2, 0);
         topControls.Controls.Add(_telemetryLevelCombo, 3, 0);
         topControls.Controls.Add(new Label { Text = "Telemetry Interval", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 4, 0);
         topControls.Controls.Add(_telemetryIntervalInput, 5, 0);
-        topControls.Controls.Add(new Label { Text = "Plugin Dir", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 6, 0);
-        topControls.Controls.Add(_pluginDirText, 7, 0);
+        topControls.Controls.Add(new Label { Text = "In-game UI", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 6, 0);
+        topControls.Controls.Add(_inGameOverlayCheck, 7, 0);
+        topControls.Controls.Add(new Label { Text = "Overlay Interval", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 8, 0);
+        topControls.Controls.Add(_inGameOverlayIntervalInput, 9, 0);
+        topControls.Controls.Add(new Label { Text = "Plugin Dir", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 10, 0);
+        topControls.Controls.Add(_pluginDirText, 11, 0);
 
         var metrics = new TableLayoutPanel
         {
@@ -167,6 +193,8 @@ public sealed class MainForm : Form
             TelemetryLevel = level,
             SnapshotTelemetryEveryTicks = interval,
             EnableSnapshotTelemetry = interval > 0,
+            EnableInGameOverlay = _inGameOverlayCheck.Checked,
+            InGameOverlayEveryTicks = Decimal.ToInt32(_inGameOverlayIntervalInput.Value),
         };
 
         var runtime = new RuntimeOptions

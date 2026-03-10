@@ -4,6 +4,7 @@ using TalosForge.Core.Bot;
 using TalosForge.Core.Caching;
 using TalosForge.Core.Configuration;
 using TalosForge.Core.Diagnostics;
+using TalosForge.Core.Drawing;
 using TalosForge.Core.Events;
 using TalosForge.Core.IPC;
 using TalosForge.Core.Models;
@@ -101,7 +102,8 @@ public sealed class BotRuntimeHost
                 unlockerClient,
                 _options,
                 loggerFactory.CreateLogger<BotEngine>(),
-                pluginHost);
+                pluginHost,
+                new InGameOverlayService(unlockerClient, _options));
 
             if (_tickSink != null)
             {

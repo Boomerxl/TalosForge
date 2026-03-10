@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using TalosForge.Core.Abstractions;
 using TalosForge.Core.Configuration;
+using TalosForge.Core.Drawing;
 using TalosForge.Core.Models;
 using TalosForge.Core.Plugins;
 
@@ -16,6 +17,7 @@ public sealed class BotEngine : IBotEngine
     private readonly IEventBus _eventBus;
     private readonly IUnlockerClient _unlockerClient;
     private readonly PluginHost? _pluginHost;
+    private readonly InGameOverlayService? _inGameOverlayService;
     private readonly ILogger<BotEngine> _logger;
     private readonly BotOptions _options;
 
@@ -27,7 +29,8 @@ public sealed class BotEngine : IBotEngine
         IUnlockerClient unlockerClient,
         BotOptions options,
         ILogger<BotEngine> logger,
-        PluginHost? pluginHost = null)
+        PluginHost? pluginHost = null,
+        InGameOverlayService? inGameOverlayService = null)
     {
         _objectManager = objectManager;
         _eventBus = eventBus;
@@ -35,6 +38,7 @@ public sealed class BotEngine : IBotEngine
         _options = options;
         _logger = logger;
         _pluginHost = pluginHost;
+        _inGameOverlayService = inGameOverlayService;
     }
 
     public BotTickMetrics? LastMetrics { get; private set; }
@@ -59,6 +63,13 @@ public sealed class BotEngine : IBotEngine
             {
                 commandsCount = await _pluginHost
                     .TickAsync(snapshot, events, _unlockerClient, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            if (_inGameOverlayService != null)
+            {
+                commandsCount += await _inGameOverlayService
+                    .TryPublishAsync(_tickId, state, snapshot, commandsCount, cancellationToken)
                     .ConfigureAwait(false);
             }
 

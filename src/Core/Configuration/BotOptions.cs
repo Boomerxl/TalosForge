@@ -20,4 +20,6 @@ public sealed class BotOptions
     public bool EnableSnapshotTelemetry { get; set; } = true;
     public TelemetryLevel TelemetryLevel { get; set; } = TelemetryLevel.Normal;
     public int DebugObjectPreviewCount { get; set; } = 5;
+    public bool EnableInGameOverlay { get; set; }
+    public int InGameOverlayEveryTicks { get; set; } = 10;
 }

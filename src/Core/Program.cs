@@ -40,6 +40,8 @@ public static class Program
         const string telemetryLevelArg = "--telemetry-level";
         const string pluginDirArg = "--plugin-dir";
         const string smokeArg = "--smoke";
+        const string inGameUiArg = "--ingame-ui";
+        const string inGameUiIntervalArg = "--ingame-ui-interval";
         var runtime = new RuntimeOptions();
 
         for (var i = 0; i < args.Length; i++)
@@ -49,11 +51,18 @@ public static class Program
             var matchedTelemetryInterval = false;
             var matchedTelemetryLevel = false;
             var matchedPluginDir = false;
+            var matchedInGameUiInterval = false;
             var interval = 0;
 
             if (argument.Equals(smokeArg, StringComparison.OrdinalIgnoreCase))
             {
                 runtime.SmokeMode = true;
+                continue;
+            }
+            else if (argument.Equals(inGameUiArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.EnableInGameOverlay = true;
+                logger.LogInformation("In-game overlay enabled.");
                 continue;
             }
 
@@ -105,18 +114,31 @@ public static class Program
                 value = argument[(pluginDirArg.Length + 1)..];
                 matchedPluginDir = true;
             }
+            else if (argument.Equals(inGameUiIntervalArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default interval {Interval}.", inGameUiIntervalArg, options.InGameOverlayEveryTicks);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedInGameUiInterval = true;
+            }
+            else if (argument.StartsWith(inGameUiIntervalArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(inGameUiIntervalArg.Length + 1)..];
+                matchedInGameUiInterval = true;
+            }
 
             if (value == null)
             {
                 continue;
             }
 
-            if (matchedTelemetryInterval && !int.TryParse(value, out interval))
+            if ((matchedTelemetryInterval || matchedInGameUiInterval) && !int.TryParse(value, out interval))
             {
-                logger.LogWarning(
-                    "Invalid telemetry interval '{Value}'. Keeping default interval {Interval}.",
-                    value,
-                    options.SnapshotTelemetryEveryTicks);
+                logger.LogWarning("Invalid interval '{Value}'.", value);
                 continue;
             }
 
@@ -153,6 +175,16 @@ public static class Program
             {
                 runtime.PluginDirectoryOverride = value;
                 logger.LogInformation("Plugin directory override set to: {PluginDirectory}", value);
+            }
+
+            if (matchedInGameUiInterval)
+            {
+                options.EnableInGameOverlay = interval > 0;
+                options.InGameOverlayEveryTicks = Math.Max(1, interval);
+                logger.LogInformation(
+                    "In-game overlay interval set to every {Interval} ticks (enabled={Enabled}).",
+                    options.InGameOverlayEveryTicks,
+                    options.EnableInGameOverlay);
             }
         }
 
