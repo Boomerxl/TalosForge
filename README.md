@@ -1,21 +1,19 @@
 # TalosForge
 
-A modular, memory-based automation framework for World of Warcraft 3.3.5a (private servers only).
+TalosForge is a modular WoW 3.3.5a automation framework for private-server research workflows.
 
-## Features (Planned)
-- Object Manager (unit scanning via memory)
-- Overlay Drawing (shapes/textures via SharpDX)
-- Event Manager (combat, loot, etc.)
-- Advanced Navigation (TrinityCore MMaps + A* pathfinding)
-- Memory Read/Write (BlackMagic)
-- Plugin System (C# DLLs for combat rotations, professions, gathering, questing)
-- Human-like behaviors (smooth facing, camera drag)
-- Debugger GUI & testing tools
+## Current runtime
+- .NET 8 console solution (`TalosForge.sln`)
+- External memory access via Kernel32 P/Invoke (`OpenProcess`, `ReadProcessMemory`, `CloseHandle`)
+- WoW attach baseline with 32-bit process guard
+- Core contracts for ObjectManager, cache, event bus, bot engine, unlocker IPC, and plugins
 
-**Disclaimer**: Ad usum servi educationalem/privatum tantum. Non ad servi officiales Blizzard.
+## Planned systems
+- Object manager world snapshots
+- TTL cache and state-diff events
+- Adaptive bot loop
+- Shared-memory unlocker transport
+- In-process plugin host and sample routine
+- Navigation/movement integration hooks
 
-## Setup
-- veniens mox...
-
-## Contributing
-Hephaestus
+**Disclaimer**: educational/private-server use only.

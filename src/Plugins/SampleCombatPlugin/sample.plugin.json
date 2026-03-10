@@ -1,0 +1,6 @@
+{
+  "name": "SampleCombatPlugin",
+  "assembly": "SampleCombatPlugin.dll",
+  "type": "SampleCombatPlugin.SampleCombatPlugin",
+  "minimumCoreVersion": "1.0.0"
+}

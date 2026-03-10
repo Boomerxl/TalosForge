@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalosForge.Core", "src\Core\TalosForge.Core.csproj", "{A12E4AB9-2D8A-4E15-9E90-1A96C1D71E01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleCombatPlugin", "src\Plugins\SampleCombatPlugin\SampleCombatPlugin.csproj", "{B3B29277-14B9-4D2E-8844-D1E882A53AF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalosForge.Tests", "tests\TalosForge.Tests\TalosForge.Tests.csproj", "{CEEC4A9A-1257-4D96-8A84-7D189A5EC6E2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A12E4AB9-2D8A-4E15-9E90-1A96C1D71E01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A12E4AB9-2D8A-4E15-9E90-1A96C1D71E01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A12E4AB9-2D8A-4E15-9E90-1A96C1D71E01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A12E4AB9-2D8A-4E15-9E90-1A96C1D71E01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3B29277-14B9-4D2E-8844-D1E882A53AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3B29277-14B9-4D2E-8844-D1E882A53AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3B29277-14B9-4D2E-8844-D1E882A53AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3B29277-14B9-4D2E-8844-D1E882A53AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEEC4A9A-1257-4D96-8A84-7D189A5EC6E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEEC4A9A-1257-4D96-8A84-7D189A5EC6E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEEC4A9A-1257-4D96-8A84-7D189A5EC6E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEEC4A9A-1257-4D96-8A84-7D189A5EC6E2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
