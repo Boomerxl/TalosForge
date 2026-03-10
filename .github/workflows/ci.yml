@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-test-docs:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore TalosForge.sln
+
+      - name: Build
+        run: dotnet build TalosForge.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test TalosForge.sln --configuration Release --no-build
+
+      - name: Verify docs
+        shell: pwsh
+        run: ./scripts/verify-docs.ps1
