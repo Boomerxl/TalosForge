@@ -40,4 +40,29 @@ public sealed class SharedMemoryUnlockerClientTests
         cts.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await pumpTask);
     }
+
+    [Fact]
+    public async Task SendAsync_When_NoAck_Throws_TimeoutException()
+    {
+        var suffix = Guid.NewGuid().ToString("N");
+        var options = new BotOptions
+        {
+            CommandMmfName = $"TalosForge.Cmd.Test.Timeout.{suffix}",
+            EventMmfName = $"TalosForge.Evt.Test.Timeout.{suffix}",
+            RingCapacityBytes = 4096,
+            UnlockerTimeoutMs = 30,
+            UnlockerRetryCount = 0,
+        };
+
+        using var client = new SharedMemoryUnlockerClient(options);
+
+        var command = new UnlockerCommand(
+            CommandId: 43,
+            Opcode: UnlockerOpcode.LuaDoString,
+            PayloadJson: "{\"code\":\"print('timeout')\"}",
+            TimestampUtc: DateTimeOffset.UtcNow);
+
+        await Assert.ThrowsAsync<TimeoutException>(
+            async () => await client.SendAsync(command, CancellationToken.None));
+    }
 }

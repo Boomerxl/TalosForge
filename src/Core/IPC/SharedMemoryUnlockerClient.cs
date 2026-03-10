@@ -58,11 +58,13 @@ public sealed class SharedMemoryUnlockerClient : IUnlockerClient
             return pending;
         }
 
-        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeoutCts.CancelAfter(_options.UnlockerTimeoutMs);
+        var timeoutMs = Math.Max(1, _options.UnlockerTimeoutMs);
+        var deadlineUtc = DateTime.UtcNow.AddMilliseconds(timeoutMs);
 
-        while (!timeoutCts.IsCancellationRequested)
+        while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             while (_eventRing.TryRead(out var ackBytes))
             {
                 var ack = DeserializeAck(ackBytes);
@@ -74,10 +76,13 @@ public sealed class SharedMemoryUnlockerClient : IUnlockerClient
                 _pendingAcks[ack.CommandId] = ack;
             }
 
-            await Task.Delay(5, timeoutCts.Token).ConfigureAwait(false);
-        }
+            if (DateTime.UtcNow >= deadlineUtc)
+            {
+                return null;
+            }
 
-        return null;
+            await Task.Delay(5, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     public static byte[] SerializeCommand(UnlockerCommand command)

@@ -67,6 +67,17 @@ public sealed class BotEngine : IBotEngine
                         .TickAsync(snapshot, events, _unlockerClient, cancellationToken)
                         .ConfigureAwait(false);
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (TimeoutException ex)
+                {
+                    _logger.LogWarning(
+                        "Plugin command dispatch timed out at tick {TickId}: {Message}",
+                        _tickId,
+                        ex.Message);
+                }
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Plugin command dispatch failed at tick {TickId}.", _tickId);
@@ -80,6 +91,17 @@ public sealed class BotEngine : IBotEngine
                     commandsCount += await _inGameOverlayService
                         .TryPublishAsync(_tickId, state, snapshot, commandsCount, cancellationToken)
                         .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (TimeoutException ex)
+                {
+                    _logger.LogDebug(
+                        "In-game overlay publish timed out at tick {TickId}: {Message}",
+                        _tickId,
+                        ex.Message);
                 }
                 catch (Exception ex)
                 {
