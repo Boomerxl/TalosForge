@@ -117,11 +117,15 @@ public static class Program
     private static void ApplyCliOptions(string[] args, BotOptions options, ILogger logger)
     {
         const string telemetryArg = "--telemetry-interval";
+        const string telemetryLevelArg = "--telemetry-level";
 
         for (var i = 0; i < args.Length; i++)
         {
             var argument = args[i];
             string? value = null;
+            var matchedTelemetryInterval = false;
+            var matchedTelemetryLevel = false;
+            var interval = 0;
 
             if (argument.Equals(telemetryArg, StringComparison.OrdinalIgnoreCase))
             {
@@ -132,10 +136,28 @@ public static class Program
                 }
 
                 value = args[++i];
+                matchedTelemetryInterval = true;
             }
             else if (argument.StartsWith(telemetryArg + "=", StringComparison.OrdinalIgnoreCase))
             {
                 value = argument[(telemetryArg.Length + 1)..];
+                matchedTelemetryInterval = true;
+            }
+            else if (argument.Equals(telemetryLevelArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default level {Level}.", telemetryLevelArg, options.TelemetryLevel);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedTelemetryLevel = true;
+            }
+            else if (argument.StartsWith(telemetryLevelArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(telemetryLevelArg.Length + 1)..];
+                matchedTelemetryLevel = true;
             }
 
             if (value == null)
@@ -143,7 +165,7 @@ public static class Program
                 continue;
             }
 
-            if (!int.TryParse(value, out var interval))
+            if (matchedTelemetryInterval && !int.TryParse(value, out interval))
             {
                 logger.LogWarning(
                     "Invalid telemetry interval '{Value}'. Keeping default interval {Interval}.",
@@ -152,16 +174,58 @@ public static class Program
                 continue;
             }
 
-            if (interval <= 0)
+            if (matchedTelemetryInterval && interval <= 0)
             {
                 options.EnableSnapshotTelemetry = false;
                 logger.LogInformation("Snapshot telemetry disabled via {Argument} {Value}.", telemetryArg, interval);
                 continue;
             }
 
-            options.SnapshotTelemetryEveryTicks = interval;
-            options.EnableSnapshotTelemetry = true;
-            logger.LogInformation("Snapshot telemetry interval set to every {Interval} ticks.", interval);
+            if (matchedTelemetryInterval)
+            {
+                options.SnapshotTelemetryEveryTicks = interval;
+                options.EnableSnapshotTelemetry = true;
+                logger.LogInformation("Snapshot telemetry interval set to every {Interval} ticks.", interval);
+            }
+
+            if (matchedTelemetryLevel)
+            {
+                if (!TryParseTelemetryLevel(value, out var level))
+                {
+                    logger.LogWarning(
+                        "Invalid telemetry level '{Value}'. Use one of: minimal, normal, debug. Keeping {Level}.",
+                        value,
+                        options.TelemetryLevel);
+                    continue;
+                }
+
+                options.TelemetryLevel = level;
+                logger.LogInformation("Telemetry level set to {Level}.", options.TelemetryLevel);
+            }
         }
+    }
+
+    private static bool TryParseTelemetryLevel(string value, out TelemetryLevel level)
+    {
+        if (value.Equals("minimal", StringComparison.OrdinalIgnoreCase))
+        {
+            level = TelemetryLevel.Minimal;
+            return true;
+        }
+
+        if (value.Equals("normal", StringComparison.OrdinalIgnoreCase))
+        {
+            level = TelemetryLevel.Normal;
+            return true;
+        }
+
+        if (value.Equals("debug", StringComparison.OrdinalIgnoreCase))
+        {
+            level = TelemetryLevel.Debug;
+            return true;
+        }
+
+        level = TelemetryLevel.Normal;
+        return false;
     }
 }

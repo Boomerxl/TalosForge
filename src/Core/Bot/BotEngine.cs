@@ -92,6 +92,11 @@ public sealed class BotEngine : IBotEngine
                     FormatGuid(snapshot.Player?.Guid),
                     FormatGuid(snapshot.Player?.TargetGuid),
                     snapshot.ErrorMessage ?? "none");
+
+                if (_options.TelemetryLevel == TelemetryLevel.Debug)
+                {
+                    EmitDebugSnapshotDetails(snapshot);
+                }
             }
 
             if (tickMs > _options.WatchdogTimeoutMs)
@@ -132,6 +137,11 @@ public sealed class BotEngine : IBotEngine
 
     private bool ShouldEmitSnapshotTelemetry(WorldSnapshot snapshot)
     {
+        if (_options.TelemetryLevel == TelemetryLevel.Minimal)
+        {
+            return false;
+        }
+
         if (!_options.EnableSnapshotTelemetry)
         {
             return false;
@@ -148,6 +158,32 @@ public sealed class BotEngine : IBotEngine
         }
 
         return _tickId % _options.SnapshotTelemetryEveryTicks == 0;
+    }
+
+    private void EmitDebugSnapshotDetails(WorldSnapshot snapshot)
+    {
+        if (!snapshot.Success)
+        {
+            _logger.LogWarning(
+                "snapshot-debug tick={TickId} failed reason={Error}",
+                snapshot.TickId,
+                snapshot.ErrorMessage ?? "unknown");
+            return;
+        }
+
+        var previewCount = Math.Max(1, _options.DebugObjectPreviewCount);
+        var preview = string.Join(
+            " | ",
+            snapshot.Objects
+                .Take(previewCount)
+                .Select(o =>
+                    $"ptr=0x{o.Pointer.ToInt64():X} type={o.Type} guid=0x{o.Guid:X16} pos=({o.Position.X:F1},{o.Position.Y:F1},{o.Position.Z:F1})"));
+
+        _logger.LogInformation(
+            "snapshot-debug tick={TickId} preview_count={PreviewCount} preview={Preview}",
+            snapshot.TickId,
+            Math.Min(previewCount, snapshot.Objects.Count),
+            string.IsNullOrWhiteSpace(preview) ? "none" : preview);
     }
 
     private static string FormatGuid(ulong? guid)

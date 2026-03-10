@@ -18,4 +18,6 @@ public sealed class BotOptions
     public int UnlockerRetryCount { get; set; } = 2;
     public int SnapshotTelemetryEveryTicks { get; set; } = 10;
     public bool EnableSnapshotTelemetry { get; set; } = true;
+    public TelemetryLevel TelemetryLevel { get; set; } = TelemetryLevel.Normal;
+    public int DebugObjectPreviewCount { get; set; } = 5;
 }
