@@ -27,6 +27,7 @@ public static class Program
         });
 
         var logger = loggerFactory.CreateLogger("TalosForge");
+        ApplyCliOptions(args, options, logger);
 
         logger.LogInformation("TalosForge initializing... Custodem finge!");
 
@@ -110,6 +111,57 @@ public static class Program
         catch (Exception ex)
         {
             logger.LogError(ex, "Attach failed");
+        }
+    }
+
+    private static void ApplyCliOptions(string[] args, BotOptions options, ILogger logger)
+    {
+        const string telemetryArg = "--telemetry-interval";
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            var argument = args[i];
+            string? value = null;
+
+            if (argument.Equals(telemetryArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default interval {Interval}.", telemetryArg, options.SnapshotTelemetryEveryTicks);
+                    continue;
+                }
+
+                value = args[++i];
+            }
+            else if (argument.StartsWith(telemetryArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(telemetryArg.Length + 1)..];
+            }
+
+            if (value == null)
+            {
+                continue;
+            }
+
+            if (!int.TryParse(value, out var interval))
+            {
+                logger.LogWarning(
+                    "Invalid telemetry interval '{Value}'. Keeping default interval {Interval}.",
+                    value,
+                    options.SnapshotTelemetryEveryTicks);
+                continue;
+            }
+
+            if (interval <= 0)
+            {
+                options.EnableSnapshotTelemetry = false;
+                logger.LogInformation("Snapshot telemetry disabled via {Argument} {Value}.", telemetryArg, interval);
+                continue;
+            }
+
+            options.SnapshotTelemetryEveryTicks = interval;
+            options.EnableSnapshotTelemetry = true;
+            logger.LogInformation("Snapshot telemetry interval set to every {Interval} ticks.", interval);
         }
     }
 }
