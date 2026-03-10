@@ -19,3 +19,10 @@ Use `scripts/clean.ps1` to remove build artifacts (`bin/`, `obj/`, `TestResults/
   - `minimal`: tick metrics only
   - `normal`: tick metrics + periodic snapshot summary
   - `debug`: normal + object preview and detailed snapshot failure reason
+- `--plugin-dir PATH`: override plugin discovery path.
+
+Default plugin discovery order:
+1. `<app>/plugins` when manifests exist
+2. `src/Plugins/SampleCombatPlugin/bin/Debug/net8.0` when available
+3. `src/Plugins/SampleCombatPlugin/bin/Release/net8.0` when available
+4. fallback/create `<app>/plugins`

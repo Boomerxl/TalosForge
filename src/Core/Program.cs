@@ -27,7 +27,7 @@ public static class Program
         });
 
         var logger = loggerFactory.CreateLogger("TalosForge");
-        ApplyCliOptions(args, options, logger);
+        var runOptions = ApplyCliOptions(args, options, logger);
 
         logger.LogInformation("TalosForge initializing... Custodem finge!");
 
@@ -62,9 +62,17 @@ public static class Program
             using var unlockerClient = new SharedMemoryUnlockerClient(options);
             using var mockUnlocker = new MockUnlockerEndpoint(options);
 
-            var pluginDirectory = Path.Combine(AppContext.BaseDirectory, "plugins");
+            var pluginDirectory = ResolvePluginDirectory(runOptions.PluginDirectoryOverride, logger);
             using var pluginHost = new PluginHost(pluginDirectory, loggerFactory.CreateLogger<PluginHost>());
             pluginHost.LoadPlugins();
+            logger.LogInformation(
+                "Plugin host initialized. directory={PluginDirectory} loaded={PluginCount}",
+                pluginDirectory,
+                pluginHost.LoadedPluginNames.Count);
+            if (pluginHost.LoadedPluginNames.Count > 0)
+            {
+                logger.LogInformation("Loaded plugins: {Plugins}", string.Join(", ", pluginHost.LoadedPluginNames));
+            }
 
             var botEngine = new BotEngine(
                 objectManager,
@@ -75,7 +83,7 @@ public static class Program
                 pluginHost);
 
             using var cts = new CancellationTokenSource();
-            if (args.Contains("--smoke", StringComparer.OrdinalIgnoreCase))
+            if (runOptions.SmokeMode)
             {
                 cts.CancelAfter(TimeSpan.FromSeconds(2));
             }
@@ -114,10 +122,13 @@ public static class Program
         }
     }
 
-    private static void ApplyCliOptions(string[] args, BotOptions options, ILogger logger)
+    private static RuntimeOptions ApplyCliOptions(string[] args, BotOptions options, ILogger logger)
     {
         const string telemetryArg = "--telemetry-interval";
         const string telemetryLevelArg = "--telemetry-level";
+        const string pluginDirArg = "--plugin-dir";
+        const string smokeArg = "--smoke";
+        var runtime = new RuntimeOptions();
 
         for (var i = 0; i < args.Length; i++)
         {
@@ -125,7 +136,14 @@ public static class Program
             string? value = null;
             var matchedTelemetryInterval = false;
             var matchedTelemetryLevel = false;
+            var matchedPluginDir = false;
             var interval = 0;
+
+            if (argument.Equals(smokeArg, StringComparison.OrdinalIgnoreCase))
+            {
+                runtime.SmokeMode = true;
+                continue;
+            }
 
             if (argument.Equals(telemetryArg, StringComparison.OrdinalIgnoreCase))
             {
@@ -158,6 +176,22 @@ public static class Program
             {
                 value = argument[(telemetryLevelArg.Length + 1)..];
                 matchedTelemetryLevel = true;
+            }
+            else if (argument.Equals(pluginDirArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Ignoring plugin override.", pluginDirArg);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedPluginDir = true;
+            }
+            else if (argument.StartsWith(pluginDirArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(pluginDirArg.Length + 1)..];
+                matchedPluginDir = true;
             }
 
             if (value == null)
@@ -202,7 +236,77 @@ public static class Program
                 options.TelemetryLevel = level;
                 logger.LogInformation("Telemetry level set to {Level}.", options.TelemetryLevel);
             }
+
+            if (matchedPluginDir)
+            {
+                runtime.PluginDirectoryOverride = value;
+                logger.LogInformation("Plugin directory override set to: {PluginDirectory}", value);
+            }
         }
+
+        return runtime;
+    }
+
+    private static string ResolvePluginDirectory(string? overrideDirectory, ILogger logger)
+    {
+        if (!string.IsNullOrWhiteSpace(overrideDirectory))
+        {
+            var fullOverride = Path.GetFullPath(overrideDirectory);
+            if (Directory.Exists(fullOverride))
+            {
+                return fullOverride;
+            }
+
+            logger.LogWarning("Plugin override directory not found: {PluginDirectory}", fullOverride);
+        }
+
+        var runtimePlugins = Path.Combine(AppContext.BaseDirectory, "plugins");
+        if (ContainsPluginManifest(runtimePlugins))
+        {
+            return runtimePlugins;
+        }
+
+        var repoRoot = FindRepositoryRoot(AppContext.BaseDirectory);
+        if (!string.IsNullOrWhiteSpace(repoRoot))
+        {
+            var sampleDebug = Path.Combine(repoRoot, "src", "Plugins", "SampleCombatPlugin", "bin", "Debug", "net8.0");
+            if (ContainsPluginManifest(sampleDebug))
+            {
+                return sampleDebug;
+            }
+
+            var sampleRelease = Path.Combine(repoRoot, "src", "Plugins", "SampleCombatPlugin", "bin", "Release", "net8.0");
+            if (ContainsPluginManifest(sampleRelease))
+            {
+                return sampleRelease;
+            }
+        }
+
+        Directory.CreateDirectory(runtimePlugins);
+        return runtimePlugins;
+    }
+
+    private static bool ContainsPluginManifest(string directory)
+    {
+        return Directory.Exists(directory) &&
+               Directory.EnumerateFiles(directory, "*.plugin.json", SearchOption.AllDirectories).Any();
+    }
+
+    private static string? FindRepositoryRoot(string startDirectory)
+    {
+        var current = new DirectoryInfo(startDirectory);
+        while (current != null)
+        {
+            var solutionPath = Path.Combine(current.FullName, "TalosForge.sln");
+            if (File.Exists(solutionPath))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        return null;
     }
 
     private static bool TryParseTelemetryLevel(string value, out TelemetryLevel level)
@@ -227,5 +331,11 @@ public static class Program
 
         level = TelemetryLevel.Normal;
         return false;
+    }
+
+    private sealed class RuntimeOptions
+    {
+        public bool SmokeMode { get; set; }
+        public string? PluginDirectoryOverride { get; set; }
     }
 }
