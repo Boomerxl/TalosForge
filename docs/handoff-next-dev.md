@@ -57,7 +57,82 @@ Status: Kickoff done (interfaces/stubs).
 - Core and UnlockerHost run as separate processes with ACK flow.
 - Unlocker health telemetry and heartbeat status are surfaced to runtime/UI.
 
-## 4) Quick Runbook
+## 4) Recent Implementation Details (Last Sprint)
+
+### 4.1 IPC hardening and timeout cleanup
+- `src/Core/IPC/SharedMemoryUnlockerClient.cs`
+  - Timeout path now returns cleanly to `SendAsync` and throws `TimeoutException` (no `TaskCanceledException` stack-spam).
+  - Added transport metrics counters:
+    - `sends`, `acks`, `timeouts`, `consecutiveTimeouts`, `backoffWaits`, `lastBackoffMs`
+  - Added adaptive backoff before send attempts:
+    - configurable base/max via `BotOptions` (`UnlockerBackoffBaseMs`, `UnlockerBackoffMaxMs`).
+
+### 4.2 UnlockerHost standalone endpoint
+- Added project: `src/UnlockerHost/TalosForge.UnlockerHost.csproj`
+- Added service: `src/UnlockerHost/Host/UnlockerHostService.cs`
+  - reads command ring frames
+  - decodes `UnlockerCommand`
+  - executes via `ICommandExecutor` (`mock`/`null`)
+  - writes correlated `UnlockerAck` frames
+- Added status heartbeat file writer in host:
+  - default path `%TEMP%/TalosForge.UnlockerHost.status.json`
+  - configurable with `--status-file` and `--status-interval-ms`
+
+### 4.3 Core runtime unlocker health aggregation
+- Added:
+  - `src/Core/Models/UnlockerHealthModels.cs`
+  - `src/Core/Abstractions/IUnlockerTelemetrySource.cs`
+  - `src/Core/IPC/UnlockerStatusFileMonitor.cs`
+- `BotRuntimeHost` now builds a combined unlocker health snapshot:
+  - inputs: client transport metrics + host heartbeat freshness
+  - state output: `Connected | Degraded | Disconnected | Unknown`
+
+### 4.4 Desktop UI connection status polish
+- `src/UI/TalosForge.UI/MainForm.cs`
+  - Added large, prominent unlocker badge next to Start/Stop.
+  - Badge and metric row now both reflect connection state + color.
+  - Tooltip shows current unlocker summary.
+
+### 4.5 Tests added/updated
+- `tests/TalosForge.Tests/IPC/SharedMemoryUnlockerClientTests.cs`
+  - added backoff/timeout metrics test
+- `tests/TalosForge.Tests/IPC/UnlockerHostIntegrationTests.cs`
+  - added status file write/read integration test
+- Full solution test baseline currently: **28 passing tests**.
+
+## 5) Handoff Checklist (Do This First)
+1. Confirm you are on latest main:
+   - `git -C C:/Utilities/TalosForge pull origin main`
+2. Confirm baseline commit (handoff point):
+   - `d23e686` docs handoff
+   - latest feature chain includes `38f3e5a` and `3e326b6`
+3. Build and test:
+   - `dotnet build C:/Utilities/TalosForge/TalosForge.sln -c Release`
+   - `dotnet test  C:/Utilities/TalosForge/TalosForge.sln -c Release`
+4. Run two-process smoke:
+   - Host: `dotnet run --project C:/Utilities/TalosForge/src/UnlockerHost/TalosForge.UnlockerHost.csproj -c Release -- --executor mock`
+   - Core: `dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c Release -- --real-unlocker --ingame-ui --ingame-ui-interval 1`
+5. Validate expected behavior:
+   - Core ticks remain stable (often ~20-40ms in idle cases).
+   - no repeated unlocker timeout warnings while host is running.
+   - host logs show `commands_read` and `acks_written` increasing.
+   - UI unlocker badge shows `Connected`.
+6. If anything fails, run triage below before coding new features.
+
+## 6) Triage (If Broken)
+1. No ACKs / timeouts:
+   - ensure host and core ring names match (`TalosForge.Cmd.v1`, `TalosForge.Evt.v1`).
+   - check no stale process is holding rings/mutexes.
+2. UI shows Degraded/Disconnected:
+   - verify host status file exists and updates:
+     - `%TEMP%/TalosForge.UnlockerHost.status.json`
+   - verify Core is running with `--real-unlocker` when using external host.
+3. Build/test issues with file locks:
+   - rerun tests with `--no-build` after a successful build.
+4. CA1416 warnings:
+   - expected for memory-mapped file API on non-Windows target analysis.
+
+## 7) Quick Runbook
 
 ### Build + tests
 ```powershell
@@ -80,7 +155,7 @@ dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c 
 dotnet run --project C:/Utilities/TalosForge/src/UI/TalosForge.UI/TalosForge.UI.csproj -c Release
 ```
 
-## 5) Key Files to Read First
+## 8) Key Files to Read First
 1. `src/Core/Runtime/BotRuntimeHost.cs`
 2. `src/Core/Bot/BotEngine.cs`
 3. `src/Core/ObjectManager/ObjectManagerService.cs`
@@ -89,19 +164,29 @@ dotnet run --project C:/Utilities/TalosForge/src/UI/TalosForge.UI/TalosForge.UI.
 6. `src/UI/TalosForge.UI/MainForm.cs`
 7. `docs/ipc-contract.md`, `docs/unlocker-host.md`, `docs/architecture.md`
 
-## 6) Known Constraints / Notes
+## 9) Decision Log
+| Decision | Why | Alternatives Rejected | Revisit Trigger |
+|---|---|---|---|
+| Shared-memory ring transport for v1 | Fast local IPC, simple framing, deterministic tests | sockets/named pipes for initial phase | Need cross-machine/distributed execution |
+| Separate `UnlockerHost` process | Clear boundary between bot logic and command execution endpoint | keep endpoint in-process in Core | Need isolation/security/process resilience improvements |
+| Timeout => `TimeoutException` with no stack spam | Keep loop stable and logs actionable | bubbling `TaskCanceledException` stack traces | Need per-command detailed error diagnostics channel |
+| Add client backoff after consecutive timeouts | Reduce pressure/log churn when endpoint unavailable | fixed retry only | If latency-sensitive commands regress under transient packet loss |
+| Status heartbeat file for health | Easy integration for UI/runtime without extra protocol | dedicated health opcode/channel only | Need richer health telemetry stream |
+| Prominent UI status badge | Quick operator clarity while running | metrics-row only status | If UI gets redesign with dedicated diagnostics pane |
+
+## 10) Known Constraints / Notes
 - Shared memory transport is Windows-only by design (`CA1416` warnings are expected).
 - `UnlockerHost` currently uses `mock` / `null` executor modes only.
 - No production command backend adapter yet; current endpoint validates contract and reliability.
 
-## 7) Next Priorities (Recommended Order)
+## 11) Next Priorities (Recommended Order)
 1. Implement `AdapterCommandExecutor` contract in `UnlockerHost` with strict payload validation and result codes.
 2. Expand descriptor-backed reads in `ObjectManager` (health/combat/cast/auras) and map into `PlayerSnapshot`.
 3. Add runtime/UI diagnostics panel for unlocker metrics (timeouts, backoff_ms, heartbeat age).
 4. Improve movement opcodes semantics (`Stop` should get explicit opcode/contract, not overload).
 5. Start navigation service real implementation behind existing interfaces.
 
-## 8) Resource Pack
+## 12) Resource Pack
 - Repository: https://github.com/Boomerxl/TalosForge
 - Binana: https://github.com/thunderbrewhq/binana
 - IceFlake reference: https://github.com/miceiken/IceFlake
@@ -111,7 +196,7 @@ dotnet run --project C:/Utilities/TalosForge/src/UI/TalosForge.UI/TalosForge.UI.
 Local Binana clone used during implementation:
 - `C:/Utilities/_refs/binana`
 
-## 9) Copy-Paste Prompt for Next Dev AI
+## 13) Copy-Paste Prompt for Next Dev AI
 ```text
 You are working in C:/Utilities/TalosForge on branch main.
 
