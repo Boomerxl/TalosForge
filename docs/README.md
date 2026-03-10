@@ -22,6 +22,8 @@ Use `scripts/clean.ps1` to remove build artifacts (`bin/`, `obj/`, `TestResults/
 - `--plugin-dir PATH`: override plugin discovery path.
 - `--ingame-ui`: enable lightweight in-game status overlay (via unlocker Lua command).
 - `--ingame-ui-interval N`: overlay update every `N` ticks.
+- `--real-unlocker`: disable mock endpoint and use external unlocker IPC.
+- `--use-mock-unlocker`: force mock endpoint (default for console runs).
 
 Default plugin discovery order:
 1. `<app>/plugins` when manifests exist
@@ -38,6 +40,12 @@ Default plugin discovery order:
   - Start/Stop runtime loop
   - Telemetry level + interval controls
   - In-game UI toggle + interval controls
+  - Mock/real unlocker mode toggle
   - Optional plugin directory override
   - Live metrics panel (status, tick, objects, target, commands)
   - Live runtime log output
+
+In-game overlay visibility requires:
+1. `In-game UI` enabled
+2. `Use Mock Unlocker` disabled
+3. external unlocker service actively consuming `TalosForge.Cmd.v1` and executing Lua

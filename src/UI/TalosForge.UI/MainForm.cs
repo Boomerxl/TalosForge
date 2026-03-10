@@ -14,6 +14,8 @@ public sealed class MainForm : Form
     private readonly NumericUpDown _telemetryIntervalInput;
     private readonly CheckBox _inGameOverlayCheck;
     private readonly NumericUpDown _inGameOverlayIntervalInput;
+    private readonly CheckBox _useMockUnlockerCheck;
+
     private readonly Label _statusValue;
     private readonly Label _tickValue;
     private readonly Label _objectsValue;
@@ -27,8 +29,9 @@ public sealed class MainForm : Form
     public MainForm()
     {
         Text = "TalosForge Control";
-        Width = 1100;
+        Width = 1120;
         Height = 760;
+        MinimumSize = new Size(900, 620);
         StartPosition = FormStartPosition.CenterScreen;
 
         var root = new TableLayoutPanel
@@ -38,90 +41,83 @@ public sealed class MainForm : Form
             RowCount = 4,
             Padding = new Padding(10),
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 82));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 110));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 122));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        var topControls = new TableLayoutPanel
+        var topControls = new FlowLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 12,
+            AutoScroll = true,
+            WrapContents = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            Padding = new Padding(2),
         };
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
-        topControls.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        _startButton = new Button { Text = "Start", Dock = DockStyle.Fill };
-        _stopButton = new Button { Text = "Stop", Dock = DockStyle.Fill, Enabled = false };
-
+        _startButton = new Button { Text = "Start", Size = new Size(90, 34) };
+        _stopButton = new Button { Text = "Stop", Size = new Size(90, 34), Enabled = false };
         _startButton.Click += StartButton_Click;
         _stopButton.Click += StopButton_Click;
 
         _telemetryLevelCombo = new ComboBox
         {
-            Dock = DockStyle.Fill,
             DropDownStyle = ComboBoxStyle.DropDownList,
+            Width = 120,
         };
         _telemetryLevelCombo.Items.AddRange(new object[] { "minimal", "normal", "debug" });
         _telemetryLevelCombo.SelectedItem = "normal";
 
         _telemetryIntervalInput = new NumericUpDown
         {
-            Dock = DockStyle.Fill,
             Minimum = 0,
             Maximum = 500,
             Value = 10,
-        };
-
-        _pluginDirText = new TextBox
-        {
-            Dock = DockStyle.Fill,
-            PlaceholderText = "Optional --plugin-dir override",
+            Width = 90,
         };
 
         _inGameOverlayCheck = new CheckBox
         {
-            Dock = DockStyle.Fill,
+            Text = "Enabled",
+            AutoSize = true,
             Checked = false,
-            Text = "Enable",
-            TextAlign = ContentAlignment.MiddleLeft,
         };
 
         _inGameOverlayIntervalInput = new NumericUpDown
         {
-            Dock = DockStyle.Fill,
             Minimum = 1,
             Maximum = 500,
             Value = 10,
+            Width = 90,
         };
 
-        topControls.Controls.Add(_startButton, 0, 0);
-        topControls.Controls.Add(_stopButton, 1, 0);
-        topControls.Controls.Add(new Label { Text = "Telemetry Level", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 2, 0);
-        topControls.Controls.Add(_telemetryLevelCombo, 3, 0);
-        topControls.Controls.Add(new Label { Text = "Telemetry Interval", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 4, 0);
-        topControls.Controls.Add(_telemetryIntervalInput, 5, 0);
-        topControls.Controls.Add(new Label { Text = "In-game UI", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 6, 0);
-        topControls.Controls.Add(_inGameOverlayCheck, 7, 0);
-        topControls.Controls.Add(new Label { Text = "Overlay Interval", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 8, 0);
-        topControls.Controls.Add(_inGameOverlayIntervalInput, 9, 0);
-        topControls.Controls.Add(new Label { Text = "Plugin Dir", TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 10, 0);
-        topControls.Controls.Add(_pluginDirText, 11, 0);
+        _useMockUnlockerCheck = new CheckBox
+        {
+            Text = "Use Mock Unlocker",
+            AutoSize = true,
+            Checked = false,
+        };
+
+        _pluginDirText = new TextBox
+        {
+            Width = 320,
+            PlaceholderText = "Optional plugin directory override",
+        };
+
+        topControls.Controls.Add(_startButton);
+        topControls.Controls.Add(_stopButton);
+        topControls.Controls.Add(MakeInlineGroup("Telemetry Level", _telemetryLevelCombo));
+        topControls.Controls.Add(MakeInlineGroup("Telemetry Interval", _telemetryIntervalInput));
+        topControls.Controls.Add(MakeInlineGroup("In-game UI", _inGameOverlayCheck));
+        topControls.Controls.Add(MakeInlineGroup("Overlay Interval", _inGameOverlayIntervalInput));
+        topControls.Controls.Add(_useMockUnlockerCheck);
+        topControls.Controls.Add(MakeInlineGroup("Plugin Dir", _pluginDirText));
 
         var metrics = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 10,
+            Padding = new Padding(4, 0, 4, 0),
         };
         for (var i = 0; i < 10; i++)
         {
@@ -201,6 +197,7 @@ public sealed class MainForm : Form
         {
             PluginDirectoryOverride = string.IsNullOrWhiteSpace(_pluginDirText.Text) ? null : _pluginDirText.Text.Trim(),
             SmokeMode = false,
+            UseMockUnlocker = _useMockUnlockerCheck.Checked,
         };
 
         _runCts = new CancellationTokenSource();
@@ -208,6 +205,9 @@ public sealed class MainForm : Form
 
         SetRunningState(true);
         AppendLogSafe("Starting runtime host...");
+        AppendLogSafe(runtime.UseMockUnlocker
+            ? "Mode: Mock unlocker (in-game effects simulated)."
+            : "Mode: Real unlocker (external endpoint required for in-game effects).");
 
         _runTask = Task.Run(async () => await host.RunAsync(_runCts.Token).ConfigureAwait(false));
         _ = _runTask.ContinueWith(_ =>
@@ -309,5 +309,27 @@ public sealed class MainForm : Form
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,
         };
+    }
+
+    private static Panel MakeInlineGroup(string label, Control control)
+    {
+        var panel = new FlowLayoutPanel
+        {
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            Margin = new Padding(8, 6, 8, 6),
+        };
+
+        panel.Controls.Add(new Label
+        {
+            Text = label,
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleLeft,
+            Margin = new Padding(0, 8, 6, 0),
+        });
+        panel.Controls.Add(control);
+        return panel;
     }
 }

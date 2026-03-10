@@ -82,7 +82,17 @@ public sealed class BotRuntimeHost
             cache.Set("boot.playerGuid", 0UL, CachePolicy.LongLived);
 
             using var unlockerClient = new SharedMemoryUnlockerClient(_options);
-            using var mockUnlocker = new MockUnlockerEndpoint(_options);
+            using MockUnlockerEndpoint? mockUnlocker = _runtimeOptions.UseMockUnlocker
+                ? new MockUnlockerEndpoint(_options)
+                : null;
+            if (mockUnlocker != null)
+            {
+                logger.LogInformation("Using mock unlocker endpoint (in-game actions are simulated).");
+            }
+            else
+            {
+                logger.LogInformation("Using external unlocker endpoint (real in-game actions expected).");
+            }
 
             var pluginDirectory = ResolvePluginDirectory(_runtimeOptions.PluginDirectoryOverride, logger);
             using var pluginHost = new PluginHost(pluginDirectory, loggerFactory.CreateLogger<PluginHost>());
@@ -118,16 +128,20 @@ public sealed class BotRuntimeHost
 
             var token = runCts.Token;
 
-            var mockTask = Task.Run(async () =>
+            Task? mockTask = null;
+            if (mockUnlocker != null)
             {
-                try
+                mockTask = Task.Run(async () =>
                 {
-                    await mockUnlocker.RunAsync(token).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }, token);
+                    try
+                    {
+                        await mockUnlocker.RunAsync(token).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                }, token);
+            }
 
             try
             {
@@ -138,7 +152,10 @@ public sealed class BotRuntimeHost
                 logger.LogInformation("Bot engine stopped.");
             }
 
-            await mockTask.ConfigureAwait(false);
+            if (mockTask != null)
+            {
+                await mockTask.ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {

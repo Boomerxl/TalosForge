@@ -42,6 +42,8 @@ public static class Program
         const string smokeArg = "--smoke";
         const string inGameUiArg = "--ingame-ui";
         const string inGameUiIntervalArg = "--ingame-ui-interval";
+        const string realUnlockerArg = "--real-unlocker";
+        const string mockUnlockerArg = "--use-mock-unlocker";
         var runtime = new RuntimeOptions();
 
         for (var i = 0; i < args.Length; i++)
@@ -57,6 +59,18 @@ public static class Program
             if (argument.Equals(smokeArg, StringComparison.OrdinalIgnoreCase))
             {
                 runtime.SmokeMode = true;
+                continue;
+            }
+            else if (argument.Equals(realUnlockerArg, StringComparison.OrdinalIgnoreCase))
+            {
+                runtime.UseMockUnlocker = false;
+                logger.LogInformation("Real unlocker mode enabled.");
+                continue;
+            }
+            else if (argument.Equals(mockUnlockerArg, StringComparison.OrdinalIgnoreCase))
+            {
+                runtime.UseMockUnlocker = true;
+                logger.LogInformation("Mock unlocker mode enabled.");
                 continue;
             }
             else if (argument.Equals(inGameUiArg, StringComparison.OrdinalIgnoreCase))

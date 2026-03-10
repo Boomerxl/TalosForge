@@ -61,16 +61,30 @@ public sealed class BotEngine : IBotEngine
 
             if (_pluginHost != null)
             {
-                commandsCount = await _pluginHost
-                    .TickAsync(snapshot, events, _unlockerClient, cancellationToken)
-                    .ConfigureAwait(false);
+                try
+                {
+                    commandsCount = await _pluginHost
+                        .TickAsync(snapshot, events, _unlockerClient, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Plugin command dispatch failed at tick {TickId}.", _tickId);
+                }
             }
 
             if (_inGameOverlayService != null)
             {
-                commandsCount += await _inGameOverlayService
-                    .TryPublishAsync(_tickId, state, snapshot, commandsCount, cancellationToken)
-                    .ConfigureAwait(false);
+                try
+                {
+                    commandsCount += await _inGameOverlayService
+                        .TryPublishAsync(_tickId, state, snapshot, commandsCount, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "In-game overlay publish failed at tick {TickId}.", _tickId);
+                }
             }
 
             tickWatch.Stop();
