@@ -10,6 +10,8 @@ namespace TalosForge.Core.ObjectManager;
 public sealed class ObjectManagerService : IObjectManager
 {
     private const int MaxObjects = 16_384;
+    private const long MinValidPointer = 0x10000;
+    private const long MaxValidPointer = 0x7FFFFFFF;
 
     private readonly IMemoryReader _memoryReader;
     private readonly ILogger<ObjectManagerService> _logger;
@@ -35,20 +37,35 @@ public sealed class ObjectManagerService : IObjectManager
                 return WorldSnapshot.Empty(tickId, "BaseAddress is zero.");
             }
 
-            var clientConnection = _memoryReader.ReadPointer(IntPtr.Add(baseAddress, Offsets.STATIC_CLIENT_CONNECTION));
-            if (clientConnection == IntPtr.Zero)
+            var clientConnection = ResolveStaticPointer(
+                baseAddress,
+                Offsets.STATIC_CLIENT_CONNECTION,
+                "client connection");
+            if (clientConnection == IntPtr.Zero || !IsLikelyPointer(clientConnection))
             {
-                return WorldSnapshot.Empty(tickId, "Client connection pointer is zero.");
+                return WorldSnapshot.Empty(
+                    tickId,
+                    $"Client connection pointer is invalid (0x{clientConnection.ToInt64():X}).");
             }
 
-            var objectManagerPointer = _memoryReader.ReadPointer(IntPtr.Add(clientConnection, Offsets.OBJECT_MANAGER_OFFSET));
-            if (objectManagerPointer == IntPtr.Zero)
+            var objectManagerAddress = IntPtr.Add(clientConnection, Offsets.OBJECT_MANAGER_OFFSET);
+            if (!TryReadPointer(objectManagerAddress, out var objectManagerPointer) || !IsLikelyPointer(objectManagerPointer))
             {
-                return WorldSnapshot.Empty(tickId, "Object manager pointer is zero.");
+                return WorldSnapshot.Empty(
+                    tickId,
+                    $"Object manager pointer is invalid at 0x{objectManagerAddress.ToInt64():X}.");
             }
 
-            var localGuid = _memoryReader.Read<ulong>(IntPtr.Add(objectManagerPointer, Offsets.LOCAL_GUID_OFFSET));
-            var firstObject = _memoryReader.ReadPointer(IntPtr.Add(objectManagerPointer, Offsets.FIRST_OBJECT_OFFSET));
+            if (!TryRead(IntPtr.Add(objectManagerPointer, Offsets.LOCAL_GUID_OFFSET), out ulong localGuid))
+            {
+                return WorldSnapshot.Empty(tickId, "Unable to read local GUID.");
+            }
+
+            if (!TryReadPointer(IntPtr.Add(objectManagerPointer, Offsets.FIRST_OBJECT_OFFSET), out var firstObject))
+            {
+                return WorldSnapshot.Empty(tickId, "Unable to read first object pointer.");
+            }
+
             var targetGuid = ReadOptionalTargetGuid(baseAddress);
 
             var objects = new List<WowObjectSnapshot>(256);
@@ -62,7 +79,10 @@ public sealed class ObjectManagerService : IObjectManager
                     objects.Add(objectSnapshot!);
                 }
 
-                current = _memoryReader.ReadPointer(IntPtr.Add(current, Offsets.NEXT_OBJECT_OFFSET));
+                if (!TryReadPointer(IntPtr.Add(current, Offsets.NEXT_OBJECT_OFFSET), out current))
+                {
+                    break;
+                }
             }
 
             var localObject = objects.FirstOrDefault(o => o.IsLocalPlayer);
@@ -97,15 +117,19 @@ public sealed class ObjectManagerService : IObjectManager
 
     private ulong? ReadOptionalTargetGuid(IntPtr baseAddress)
     {
-        try
+        var absoluteAddress = ToAbsoluteAddress(Offsets.LOCAL_TARGET_GUID_STATIC);
+        if (TryRead(absoluteAddress, out ulong absoluteTarget) && absoluteTarget != 0)
         {
-            var targetGuid = _memoryReader.Read<ulong>(IntPtr.Add(baseAddress, Offsets.LOCAL_TARGET_GUID_STATIC));
-            return targetGuid == 0 ? null : targetGuid;
+            return absoluteTarget;
         }
-        catch
+
+        var baseRelativeAddress = IntPtr.Add(baseAddress, Offsets.LOCAL_TARGET_GUID_STATIC);
+        if (TryRead(baseRelativeAddress, out ulong baseRelativeTarget) && baseRelativeTarget != 0)
         {
-            return null;
+            return baseRelativeTarget;
         }
+
+        return null;
     }
 
     private bool TryReadObject(IntPtr objectPointer, ulong localGuid, ulong? targetGuid, out WowObjectSnapshot? snapshot)
@@ -136,5 +160,72 @@ public sealed class ObjectManagerService : IObjectManager
             _logger.LogDebug(ex, "Skipping unreadable object at {Pointer}", objectPointer);
             return false;
         }
+    }
+
+    private IntPtr ResolveStaticPointer(IntPtr baseAddress, int staticOffset, string label)
+    {
+        // Most 3.3.5a offsets are absolute virtual addresses; keep base-relative fallback.
+        var absoluteAddress = ToAbsoluteAddress(staticOffset);
+        if (TryReadPointer(absoluteAddress, out var absolutePointer))
+        {
+            _logger.LogDebug(
+                "Resolved {Label} from absolute address 0x{Address:X} => 0x{Pointer:X}",
+                label,
+                absoluteAddress.ToInt64(),
+                absolutePointer.ToInt64());
+            return absolutePointer;
+        }
+
+        var baseRelativeAddress = IntPtr.Add(baseAddress, staticOffset);
+        if (TryReadPointer(baseRelativeAddress, out var baseRelativePointer))
+        {
+            _logger.LogDebug(
+                "Resolved {Label} from base-relative address 0x{Address:X} => 0x{Pointer:X}",
+                label,
+                baseRelativeAddress.ToInt64(),
+                baseRelativePointer.ToInt64());
+            return baseRelativePointer;
+        }
+
+        return IntPtr.Zero;
+    }
+
+    private bool TryReadPointer(IntPtr address, out IntPtr pointer)
+    {
+        pointer = IntPtr.Zero;
+        try
+        {
+            pointer = _memoryReader.ReadPointer(address);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private bool TryRead<T>(IntPtr address, out T value) where T : struct
+    {
+        value = default;
+        try
+        {
+            value = _memoryReader.Read<T>(address);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool IsLikelyPointer(IntPtr pointer)
+    {
+        var value = pointer.ToInt64();
+        return value >= MinValidPointer && value <= MaxValidPointer;
+    }
+
+    private static IntPtr ToAbsoluteAddress(int offset)
+    {
+        return new IntPtr(unchecked((int)(uint)offset));
     }
 }
