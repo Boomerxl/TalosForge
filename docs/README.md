@@ -2,6 +2,7 @@
 
 - [Architecture](/docs/architecture.md)
 - [IPC Contract v1](/docs/ipc-contract.md)
+- [Unlocker Host](/docs/unlocker-host.md)
 
 ## Automation
 
@@ -48,4 +49,12 @@ Default plugin discovery order:
 In-game overlay visibility requires:
 1. `In-game UI` enabled
 2. `Use Mock Unlocker` disabled
-3. external unlocker service actively consuming `TalosForge.Cmd.v1` and executing Lua
+3. external unlocker service actively consuming `TalosForge.Cmd.v1` and writing ACKs to `TalosForge.Evt.v1`
+
+## UnlockerHost service
+
+- Project: `src/UnlockerHost/TalosForge.UnlockerHost.csproj`
+- Run (mock executor):
+  - `dotnet run --project C:/Utilities/TalosForge/src/UnlockerHost/TalosForge.UnlockerHost.csproj -c Release -- --executor mock`
+- Run Core against host:
+  - `dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c Release -- --real-unlocker`

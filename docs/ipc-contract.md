@@ -51,3 +51,7 @@ Opcodes:
 - Client uses timeout + retry.
 - Ack correlation is by `CommandId`.
 - Ring header corruption resets indices.
+
+## Reference Endpoint
+
+- `src/UnlockerHost/TalosForge.UnlockerHost.csproj` provides a standalone endpoint implementation for this contract.

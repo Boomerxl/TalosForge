@@ -17,5 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\TalosForge.Core.csproj" />
     <ProjectReference Include="..\..\src\Plugins\SampleCombatPlugin\SampleCombatPlugin.csproj" />
+    <ProjectReference Include="..\..\src\UnlockerHost\TalosForge.UnlockerHost.csproj" />
   </ItemGroup>
 </Project>

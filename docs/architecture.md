@@ -4,6 +4,8 @@
 
 `MemoryReader -> ObjectManager -> Cache -> EventBus -> BotEngine -> UnlockerClient -> PluginHost`
 
+`UnlockerHost (separate process) -> Command Executor -> ACK/Event ring`
+
 ## Components
 
 - `MemoryReader`: external WoW process attach + typed reads.
@@ -12,6 +14,7 @@
 - `EventBus`: diffs snapshots and emits typed events.
 - `BotEngine`: adaptive scheduler (`Combat=35ms`, `Movement=70ms`, `Idle=120ms`, clamped `25-150ms`).
 - `SharedMemoryUnlockerClient`: command/ack transport over ring buffers.
+- `TalosForge.UnlockerHost`: standalone ring endpoint for command execution + ACK publishing.
 - `PluginHost`: in-process plugin execution with sandboxed command queue context.
 
 ## Public Contracts
