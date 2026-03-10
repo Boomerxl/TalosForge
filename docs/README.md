@@ -26,3 +26,15 @@ Default plugin discovery order:
 2. `src/Plugins/SampleCombatPlugin/bin/Debug/net8.0` when available
 3. `src/Plugins/SampleCombatPlugin/bin/Release/net8.0` when available
 4. fallback/create `<app>/plugins`
+
+## Desktop UI (6a)
+
+- Project: `src/UI/TalosForge.UI`
+- Run:
+  - `dotnet run --project C:/Utilities/TalosForge/src/UI/TalosForge.UI/TalosForge.UI.csproj`
+- Features:
+  - Start/Stop runtime loop
+  - Telemetry level + interval controls
+  - Optional plugin directory override
+  - Live metrics panel (status, tick, objects, target, commands)
+  - Live runtime log output

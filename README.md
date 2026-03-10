@@ -7,6 +7,7 @@ TalosForge is a modular WoW 3.3.5a automation framework for private-server resea
 - External memory access via Kernel32 P/Invoke (`OpenProcess`, `ReadProcessMemory`, `CloseHandle`)
 - WoW attach baseline with 32-bit process guard
 - Core contracts for ObjectManager, cache, event bus, bot engine, unlocker IPC, and plugins
+- Desktop control UI (`src/UI/TalosForge.UI`) for start/stop, telemetry, and live metrics
 
 ## Planned systems
 - Object manager world snapshots

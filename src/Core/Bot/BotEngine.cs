@@ -38,6 +38,7 @@ public sealed class BotEngine : IBotEngine
     }
 
     public BotTickMetrics? LastMetrics { get; private set; }
+    public event Action<BotTickMetrics, WorldSnapshot>? TickCompleted;
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -72,6 +73,7 @@ public sealed class BotEngine : IBotEngine
                 events.Count,
                 commandsCount,
                 DateTimeOffset.UtcNow);
+            TickCompleted?.Invoke(LastMetrics, snapshot);
 
             _logger.LogInformation(
                 "tick={TickId} state={State} tick_ms={TickMs} snapshot_ms={SnapshotMs} events_count={EventsCount} commands_count={CommandsCount}",
