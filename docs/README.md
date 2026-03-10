@@ -3,6 +3,7 @@
 - [Architecture](/docs/architecture.md)
 - [IPC Contract v1](/docs/ipc-contract.md)
 - [Unlocker Host](/docs/unlocker-host.md)
+- [Next Dev Handoff](/docs/handoff-next-dev.md)
 
 ## Automation
 
