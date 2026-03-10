@@ -6,7 +6,7 @@ namespace TalosForge.Core
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("TalosForge initializing... Forge the guardian!");
+            Console.WriteLine("TalosForge initializing... Custodem finge!");
         }
     }
 }
