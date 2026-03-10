@@ -66,4 +66,39 @@ public sealed class ObjectManagerTests
         Assert.Empty(snapshot.Objects);
         Assert.NotNull(snapshot.ErrorMessage);
     }
+
+    [Fact]
+    public void GetLocalPlayer_Uses_200ms_Cache_Window()
+    {
+        var reader = new FakeMemoryReader { BaseAddress = new IntPtr(0x400000) };
+        var clientConnection = new IntPtr(0x500000);
+        var objectManager = new IntPtr(0x600000);
+        var objectOne = new IntPtr(0x700000);
+        const ulong localGuid = 0x1111222233334444;
+
+        reader.Set(IntPtr.Add(reader.BaseAddress, Offsets.STATIC_CLIENT_CONNECTION), (uint)clientConnection.ToInt64());
+        reader.Set(IntPtr.Add(clientConnection, Offsets.OBJECT_MANAGER_OFFSET), (uint)objectManager.ToInt64());
+        reader.Set(IntPtr.Add(objectManager, Offsets.LOCAL_GUID_OFFSET), localGuid);
+        reader.Set(IntPtr.Add(objectManager, Offsets.FIRST_OBJECT_OFFSET), (uint)objectOne.ToInt64());
+
+        reader.Set(IntPtr.Add(objectOne, Offsets.OBJECT_GUID), localGuid);
+        reader.Set(IntPtr.Add(objectOne, Offsets.OBJECT_TYPE), (int)WowObjectType.Player);
+        reader.Set(IntPtr.Add(objectOne, Offsets.OBJECT_POS_X), 100f);
+        reader.Set(IntPtr.Add(objectOne, Offsets.OBJECT_POS_Y), 200f);
+        reader.Set(IntPtr.Add(objectOne, Offsets.OBJECT_POS_Z), 300f);
+        reader.Set(IntPtr.Add(objectOne, Offsets.OBJECT_ROTATION), 1.25f);
+        reader.Set(IntPtr.Add(objectOne, Offsets.NEXT_OBJECT_OFFSET), 0u);
+
+        var manager = new ObjectManagerService(reader, NullLogger<ObjectManagerService>.Instance);
+        var firstSnapshot = manager.GetSnapshot(1);
+        Assert.True(firstSnapshot.Success);
+        Assert.NotNull(firstSnapshot.Player);
+
+        // Break the chain; cached local player should still be returned immediately.
+        reader.Set(IntPtr.Add(reader.BaseAddress, Offsets.STATIC_CLIENT_CONNECTION), 0u);
+
+        var cachedPlayer = manager.GetLocalPlayer(2);
+        Assert.NotNull(cachedPlayer);
+        Assert.Equal(localGuid, cachedPlayer!.Guid);
+    }
 }

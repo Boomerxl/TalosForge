@@ -12,9 +12,13 @@ public sealed class ObjectManagerService : IObjectManager
     private const int MaxObjects = 16_384;
     private const long MinValidPointer = 0x10000;
     private const long MaxValidPointer = 0x7FFFFFFF;
+    private static readonly TimeSpan LocalPlayerCacheTtl = TimeSpan.FromMilliseconds(200);
 
     private readonly IMemoryReader _memoryReader;
     private readonly ILogger<ObjectManagerService> _logger;
+    private readonly object _localPlayerLock = new();
+    private PlayerSnapshot? _cachedLocalPlayer;
+    private DateTimeOffset _cachedLocalPlayerExpiresUtc = DateTimeOffset.MinValue;
 
     public ObjectManagerService(IMemoryReader memoryReader, ILogger<ObjectManagerService> logger)
     {
@@ -79,7 +83,7 @@ public sealed class ObjectManagerService : IObjectManager
                     objects.Add(objectSnapshot!);
                 }
 
-                if (!TryReadPointer(IntPtr.Add(current, Offsets.NEXT_OBJECT_OFFSET), out current))
+                if (!TryReadNextObjectPointer(current, out current))
                 {
                     break;
                 }
@@ -98,6 +102,12 @@ public sealed class ObjectManagerService : IObjectManager
                     IsCasting: false,
                     LootReady: false,
                     IsMoving: false);
+
+                CacheLocalPlayer(player);
+            }
+            else
+            {
+                InvalidateLocalPlayerCache();
             }
 
             return new WorldSnapshot(
@@ -113,6 +123,25 @@ public sealed class ObjectManagerService : IObjectManager
             _logger.LogError(ex, "ObjectManager scan failed at tick {TickId}", tickId);
             return WorldSnapshot.Empty(tickId, ex.Message);
         }
+    }
+
+    /// <summary>
+    /// Returns local player from a 200ms cache window, refreshing via a snapshot when stale.
+    /// </summary>
+    public PlayerSnapshot? GetLocalPlayer(long tickId)
+    {
+        if (TryGetCachedLocalPlayer(out var player))
+        {
+            return player;
+        }
+
+        var snapshot = GetSnapshot(tickId);
+        if (!snapshot.Success || snapshot.Player == null)
+        {
+            return null;
+        }
+
+        return snapshot.Player;
     }
 
     private ulong? ReadOptionalTargetGuid(IntPtr baseAddress)
@@ -138,12 +167,56 @@ public sealed class ObjectManagerService : IObjectManager
 
         try
         {
-            var guid = _memoryReader.Read<ulong>(IntPtr.Add(objectPointer, Offsets.OBJECT_GUID));
-            var type = _memoryReader.Read<int>(IntPtr.Add(objectPointer, Offsets.OBJECT_TYPE));
-            var x = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_X));
-            var y = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Y));
-            var z = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Z));
-            var facing = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_ROTATION));
+            ulong guid;
+            int type;
+            float x;
+            float y;
+            float z;
+            float facing;
+            ulong? objectTargetGuid = targetGuid;
+
+            // Preferred path: Binana object layout.
+            if (TryRead(objectPointer, out CGObject cgObject))
+            {
+                guid = cgObject.Guid;
+                type = cgObject.TypeId;
+            }
+            else
+            {
+                // Fallback path for partial mappings/tests.
+                guid = _memoryReader.Read<ulong>(IntPtr.Add(objectPointer, Offsets.OBJECT_GUID));
+                type = _memoryReader.Read<int>(IntPtr.Add(objectPointer, Offsets.OBJECT_TYPE));
+            }
+
+            if (type == (int)WowObjectType.Unit || type == (int)WowObjectType.Player)
+            {
+                if (TryRead(objectPointer, out CGUnit cgUnit))
+                {
+                    x = cgUnit.PositionX;
+                    y = cgUnit.PositionY;
+                    z = cgUnit.PositionZ;
+                    facing = cgUnit.Facing;
+                }
+                else
+                {
+                    x = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_X));
+                    y = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Y));
+                    z = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Z));
+                    facing = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_ROTATION));
+                }
+
+                if (type == (int)WowObjectType.Player && TryRead(objectPointer, out CGPlayer cgPlayer) && cgPlayer.TargetGuid != 0)
+                {
+                    objectTargetGuid = cgPlayer.TargetGuid;
+                }
+            }
+            else
+            {
+                x = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_X));
+                y = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Y));
+                z = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Z));
+                facing = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_ROTATION));
+            }
 
             snapshot = new WowObjectSnapshot(
                 objectPointer,
@@ -152,7 +225,7 @@ public sealed class ObjectManagerService : IObjectManager
                 new Vector3(x, y, z),
                 facing,
                 guid == localGuid,
-                targetGuid);
+                objectTargetGuid);
             return true;
         }
         catch (Exception ex)
@@ -160,6 +233,19 @@ public sealed class ObjectManagerService : IObjectManager
             _logger.LogDebug(ex, "Skipping unreadable object at {Pointer}", objectPointer);
             return false;
         }
+    }
+
+    private bool TryReadNextObjectPointer(IntPtr objectPointer, out IntPtr nextObjectPointer)
+    {
+        nextObjectPointer = IntPtr.Zero;
+
+        if (TryRead(objectPointer, out CGObject cgObject) && cgObject.NextObjectPtr != IntPtr.Zero)
+        {
+            nextObjectPointer = cgObject.NextObjectPtr;
+            return true;
+        }
+
+        return TryReadPointer(IntPtr.Add(objectPointer, Offsets.NEXT_OBJECT_OFFSET), out nextObjectPointer);
     }
 
     private IntPtr ResolveStaticPointer(IntPtr baseAddress, int staticOffset, string label)
@@ -222,6 +308,39 @@ public sealed class ObjectManagerService : IObjectManager
     {
         var value = pointer.ToInt64();
         return value >= MinValidPointer && value <= MaxValidPointer;
+    }
+
+    private void CacheLocalPlayer(PlayerSnapshot player)
+    {
+        lock (_localPlayerLock)
+        {
+            _cachedLocalPlayer = player;
+            _cachedLocalPlayerExpiresUtc = DateTimeOffset.UtcNow.Add(LocalPlayerCacheTtl);
+        }
+    }
+
+    private void InvalidateLocalPlayerCache()
+    {
+        lock (_localPlayerLock)
+        {
+            _cachedLocalPlayer = null;
+            _cachedLocalPlayerExpiresUtc = DateTimeOffset.MinValue;
+        }
+    }
+
+    private bool TryGetCachedLocalPlayer(out PlayerSnapshot? player)
+    {
+        lock (_localPlayerLock)
+        {
+            if (_cachedLocalPlayer != null && DateTimeOffset.UtcNow <= _cachedLocalPlayerExpiresUtc)
+            {
+                player = _cachedLocalPlayer;
+                return true;
+            }
+
+            player = null;
+            return false;
+        }
     }
 
     private static IntPtr ToAbsoluteAddress(int offset)
