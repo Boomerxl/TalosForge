@@ -77,8 +77,10 @@ public sealed class SharedMemoryUnlockerClientTests
             RingCapacityBytes = 4096,
             UnlockerTimeoutMs = 25,
             UnlockerRetryCount = 0,
-            UnlockerBackoffBaseMs = 30,
-            UnlockerBackoffMaxMs = 100,
+            // Keep this comfortably above test scheduling jitter so the
+            // second send consistently exercises the backoff path.
+            UnlockerBackoffBaseMs = 500,
+            UnlockerBackoffMaxMs = 1500,
         };
 
         using var client = new SharedMemoryUnlockerClient(options);
