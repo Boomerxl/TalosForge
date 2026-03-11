@@ -6,6 +6,9 @@ namespace TalosForge.UnlockerAgentHost.Runtime;
 
 internal static class NativeAgentInjector
 {
+    private const uint TH32CS_SNAPMODULE = 0x00000008;
+    private const uint TH32CS_SNAPMODULE32 = 0x00000010;
+
     private const uint ProcessCreateThread = 0x0002;
     private const uint ProcessQueryInformation = 0x0400;
     private const uint ProcessVmOperation = 0x0008;
@@ -64,17 +67,10 @@ internal static class NativeAgentInjector
                 return false;
             }
 
-            var kernel32 = GetModuleHandle("kernel32.dll");
-            if (kernel32 == IntPtr.Zero)
-            {
-                error = $"GetModuleHandle(kernel32) failed ({GetLastErrorMessage()}).";
-                return false;
-            }
-
-            var loadLibraryW = GetProcAddress(kernel32, "LoadLibraryW");
+            var loadLibraryW = ResolveRemoteLoadLibraryW(processId);
             if (loadLibraryW == IntPtr.Zero)
             {
-                error = $"GetProcAddress(LoadLibraryW) failed ({GetLastErrorMessage()}).";
+                error = "Unable to resolve remote LoadLibraryW address.";
                 return false;
             }
 
@@ -143,14 +139,108 @@ internal static class NativeAgentInjector
         }
     }
 
+    private static IntPtr ResolveRemoteLoadLibraryW(int processId)
+    {
+        var localKernel32 = GetModuleHandle("kernel32.dll");
+        if (localKernel32 == IntPtr.Zero)
+        {
+            return IntPtr.Zero;
+        }
+
+        var localLoadLibraryW = GetProcAddress(localKernel32, "LoadLibraryW");
+        if (localLoadLibraryW == IntPtr.Zero)
+        {
+            return IntPtr.Zero;
+        }
+
+        var remoteKernel32 = TryGetRemoteModuleBase(processId, "kernel32.dll");
+        if (remoteKernel32 == IntPtr.Zero)
+        {
+            return IntPtr.Zero;
+        }
+
+        var offset = localLoadLibraryW.ToInt64() - localKernel32.ToInt64();
+        if (offset < 0)
+        {
+            return IntPtr.Zero;
+        }
+
+        return new IntPtr(remoteKernel32.ToInt64() + offset);
+    }
+
+    private static IntPtr TryGetRemoteModuleBase(int processId, string moduleName)
+    {
+        var snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, (uint)processId);
+        if (snapshot == IntPtr.Zero || snapshot == new IntPtr(-1))
+        {
+            return IntPtr.Zero;
+        }
+
+        try
+        {
+            var moduleEntry = new MODULEENTRY32
+            {
+                dwSize = (uint)Marshal.SizeOf<MODULEENTRY32>()
+            };
+
+            if (!Module32First(snapshot, ref moduleEntry))
+            {
+                return IntPtr.Zero;
+            }
+
+            do
+            {
+                if (moduleEntry.szModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return moduleEntry.modBaseAddr;
+                }
+            }
+            while (Module32Next(snapshot, ref moduleEntry));
+        }
+        finally
+        {
+            CloseHandle(snapshot);
+        }
+
+        return IntPtr.Zero;
+    }
+
     private static string GetLastErrorMessage()
     {
         var code = Marshal.GetLastWin32Error();
         return $"{code} ({new Win32Exception(code).Message})";
     }
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    private struct MODULEENTRY32
+    {
+        public uint dwSize;
+        public uint th32ModuleID;
+        public uint th32ProcessID;
+        public uint GlblcntUsage;
+        public uint ProccntUsage;
+        public IntPtr modBaseAddr;
+        public uint modBaseSize;
+        public IntPtr hModule;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string szModule;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        public string szExePath;
+    }
+
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr OpenProcess(uint processAccess, bool inheritHandle, int processId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr CreateToolhelp32Snapshot(uint dwFlags, uint th32ProcessID);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern bool Module32First(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern bool Module32Next(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
     private static extern IntPtr GetModuleHandle(string moduleName);

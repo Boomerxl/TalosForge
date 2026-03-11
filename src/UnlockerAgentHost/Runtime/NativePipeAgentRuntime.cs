@@ -26,8 +26,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var process = Process.GetProcessesByName(_options.WowProcessName).FirstOrDefault();
-        if (process is null)
+        if (!TryGetWowProcessId(out var processId))
         {
             MarkDisconnected();
             return new AgentRuntimeReadyResult(false, "WoW process not found.", AgentResultCodes.NotInGame);
@@ -43,18 +42,18 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
                 AgentResultCodes.BackendUnavailable);
         }
 
-        if (!NativeAgentInjector.TryInject(process.Id, dllPath, _options.NativeConnectTimeoutMs, out var injectError))
+        if (!NativeAgentInjector.TryInject(processId, dllPath, _options.NativeConnectTimeoutMs, out var injectError))
         {
             MarkDisconnected();
             return new AgentRuntimeReadyResult(false, injectError, AgentResultCodes.InjectionFailed);
         }
 
         var profile = string.IsNullOrWhiteSpace(evasionProfile) ? "off" : evasionProfile.Trim().ToLowerInvariant();
-        var pipeName = $"{_options.NativePipePrefix}.{process.Id}";
+        var pipeName = $"{_options.NativePipePrefix}.{processId}";
 
         try
         {
-            await EnsurePipeConnectedAsync(process.Id, pipeName, cancellationToken).ConfigureAwait(false);
+            await EnsurePipeConnectedAsync(processId, pipeName, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -77,7 +76,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
 
         return new AgentRuntimeReadyResult(
             true,
-            $"Native runtime ready (pid={process.Id}, pipe={pipeName}, evasion={profile}).",
+            $"Native runtime ready (pid={processId}, pipe={pipeName}, evasion={profile}).",
             AgentResultCodes.Ok);
     }
 
@@ -315,5 +314,43 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
         }
 
         return null;
+    }
+
+    private bool TryGetWowProcessId(out int processId)
+    {
+        processId = 0;
+        var processes = Process.GetProcessesByName(_options.WowProcessName);
+        if (processes.Length == 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            var selected = processes
+                .OrderByDescending(static p => p.MainWindowHandle != IntPtr.Zero)
+                .ThenByDescending(static p =>
+                {
+                    try
+                    {
+                        return p.WorkingSet64;
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
+                })
+                .First();
+
+            processId = selected.Id;
+            return true;
+        }
+        finally
+        {
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
+        }
     }
 }

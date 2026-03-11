@@ -11,6 +11,9 @@ public sealed class AgentCommandProcessor
     private readonly AgentSessionManager _sessionManager;
     private readonly IAgentRuntime _runtime;
     private readonly ILogger<AgentCommandProcessor> _logger;
+    private readonly object _stateSync = new();
+    private string? _lastReadyMessage;
+    private string? _lastReadyError;
 
     public AgentCommandProcessor(
         AgentHostOptions options,
@@ -42,12 +45,15 @@ public sealed class AgentCommandProcessor
             .ConfigureAwait(false);
         if (!ready.Success)
         {
+            LogReadyFailureIfChanged(ready);
             return BuildResponse(
                 success: false,
                 code: ready.Code,
                 message: $"{ready.Code}: {ready.Message}",
                 payloadJson: BuildPayload(ready.Code, ready.Message));
         }
+
+        LogReadyIfChanged(ready.Message);
 
         var requestTimeoutMs = request.RequestTimeoutMs > 0
             ? request.RequestTimeoutMs
@@ -167,6 +173,39 @@ public sealed class AgentCommandProcessor
     private static string BuildPayload(string code, string message)
     {
         return JsonSerializer.Serialize(new { code, message });
+    }
+
+    private void LogReadyIfChanged(string message)
+    {
+        lock (_stateSync)
+        {
+            if (string.Equals(_lastReadyMessage, message, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastReadyMessage = message;
+            _lastReadyError = null;
+        }
+
+        _logger.LogInformation("agent-runtime-ready {Message}", message);
+    }
+
+    private void LogReadyFailureIfChanged(SessionReadyResult ready)
+    {
+        var combined = $"{ready.Code}:{ready.Message}";
+        lock (_stateSync)
+        {
+            if (string.Equals(_lastReadyError, combined, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastReadyError = combined;
+            _lastReadyMessage = null;
+        }
+
+        _logger.LogWarning("agent-runtime-not-ready code={Code} message={Message}", ready.Code, ready.Message);
     }
 
     private sealed class ExecutionDiagnostics
