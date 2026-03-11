@@ -67,7 +67,7 @@ public sealed class InGameOverlayServiceTests
         var commands = await service.TryPublishAsync(
             tickId: 6,
             state: BotState.Movement,
-            snapshot: CreateSnapshot(success: false),
+            snapshot: CreateSnapshot(success: true),
             queuedCommands: 5,
             cancellationToken: CancellationToken.None);
 
@@ -80,7 +80,29 @@ public sealed class InGameOverlayServiceTests
 
         Assert.NotNull(lua);
         Assert.Contains("TalosForgeStatusText:SetText", lua!, StringComparison.Ordinal);
-        Assert.Contains("TalosForge [err] Tick:6 State:Movement Obj:2 Target:0x000000000000004D Cmd:5", lua!, StringComparison.Ordinal);
+        Assert.Contains("TalosForge [ok] Tick:6 State:Movement Obj:2 Target:0x000000000000004D Cmd:5", lua!, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task TryPublishAsync_When_Snapshot_Invalid_Does_Not_Send_Command()
+    {
+        var client = new RecordingUnlockerClient();
+        var options = new BotOptions
+        {
+            EnableInGameOverlay = true,
+            InGameOverlayEveryTicks = 1,
+        };
+        var service = new InGameOverlayService(client, options);
+
+        var commands = await service.TryPublishAsync(
+            tickId: 7,
+            state: BotState.Idle,
+            snapshot: CreateSnapshot(success: false),
+            queuedCommands: 0,
+            cancellationToken: CancellationToken.None);
+
+        Assert.Equal(0, commands);
+        Assert.Empty(client.Commands);
     }
 
     private static WorldSnapshot CreateSnapshot(bool success)

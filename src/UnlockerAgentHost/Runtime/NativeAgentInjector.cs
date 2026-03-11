@@ -6,6 +6,15 @@ namespace TalosForge.UnlockerAgentHost.Runtime;
 
 internal static class NativeAgentInjector
 {
+    private const ushort ImageDosSignature = 0x5A4D;
+    private const uint ImageNtSignature = 0x00004550;
+    private const ushort ImageNtOptionalHdr32Magic = 0x10B;
+    private const ushort ImageNtOptionalHdr64Magic = 0x20B;
+    private const int ImageFileHeaderSize = 20;
+    private const int ImageExportDirectorySize = 40;
+    private const int MaxExportNameLength = 256;
+    private const int MaxForwarderDepth = 4;
+
     private const uint TH32CS_SNAPMODULE = 0x00000008;
     private const uint TH32CS_SNAPMODULE32 = 0x00000010;
 
@@ -67,7 +76,7 @@ internal static class NativeAgentInjector
                 return false;
             }
 
-            var loadLibraryW = ResolveRemoteLoadLibraryW(processId);
+            var loadLibraryW = ResolveRemoteLoadLibraryW(processHandle, processId);
             if (loadLibraryW == IntPtr.Zero)
             {
                 error = "Unable to resolve remote LoadLibraryW address.";
@@ -139,41 +148,148 @@ internal static class NativeAgentInjector
         }
     }
 
-    private static IntPtr ResolveRemoteLoadLibraryW(int processId)
+    private static IntPtr ResolveRemoteLoadLibraryW(IntPtr processHandle, int processId)
     {
-        var localKernel32 = GetModuleHandle("kernel32.dll");
-        if (localKernel32 == IntPtr.Zero)
+        if (!TryGetRemoteModuleInfo(processId, "kernel32.dll", out var remoteKernel32, out _))
         {
             return IntPtr.Zero;
         }
 
-        var localLoadLibraryW = GetProcAddress(localKernel32, "LoadLibraryW");
-        if (localLoadLibraryW == IntPtr.Zero)
-        {
-            return IntPtr.Zero;
-        }
-
-        var remoteKernel32 = TryGetRemoteModuleBase(processId, "kernel32.dll");
-        if (remoteKernel32 == IntPtr.Zero)
-        {
-            return IntPtr.Zero;
-        }
-
-        var offset = localLoadLibraryW.ToInt64() - localKernel32.ToInt64();
-        if (offset < 0)
-        {
-            return IntPtr.Zero;
-        }
-
-        return new IntPtr(remoteKernel32.ToInt64() + offset);
+        return ResolveRemoteExportByName(processHandle, processId, remoteKernel32, "LoadLibraryW", depth: 0);
     }
 
-    private static IntPtr TryGetRemoteModuleBase(int processId, string moduleName)
+    private static IntPtr ResolveRemoteExportByName(
+        IntPtr processHandle,
+        int processId,
+        IntPtr moduleBase,
+        string exportName,
+        int depth)
     {
+        if (depth > MaxForwarderDepth || moduleBase == IntPtr.Zero || string.IsNullOrWhiteSpace(exportName))
+        {
+            return IntPtr.Zero;
+        }
+
+        if (!TryReadUInt16(processHandle, moduleBase, out var mz) || mz != ImageDosSignature)
+        {
+            return IntPtr.Zero;
+        }
+
+        if (!TryReadInt32(processHandle, Add(moduleBase, 0x3C), out var lfanew) || lfanew <= 0)
+        {
+            return IntPtr.Zero;
+        }
+
+        var ntHeaders = Add(moduleBase, lfanew);
+        if (!TryReadUInt32(processHandle, ntHeaders, out var signature) || signature != ImageNtSignature)
+        {
+            return IntPtr.Zero;
+        }
+
+        var optionalHeader = Add(ntHeaders, 4 + ImageFileHeaderSize);
+        if (!TryReadUInt16(processHandle, optionalHeader, out var optionalMagic))
+        {
+            return IntPtr.Zero;
+        }
+
+        var dataDirectoryOffset = optionalMagic switch
+        {
+            ImageNtOptionalHdr32Magic => 96,
+            ImageNtOptionalHdr64Magic => 112,
+            _ => -1
+        };
+        if (dataDirectoryOffset < 0)
+        {
+            return IntPtr.Zero;
+        }
+
+        var exportDirectoryEntry = Add(optionalHeader, dataDirectoryOffset);
+        if (!TryReadUInt32(processHandle, exportDirectoryEntry, out var exportRva) || exportRva == 0 ||
+            !TryReadUInt32(processHandle, Add(exportDirectoryEntry, 4), out var exportSize) || exportSize == 0)
+        {
+            return IntPtr.Zero;
+        }
+
+        if (!TryReadBytes(processHandle, Add(moduleBase, exportRva), ImageExportDirectorySize, out var exportDirectory))
+        {
+            return IntPtr.Zero;
+        }
+
+        var numberOfFunctions = BitConverter.ToUInt32(exportDirectory, 20);
+        var numberOfNames = BitConverter.ToUInt32(exportDirectory, 24);
+        var addressOfFunctions = BitConverter.ToUInt32(exportDirectory, 28);
+        var addressOfNames = BitConverter.ToUInt32(exportDirectory, 32);
+        var addressOfNameOrdinals = BitConverter.ToUInt32(exportDirectory, 36);
+
+        if (numberOfFunctions == 0 || numberOfNames == 0 || addressOfFunctions == 0 || addressOfNames == 0 || addressOfNameOrdinals == 0)
+        {
+            return IntPtr.Zero;
+        }
+
+        if (!TryReadUInt32Array(processHandle, Add(moduleBase, addressOfNames), numberOfNames, out var nameRvas) ||
+            !TryReadUInt16Array(processHandle, Add(moduleBase, addressOfNameOrdinals), numberOfNames, out var nameOrdinals) ||
+            !TryReadUInt32Array(processHandle, Add(moduleBase, addressOfFunctions), numberOfFunctions, out var functionRvas))
+        {
+            return IntPtr.Zero;
+        }
+
+        for (var i = 0; i < nameRvas.Length; i++)
+        {
+            if (nameRvas[i] == 0)
+            {
+                continue;
+            }
+
+            var currentName = TryReadAnsiString(processHandle, Add(moduleBase, nameRvas[i]), MaxExportNameLength);
+            if (!string.Equals(currentName, exportName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var ordinal = nameOrdinals[i];
+            if (ordinal >= functionRvas.Length)
+            {
+                return IntPtr.Zero;
+            }
+
+            var functionRva = functionRvas[ordinal];
+            if (functionRva == 0)
+            {
+                return IntPtr.Zero;
+            }
+
+            var exportEnd = exportRva + exportSize;
+            if (functionRva >= exportRva && functionRva < exportEnd)
+            {
+                var forwarder = TryReadAnsiString(processHandle, Add(moduleBase, functionRva), MaxExportNameLength);
+                if (!TryParseForwarder(forwarder, out var forwarderModule, out var forwarderExport))
+                {
+                    return IntPtr.Zero;
+                }
+
+                if (!TryGetRemoteModuleInfo(processId, forwarderModule, out var forwarderBase, out _))
+                {
+                    return IntPtr.Zero;
+                }
+
+                return ResolveRemoteExportByName(processHandle, processId, forwarderBase, forwarderExport, depth + 1);
+            }
+
+            return Add(moduleBase, functionRva);
+        }
+
+        return IntPtr.Zero;
+    }
+
+    private static bool TryGetRemoteModuleInfo(int processId, string moduleName, out IntPtr moduleBase, out uint moduleSize)
+    {
+        moduleBase = IntPtr.Zero;
+        moduleSize = 0;
+
         var snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, (uint)processId);
         if (snapshot == IntPtr.Zero || snapshot == new IntPtr(-1))
         {
-            return IntPtr.Zero;
+            return false;
         }
 
         try
@@ -185,14 +301,16 @@ internal static class NativeAgentInjector
 
             if (!Module32First(snapshot, ref moduleEntry))
             {
-                return IntPtr.Zero;
+                return false;
             }
 
             do
             {
                 if (moduleEntry.szModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return moduleEntry.modBaseAddr;
+                    moduleBase = moduleEntry.modBaseAddr;
+                    moduleSize = moduleEntry.modBaseSize;
+                    return true;
                 }
             }
             while (Module32Next(snapshot, ref moduleEntry));
@@ -202,7 +320,173 @@ internal static class NativeAgentInjector
             CloseHandle(snapshot);
         }
 
-        return IntPtr.Zero;
+        return false;
+    }
+
+    private static bool TryParseForwarder(string? forwarder, out string moduleName, out string exportName)
+    {
+        moduleName = string.Empty;
+        exportName = string.Empty;
+        if (string.IsNullOrWhiteSpace(forwarder))
+        {
+            return false;
+        }
+
+        var separator = forwarder.IndexOf('.');
+        if (separator <= 0 || separator >= forwarder.Length - 1)
+        {
+            return false;
+        }
+
+        moduleName = forwarder.Substring(0, separator);
+        exportName = forwarder.Substring(separator + 1);
+        if (exportName.StartsWith("#", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!moduleName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+        {
+            moduleName += ".dll";
+        }
+
+        return true;
+    }
+
+    private static IntPtr Add(IntPtr address, int offset)
+    {
+        return new IntPtr(address.ToInt64() + offset);
+    }
+
+    private static IntPtr Add(IntPtr address, uint offset)
+    {
+        return new IntPtr(address.ToInt64() + (long)offset);
+    }
+
+    private static bool TryReadInt32(IntPtr processHandle, IntPtr address, out int value)
+    {
+        value = 0;
+        if (!TryReadBytes(processHandle, address, sizeof(int), out var buffer))
+        {
+            return false;
+        }
+
+        value = BitConverter.ToInt32(buffer, 0);
+        return true;
+    }
+
+    private static bool TryReadUInt16(IntPtr processHandle, IntPtr address, out ushort value)
+    {
+        value = 0;
+        if (!TryReadBytes(processHandle, address, sizeof(ushort), out var buffer))
+        {
+            return false;
+        }
+
+        value = BitConverter.ToUInt16(buffer, 0);
+        return true;
+    }
+
+    private static bool TryReadUInt32(IntPtr processHandle, IntPtr address, out uint value)
+    {
+        value = 0;
+        if (!TryReadBytes(processHandle, address, sizeof(uint), out var buffer))
+        {
+            return false;
+        }
+
+        value = BitConverter.ToUInt32(buffer, 0);
+        return true;
+    }
+
+    private static bool TryReadUInt32Array(IntPtr processHandle, IntPtr address, uint count, out uint[] values)
+    {
+        values = Array.Empty<uint>();
+        if (count == 0 || count > int.MaxValue / sizeof(uint))
+        {
+            return false;
+        }
+
+        var length = checked((int)count);
+        if (!TryReadBytes(processHandle, address, checked(length * sizeof(uint)), out var buffer))
+        {
+            return false;
+        }
+
+        values = new uint[length];
+        for (var i = 0; i < length; i++)
+        {
+            values[i] = BitConverter.ToUInt32(buffer, i * sizeof(uint));
+        }
+
+        return true;
+    }
+
+    private static bool TryReadUInt16Array(IntPtr processHandle, IntPtr address, uint count, out ushort[] values)
+    {
+        values = Array.Empty<ushort>();
+        if (count == 0 || count > int.MaxValue / sizeof(ushort))
+        {
+            return false;
+        }
+
+        var length = checked((int)count);
+        if (!TryReadBytes(processHandle, address, checked(length * sizeof(ushort)), out var buffer))
+        {
+            return false;
+        }
+
+        values = new ushort[length];
+        for (var i = 0; i < length; i++)
+        {
+            values[i] = BitConverter.ToUInt16(buffer, i * sizeof(ushort));
+        }
+
+        return true;
+    }
+
+    private static string? TryReadAnsiString(IntPtr processHandle, IntPtr address, int maxLength)
+    {
+        if (maxLength <= 0)
+        {
+            return null;
+        }
+
+        if (!TryReadBytes(processHandle, address, maxLength, out var buffer))
+        {
+            return null;
+        }
+
+        var terminatorIndex = Array.IndexOf(buffer, (byte)0);
+        if (terminatorIndex < 0)
+        {
+            terminatorIndex = buffer.Length;
+        }
+
+        return Encoding.ASCII.GetString(buffer, 0, terminatorIndex);
+    }
+
+    private static bool TryReadBytes(IntPtr processHandle, IntPtr address, int size, out byte[] buffer)
+    {
+        buffer = Array.Empty<byte>();
+        if (size <= 0)
+        {
+            return false;
+        }
+
+        var temp = new byte[size];
+        if (!ReadProcessMemory(processHandle, address, temp, size, out var bytesRead))
+        {
+            return false;
+        }
+
+        if (bytesRead.ToUInt64() != (ulong)size)
+        {
+            return false;
+        }
+
+        buffer = temp;
+        return true;
     }
 
     private static string GetLastErrorMessage()
@@ -242,12 +526,6 @@ internal static class NativeAgentInjector
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     private static extern bool Module32Next(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
 
-    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-    private static extern IntPtr GetModuleHandle(string moduleName);
-
-    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-    private static extern IntPtr GetProcAddress(IntPtr module, string procName);
-
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr VirtualAllocEx(
         IntPtr processHandle,
@@ -262,6 +540,14 @@ internal static class NativeAgentInjector
         IntPtr address,
         nuint size,
         uint freeType);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool ReadProcessMemory(
+        IntPtr processHandle,
+        IntPtr baseAddress,
+        byte[] buffer,
+        int size,
+        out UIntPtr bytesRead);
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool WriteProcessMemory(

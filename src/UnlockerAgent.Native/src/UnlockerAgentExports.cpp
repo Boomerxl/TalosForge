@@ -92,15 +92,68 @@ bool TryExtractJsonString(const std::string& json, const std::string& key, std::
 
     ++pos;
     bool escaped = false;
+    auto hexValue = [](char c) -> int {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+
+        c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+        if (c >= 'a' && c <= 'f') {
+            return 10 + (c - 'a');
+        }
+
+        return -1;
+    };
+
+    auto appendCodePointUtf8 = [&value](uint32_t codePoint) {
+        if (codePoint <= 0x7F) {
+            value.push_back(static_cast<char>(codePoint));
+            return;
+        }
+
+        if (codePoint <= 0x7FF) {
+            value.push_back(static_cast<char>(0xC0 | ((codePoint >> 6) & 0x1F)));
+            value.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+            return;
+        }
+
+        value.push_back(static_cast<char>(0xE0 | ((codePoint >> 12) & 0x0F)));
+        value.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+        value.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+    };
+
     while (pos < json.size()) {
         const char ch = json[pos++];
         if (escaped) {
             switch (ch) {
+            case 'b': value.push_back('\b'); break;
+            case 'f': value.push_back('\f'); break;
             case 'n': value.push_back('\n'); break;
             case 'r': value.push_back('\r'); break;
             case 't': value.push_back('\t'); break;
+            case '/': value.push_back('/'); break;
             case '\\': value.push_back('\\'); break;
             case '"': value.push_back('"'); break;
+            case 'u':
+            {
+                if (pos + 4 > json.size()) {
+                    return false;
+                }
+
+                uint32_t codePoint = 0;
+                for (size_t i = 0; i < 4; i++) {
+                    const int hv = hexValue(json[pos + i]);
+                    if (hv < 0) {
+                        return false;
+                    }
+
+                    codePoint = (codePoint << 4) | static_cast<uint32_t>(hv);
+                }
+
+                pos += 4;
+                appendCodePointUtf8(codePoint);
+                break;
+            }
             default: value.push_back(ch); break;
             }
             escaped = false;

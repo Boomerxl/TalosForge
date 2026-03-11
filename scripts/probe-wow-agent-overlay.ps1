@@ -2,7 +2,8 @@ param(
     [string]$PipeName = "TalosForge.UnlockerAdapter.v1",
     [string]$Message = "TALOSFORGE NATIVE PROBE",
     [int]$Repeat = 6,
-    [int]$IntervalMs = 500
+    [int]$IntervalMs = 500,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,6 +23,19 @@ if (-not (Test-Path $statePath)) {
 }
 
 $state = Get-Content -Raw $statePath | ConvertFrom-Json
+$coreOut = $state.processes | Where-Object { $_.name -eq "core" } | Select-Object -ExpandProperty outLog -ErrorAction SilentlyContinue
+$latestSnapshot = $null
+if ($coreOut -and (Test-Path $coreOut)) {
+    $latestSnapshot = Select-String -Path $coreOut -Pattern "snapshot tick=" -SimpleMatch -ErrorAction SilentlyContinue | Select-Object -Last 1
+}
+
+if (-not $Force -and $latestSnapshot) {
+    $line = $latestSnapshot.Line
+    if ($line -match "player_guid=none" -or $line -match "success=False") {
+        throw "Probe blocked: latest Core snapshot is not in-world (player_guid=none or success=False). Enter game world first, then rerun (or pass -Force to override)."
+    }
+}
+
 $agentOut = $state.processes | Where-Object { $_.name -eq "agent" } | Select-Object -ExpandProperty outLog -ErrorAction SilentlyContinue
 if ($agentOut -and (Test-Path $agentOut)) {
     $modeLine = Select-String -Path $agentOut -Pattern "Agent runtime mode=" -SimpleMatch -ErrorAction SilentlyContinue | Select-Object -First 1

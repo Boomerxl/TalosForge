@@ -37,6 +37,13 @@ public sealed class InGameOverlayService
             return 0;
         }
 
+        // Avoid issuing Lua into non-world/login states where game-side script
+        // context can be unstable and pointers are not yet valid.
+        if (!snapshot.Success || snapshot.Player is null)
+        {
+            return 0;
+        }
+
         var message = BuildOverlayMessage(tickId, state, snapshot, queuedCommands);
         var lua = BuildLua(message);
         var payload = JsonSerializer.Serialize(new { code = lua });
@@ -75,7 +82,7 @@ public sealed class InGameOverlayService
                "end;" +
                "text:ClearAllPoints();" +
                "text:SetPoint('CENTER', frame, 'CENTER', 0, 0);" +
-               "text:SetFont('Fonts\\\\FRIZQT__.TTF',24,'OUTLINE');" +
+               "text:SetFontObject(GameFontNormalHuge);" +
                "text:SetTextColor(0.1,1.0,0.1,1.0);" +
                "text:SetShadowOffset(2,-2);" +
                "text:SetShadowColor(0,0,0,1);" +
