@@ -9,6 +9,7 @@ param(
     [string]$AgentPipeName = "TalosForge.Agent.v1",
     [int]$AgentConnectTimeoutMs = 1200,
     [int]$AgentRequestTimeoutMs = 2500,
+    [int]$AgentNativeConnectTimeoutMs = 8000,
     [ValidateSet("off", "standard", "full")]
     [string]$AgentEvasionProfile = "full",
     [ValidateSet("auto", "native", "simulated")]
@@ -222,6 +223,7 @@ function Start-Stack {
         "--pipe-name", $AgentPipeName,
         "--runtime-mode", $AgentRuntimeMode,
         "--request-timeout-ms", $AgentRequestTimeoutMs,
+        "--native-connect-timeout-ms", $AgentNativeConnectTimeoutMs,
         "--retry-count", 2,
         "--backoff-base-ms", 100,
         "--backoff-max-ms", $AgentRequestTimeoutMs,

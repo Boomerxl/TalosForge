@@ -11,7 +11,7 @@ public sealed class AgentHostOptions
     public int BackoffMaxMs { get; set; } = 1_000;
     public string NativePipePrefix { get; set; } = "TalosForge.Agent.Native";
     public string? NativeDllPath { get; set; }
-    public int NativeConnectTimeoutMs { get; set; } = 2_000;
+    public int NativeConnectTimeoutMs { get; set; } = 8_000;
     public bool SmokeMode { get; set; }
     public int SmokeDurationSeconds { get; set; } = 10;
     public bool DisableEvasion { get; set; }

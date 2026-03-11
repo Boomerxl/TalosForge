@@ -7,6 +7,8 @@ namespace TalosForge.UnlockerAgentHost.Runtime;
 
 public sealed class NativePipeAgentRuntime : IAgentRuntime
 {
+    private static readonly TimeSpan InjectionRetryCooldown = TimeSpan.FromSeconds(8);
+
     private readonly AgentHostOptions _options;
     private readonly object _sync = new();
     private NamedPipeClientStream? _pipe;
@@ -16,6 +18,9 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
     private string _currentProfile = "off";
     private bool _ready;
     private readonly SemaphoreSlim _requestLock = new(1, 1);
+    private DateTimeOffset _lastInjectionAttemptUtc = DateTimeOffset.MinValue;
+    private int _lastInjectionPid;
+    private string? _lastInjectionError;
 
     public NativePipeAgentRuntime(AgentHostOptions options)
     {
@@ -42,18 +47,72 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
                 AgentResultCodes.BackendUnavailable);
         }
 
-        if (!NativeAgentInjector.TryInject(processId, dllPath, _options.NativeConnectTimeoutMs, out var injectError))
-        {
-            MarkDisconnected();
-            return new AgentRuntimeReadyResult(false, injectError, AgentResultCodes.InjectionFailed);
-        }
-
         var profile = string.IsNullOrWhiteSpace(evasionProfile) ? "off" : evasionProfile.Trim().ToLowerInvariant();
         var pipeName = $"{_options.NativePipePrefix}.{processId}";
 
         try
         {
-            await EnsurePipeConnectedAsync(processId, pipeName, cancellationToken).ConfigureAwait(false);
+            // If a prior attempt already injected this process, prefer a quick reconnect
+            // over issuing repeated remote-thread injections.
+            if (IsInjectionBackoffActive(processId))
+            {
+                await EnsurePipeConnectedAsync(processId, pipeName, 300, cancellationToken).ConfigureAwait(false);
+
+                lock (_sync)
+                {
+                    _ready = true;
+                    _currentProfile = profile;
+                    _lastInjectionError = null;
+                }
+
+                return new AgentRuntimeReadyResult(
+                    true,
+                    $"Native runtime ready (pid={processId}, pipe={pipeName}, evasion={profile}, reused_pending_injection=true).",
+                    AgentResultCodes.Ok);
+            }
+        }
+        catch
+        {
+            // Proceed with injection attempt below.
+        }
+
+        RecordInjectionAttempt(processId);
+
+        if (!NativeAgentInjector.TryInject(processId, dllPath, _options.NativeConnectTimeoutMs, out var injectError))
+        {
+            RecordInjectionFailure(processId, injectError);
+
+            if (IsInjectionTimeoutError(injectError))
+            {
+                try
+                {
+                    await EnsurePipeConnectedAsync(processId, pipeName, 600, cancellationToken).ConfigureAwait(false);
+
+                    lock (_sync)
+                    {
+                        _ready = true;
+                        _currentProfile = profile;
+                        _lastInjectionError = null;
+                    }
+
+                    return new AgentRuntimeReadyResult(
+                        true,
+                        $"Native runtime ready (pid={processId}, pipe={pipeName}, evasion={profile}, delayed_injection_connect=true).",
+                        AgentResultCodes.Ok);
+                }
+                catch
+                {
+                    // Keep original injection timeout as failure reason.
+                }
+            }
+
+            MarkDisconnected();
+            return new AgentRuntimeReadyResult(false, injectError, AgentResultCodes.InjectionFailed);
+        }
+
+        try
+        {
+            await EnsurePipeConnectedAsync(processId, pipeName, _options.NativeConnectTimeoutMs, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -72,6 +131,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
         {
             _ready = true;
             _currentProfile = profile;
+            _lastInjectionError = null;
         }
 
         return new AgentRuntimeReadyResult(
@@ -208,7 +268,11 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private async Task EnsurePipeConnectedAsync(int processId, string pipeName, CancellationToken cancellationToken)
+    private async Task EnsurePipeConnectedAsync(
+        int processId,
+        string pipeName,
+        int timeoutMs,
+        CancellationToken cancellationToken)
     {
         lock (_sync)
         {
@@ -224,7 +288,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
         try
         {
             using var connectCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            connectCts.CancelAfter(Math.Max(1, _options.NativeConnectTimeoutMs));
+            connectCts.CancelAfter(Math.Max(1, timeoutMs));
             await pipe.ConnectAsync(connectCts.Token).ConfigureAwait(false);
 
             var writer = new StreamWriter(pipe, new UTF8Encoding(false), leaveOpen: true) { AutoFlush = true };
@@ -243,6 +307,44 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
             pipe.Dispose();
             throw;
         }
+    }
+
+    private bool IsInjectionBackoffActive(int processId)
+    {
+        lock (_sync)
+        {
+            if (_lastInjectionPid != processId || string.IsNullOrWhiteSpace(_lastInjectionError))
+            {
+                return false;
+            }
+
+            return (DateTimeOffset.UtcNow - _lastInjectionAttemptUtc) < InjectionRetryCooldown;
+        }
+    }
+
+    private void RecordInjectionAttempt(int processId)
+    {
+        lock (_sync)
+        {
+            _lastInjectionPid = processId;
+            _lastInjectionAttemptUtc = DateTimeOffset.UtcNow;
+        }
+    }
+
+    private void RecordInjectionFailure(int processId, string error)
+    {
+        lock (_sync)
+        {
+            _lastInjectionPid = processId;
+            _lastInjectionAttemptUtc = DateTimeOffset.UtcNow;
+            _lastInjectionError = error;
+        }
+    }
+
+    private static bool IsInjectionTimeoutError(string error)
+    {
+        return !string.IsNullOrWhiteSpace(error) &&
+               error.Contains("timed out", StringComparison.OrdinalIgnoreCase);
     }
 
     private static async Task<string?> ReadLineWithTimeoutAsync(
