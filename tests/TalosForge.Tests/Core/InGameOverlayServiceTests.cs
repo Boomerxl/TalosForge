@@ -79,7 +79,7 @@ public sealed class InGameOverlayServiceTests
         var lua = payload.RootElement.GetProperty("code").GetString();
 
         Assert.NotNull(lua);
-        Assert.Contains("TalosForgeStatusText:SetText", lua!, StringComparison.Ordinal);
+        Assert.Contains("frame.TalosForgeText:SetText", lua!, StringComparison.Ordinal);
         Assert.Contains("TalosForge [ok] Tick:6 State:Movement Obj:2 Target:0x000000000000004D Cmd:5", lua!, StringComparison.Ordinal);
     }
 

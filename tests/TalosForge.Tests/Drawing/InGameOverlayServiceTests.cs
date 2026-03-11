@@ -39,7 +39,7 @@ public sealed class InGameOverlayServiceTests
         var payload = JsonSerializer.Deserialize<JsonElement>(unlocker.Commands[0].PayloadJson);
         var lua = payload.GetProperty("code").GetString();
         Assert.NotNull(lua);
-        Assert.Contains("TalosForgeStatusText", lua, StringComparison.Ordinal);
+        Assert.Contains("frame.TalosForgeText", lua, StringComparison.Ordinal);
         Assert.Contains("Tick:3", lua, StringComparison.Ordinal);
     }
 

@@ -75,19 +75,17 @@ public sealed class InGameOverlayService
                "frame.TalosForgeBg = frame:CreateTexture(nil,'BACKGROUND');" +
                "end;" +
                "frame.TalosForgeBg:SetAllPoints(true);" +
-               "frame.TalosForgeBg:SetColorTexture(0,0,0,0.55);" +
-               "local text = _G['TalosForgeStatusText'];" +
-               "if not text then " +
-               "text = frame:CreateFontString('TalosForgeStatusText','OVERLAY');" +
+               "frame.TalosForgeBg:SetTexture(0,0,0,0.55);" +
+               "if not frame.TalosForgeText then " +
+               "frame.TalosForgeText = frame:CreateFontString(nil,'OVERLAY','GameFontNormalHuge');" +
                "end;" +
-               "text:ClearAllPoints();" +
-               "text:SetPoint('CENTER', frame, 'CENTER', 0, 0);" +
-               "text:SetFontObject(GameFontNormalHuge);" +
-               "text:SetTextColor(0.1,1.0,0.1,1.0);" +
-               "text:SetShadowOffset(2,-2);" +
-               "text:SetShadowColor(0,0,0,1);" +
+               "frame.TalosForgeText:ClearAllPoints();" +
+               "frame.TalosForgeText:SetPoint('CENTER', frame, 'CENTER', 0, 0);" +
+               "frame.TalosForgeText:SetTextColor(0.1,1.0,0.1,1.0);" +
+               "frame.TalosForgeText:SetShadowOffset(2,-2);" +
+               "frame.TalosForgeText:SetShadowColor(0,0,0,1);" +
                "TalosForgeStatusFrame:Show();" +
-               "TalosForgeStatusText:SetText([[" + safe + "]]);";
+               "frame.TalosForgeText:SetText([[" + safe + "]]);";
     }
 
     private static string BuildOverlayMessage(long tickId, BotState state, WorldSnapshot snapshot, int queuedCommands)
