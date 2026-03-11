@@ -8,6 +8,7 @@ public enum UnlockerOpcode
     Face = 4,
     MoveTo = 5,
     Interact = 6,
+    Stop = 7,
 }
 
 public sealed record UnlockerCommand(

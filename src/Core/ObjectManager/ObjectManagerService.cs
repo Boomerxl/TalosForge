@@ -93,15 +93,18 @@ public sealed class ObjectManagerService : IObjectManager
             PlayerSnapshot? player = null;
             if (localObject != null)
             {
+                var runtimeData = ReadLocalPlayerRuntimeData(localObject.Pointer);
                 player = new PlayerSnapshot(
                     localObject.Guid,
                     localObject.Position,
                     localObject.Facing,
-                    targetGuid,
-                    InCombat: false,
-                    IsCasting: false,
+                    localObject.TargetGuid ?? targetGuid,
+                    runtimeData.InCombat,
+                    runtimeData.IsCasting,
                     LootReady: false,
-                    IsMoving: false);
+                    IsMoving: false,
+                    runtimeData.Health,
+                    runtimeData.MaxHealth);
 
                 CacheLocalPlayer(player);
             }
@@ -235,6 +238,50 @@ public sealed class ObjectManagerService : IObjectManager
         }
     }
 
+    private LocalPlayerRuntimeData ReadLocalPlayerRuntimeData(IntPtr objectPointer)
+    {
+        int? health = null;
+        int? maxHealth = null;
+        var inCombat = false;
+        var isCasting = false;
+
+        if (TryRead(objectPointer, out CGPlayer cgPlayer))
+        {
+            health = NormalizeOptionalValue(cgPlayer.DescriptorHealth);
+            maxHealth = NormalizeOptionalValue(cgPlayer.DescriptorMaxHealth);
+            inCombat = cgPlayer.Base.CombatFlag != 0;
+            isCasting = IsCasting(cgPlayer.Base.SpellCastStartMs, cgPlayer.Base.SpellCastEndMs);
+        }
+        else if (TryRead(objectPointer, out CGUnit cgUnit))
+        {
+            inCombat = cgUnit.CombatFlag != 0;
+            isCasting = IsCasting(cgUnit.SpellCastStartMs, cgUnit.SpellCastEndMs);
+        }
+
+        if (health == null)
+        {
+            health = TryReadOptionalInt(IntPtr.Add(objectPointer, Offsets.PLAYER_DESCRIPTOR_HEALTH));
+        }
+
+        if (maxHealth == null)
+        {
+            maxHealth = TryReadOptionalInt(IntPtr.Add(objectPointer, Offsets.PLAYER_DESCRIPTOR_MAX_HEALTH));
+        }
+
+        if (TryRead(IntPtr.Add(objectPointer, Offsets.UNIT_COMBAT_FLAG), out int combatFlag))
+        {
+            inCombat = combatFlag != 0;
+        }
+
+        if (TryRead(IntPtr.Add(objectPointer, Offsets.UNIT_SPELL_CAST_START_MS), out int castStartMs) &&
+            TryRead(IntPtr.Add(objectPointer, Offsets.UNIT_SPELL_CAST_END_MS), out int castEndMs))
+        {
+            isCasting = IsCasting(castStartMs, castEndMs);
+        }
+
+        return new LocalPlayerRuntimeData(health, maxHealth, inCombat, isCasting);
+    }
+
     private bool TryReadNextObjectPointer(IntPtr objectPointer, out IntPtr nextObjectPointer)
     {
         nextObjectPointer = IntPtr.Zero;
@@ -310,6 +357,26 @@ public sealed class ObjectManagerService : IObjectManager
         return value >= MinValidPointer && value <= MaxValidPointer;
     }
 
+    private static bool IsCasting(int castStartMs, int castEndMs)
+    {
+        return castEndMs > 0 && castEndMs >= castStartMs;
+    }
+
+    private int? TryReadOptionalInt(IntPtr address)
+    {
+        if (TryRead(address, out int value))
+        {
+            return NormalizeOptionalValue(value);
+        }
+
+        return null;
+    }
+
+    private static int? NormalizeOptionalValue(int value)
+    {
+        return value >= 0 ? value : null;
+    }
+
     private void CacheLocalPlayer(PlayerSnapshot player)
     {
         lock (_localPlayerLock)
@@ -347,4 +414,10 @@ public sealed class ObjectManagerService : IObjectManager
     {
         return new IntPtr(unchecked((int)(uint)offset));
     }
+
+    private sealed record LocalPlayerRuntimeData(
+        int? Health,
+        int? MaxHealth,
+        bool InCombat,
+        bool IsCasting);
 }

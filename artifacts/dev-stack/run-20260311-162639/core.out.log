@@ -1,0 +1,96 @@
+16:26:49 info: TalosForge[0] Real unlocker mode enabled.
+16:26:49 info: TalosForge[0] In-game overlay enabled.
+16:26:49 info: TalosForge[0] In-game overlay interval set to every 1 ticks (enabled=True).
+16:26:49 info: TalosForge[0] TalosForge initializing... Custodem finge!
+16:26:49 info: TalosForge[0] Attach succeeded. BaseAddress: 0x400000
+16:26:49 info: TalosForge[0] STATIC_CLIENT_CONNECTION pointer: 0x196D7530 (source=0xC79CE0)
+16:26:49 info: TalosForge[0] Using external unlocker endpoint (real in-game actions expected).
+16:26:49 info: TalosForge.Core.Plugins.PluginHost[0] Loaded plugin SampleCombatPlugin v1.0.0
+16:26:49 info: TalosForge[0] Plugin host initialized. directory=C:\Utilities\TalosForge\src\Plugins\SampleCombatPlugin\bin\Release\net8.0 loaded=1
+16:26:49 info: TalosForge[0] Loaded plugins: SampleCombatPlugin
+16:26:49 info: TalosForge.Core.Bot.BotEngine[0] tick=1 state=Idle tick_ms=230 snapshot_ms=21 events_count=0 commands_count=1
+16:26:49 info: TalosForge.Core.Bot.BotEngine[0] tick=2 state=Idle tick_ms=56 snapshot_ms=17 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=3 state=Idle tick_ms=62 snapshot_ms=19 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=4 state=Idle tick_ms=61 snapshot_ms=19 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=5 state=Idle tick_ms=46 snapshot_ms=14 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=6 state=Idle tick_ms=61 snapshot_ms=15 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=7 state=Idle tick_ms=47 snapshot_ms=14 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=8 state=Idle tick_ms=62 snapshot_ms=17 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=9 state=Idle tick_ms=62 snapshot_ms=16 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] tick=10 state=Idle tick_ms=48 snapshot_ms=14 events_count=0 commands_count=1
+16:26:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=10 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=11 state=Idle tick_ms=47 snapshot_ms=14 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=12 state=Idle tick_ms=47 snapshot_ms=15 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=13 state=Idle tick_ms=46 snapshot_ms=13 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=14 state=Idle tick_ms=47 snapshot_ms=13 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=15 state=Idle tick_ms=46 snapshot_ms=14 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=16 state=Idle tick_ms=47 snapshot_ms=15 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=17 state=Idle tick_ms=47 snapshot_ms=13 events_count=0 commands_count=1
+16:26:51 info: TalosForge.Core.Bot.BotEngine[0] tick=18 state=Idle tick_ms=46 snapshot_ms=13 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=19 state=Idle tick_ms=62 snapshot_ms=16 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=20 state=Idle tick_ms=47 snapshot_ms=10 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=20 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=21 state=Idle tick_ms=47 snapshot_ms=11 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=22 state=Idle tick_ms=46 snapshot_ms=10 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=23 state=Idle tick_ms=46 snapshot_ms=11 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=24 state=Idle tick_ms=47 snapshot_ms=10 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=25 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:52 info: TalosForge.Core.Bot.BotEngine[0] tick=26 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=27 state=Idle tick_ms=46 snapshot_ms=7 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=28 state=Idle tick_ms=46 snapshot_ms=7 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=29 state=Idle tick_ms=47 snapshot_ms=7 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=30 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=30 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=31 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=32 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=33 state=Idle tick_ms=47 snapshot_ms=9 events_count=0 commands_count=1
+16:26:53 info: TalosForge.Core.Bot.BotEngine[0] tick=34 state=Idle tick_ms=46 snapshot_ms=11 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=35 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=36 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=37 state=Idle tick_ms=46 snapshot_ms=7 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=38 state=Idle tick_ms=46 snapshot_ms=7 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=39 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=40 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=40 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=41 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:54 info: TalosForge.Core.Bot.BotEngine[0] tick=42 state=Idle tick_ms=47 snapshot_ms=9 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=43 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=44 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=45 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=46 state=Idle tick_ms=47 snapshot_ms=7 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=47 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=48 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=49 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] tick=50 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=50 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=51 state=Idle tick_ms=45 snapshot_ms=8 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=52 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=53 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=54 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=55 state=Idle tick_ms=46 snapshot_ms=7 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=56 state=Idle tick_ms=45 snapshot_ms=9 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=57 state=Idle tick_ms=47 snapshot_ms=9 events_count=0 commands_count=1
+16:26:56 info: TalosForge.Core.Bot.BotEngine[0] tick=58 state=Idle tick_ms=47 snapshot_ms=9 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=59 state=Idle tick_ms=46 snapshot_ms=8 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=60 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=60 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=61 state=Idle tick_ms=47 snapshot_ms=10 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=62 state=Idle tick_ms=46 snapshot_ms=10 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=63 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=64 state=Idle tick_ms=46 snapshot_ms=10 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=65 state=Idle tick_ms=45 snapshot_ms=12 events_count=0 commands_count=1
+16:26:57 info: TalosForge.Core.Bot.BotEngine[0] tick=66 state=Idle tick_ms=45 snapshot_ms=9 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=67 state=Idle tick_ms=46 snapshot_ms=9 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=68 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=69 state=Idle tick_ms=47 snapshot_ms=8 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=70 state=Idle tick_ms=45 snapshot_ms=9 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=70 success=True objects=260 player_guid=0x00000000000133DB target_guid=none error=none
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=71 state=Idle tick_ms=45 snapshot_ms=10 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=72 state=Idle tick_ms=46 snapshot_ms=10 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=73 state=Idle tick_ms=46 snapshot_ms=10 events_count=0 commands_count=1
+16:26:58 info: TalosForge.Core.Bot.BotEngine[0] tick=74 state=Idle tick_ms=47 snapshot_ms=11 events_count=0 commands_count=1
+16:26:59 info: TalosForge.Core.Bot.BotEngine[0] tick=75 state=Idle tick_ms=47 snapshot_ms=10 events_count=0 commands_count=1
+16:26:59 info: TalosForge.Core.Bot.BotEngine[0] tick=76 state=Idle tick_ms=46 snapshot_ms=11 events_count=0 commands_count=1
+16:26:59 info: TalosForge.Core.Bot.BotEngine[0] tick=77 state=Idle tick_ms=47 snapshot_ms=10 events_count=0 commands_count=1
+16:26:59 info: TalosForge.Core.Bot.BotEngine[0] tick=78 state=Idle tick_ms=47 snapshot_ms=11 events_count=0 commands_count=1
+16:26:59 info: TalosForge.Core.Bot.BotEngine[0] tick=79 state=Idle tick_ms=46 snapshot_ms=10 events_count=0 commands_count=1

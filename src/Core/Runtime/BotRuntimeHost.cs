@@ -73,11 +73,20 @@ public sealed class BotRuntimeHost
 
             logger.LogInformation("Attach succeeded. BaseAddress: 0x{BaseAddress:X}", reader.BaseAddress.ToInt64());
 
-            var clientConnection = reader.ReadPointer(
-                IntPtr.Add(reader.BaseAddress, Offsets.STATIC_CLIENT_CONNECTION));
-            logger.LogInformation(
-                "STATIC_CLIENT_CONNECTION pointer: 0x{ClientConnection:X}",
-                clientConnection.ToInt64());
+            var staticClientConnectionAddress = ResolveStaticAddress(reader.BaseAddress, Offsets.STATIC_CLIENT_CONNECTION, reader);
+            if (TryReadPointer(reader, staticClientConnectionAddress, out var clientConnection))
+            {
+                logger.LogInformation(
+                    "STATIC_CLIENT_CONNECTION pointer: 0x{ClientConnection:X} (source=0x{Address:X})",
+                    clientConnection.ToInt64(),
+                    staticClientConnectionAddress.ToInt64());
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Unable to read STATIC_CLIENT_CONNECTION at 0x{Address:X}; continuing and deferring to ObjectManager probing.",
+                    staticClientConnectionAddress.ToInt64());
+            }
 
             var objectManager = new ObjectManagerService(reader, loggerFactory.CreateLogger<ObjectManagerService>());
             var eventBus = new EventBus();
@@ -289,5 +298,31 @@ public sealed class BotRuntimeHost
             metrics,
             hostStatus?.TimestampUtc,
             hostFresh);
+    }
+
+    private static IntPtr ResolveStaticAddress(IntPtr baseAddress, int offset, IMemoryReader memoryReader)
+    {
+        // Most 3.3.5a offsets are absolute virtual addresses; keep base-relative fallback for compatibility.
+        var absoluteAddress = new IntPtr(unchecked((int)(uint)offset));
+        if (TryReadPointer(memoryReader, absoluteAddress, out _))
+        {
+            return absoluteAddress;
+        }
+
+        return IntPtr.Add(baseAddress, offset);
+    }
+
+    private static bool TryReadPointer(IMemoryReader memoryReader, IntPtr address, out IntPtr pointer)
+    {
+        pointer = IntPtr.Zero;
+        try
+        {
+            pointer = memoryReader.ReadPointer(address);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

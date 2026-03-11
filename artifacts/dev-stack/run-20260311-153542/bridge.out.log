@@ -1,0 +1,2 @@
+15:35:46 info: TalosForge.AdapterBridge[0] Bridge mode: wow-cli path=C:\Utilities\TalosForge\src\UnlockerCli\bin\Release\net8.0\TalosForge.UnlockerCli.exe timeout_ms=2500
+15:35:46 info: TalosForge.AdapterBridge.Runtime.PipeBridgeService[0] AdapterBridge started. pipe=TalosForge.UnlockerAdapter.v1 mode=wow-cli

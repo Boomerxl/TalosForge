@@ -16,7 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\TalosForge.Core.csproj" />
+    <ProjectReference Include="..\..\src\AdapterBridge\TalosForge.AdapterBridge.csproj" />
+    <ProjectReference Include="..\..\src\UnlockerCli\TalosForge.UnlockerCli.csproj" />
     <ProjectReference Include="..\..\src\Plugins\SampleCombatPlugin\SampleCombatPlugin.csproj" />
     <ProjectReference Include="..\..\src\UnlockerHost\TalosForge.UnlockerHost.csproj" />
+    <ProjectReference Include="..\..\src\UnlockerAgentHost\TalosForge.UnlockerAgentHost.csproj" />
   </ItemGroup>
 </Project>

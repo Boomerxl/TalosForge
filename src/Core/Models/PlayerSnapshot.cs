@@ -8,4 +8,6 @@ public sealed record PlayerSnapshot(
     bool InCombat,
     bool IsCasting,
     bool LootReady,
-    bool IsMoving);
+    bool IsMoving,
+    int? Health = null,
+    int? MaxHealth = null);

@@ -1,0 +1,2 @@
+16:27:02 info: TalosForge.UnlockerAgentHost[0] Agent config pipe=TalosForge.Agent.v1 wow_process=Wow retry_count=2 backoff_ms=100-2500 evasion=full
+16:27:02 info: TalosForge.UnlockerAgentHost.Runtime.AgentPipeService[0] UnlockerAgentHost started. pipe=TalosForge.Agent.v1

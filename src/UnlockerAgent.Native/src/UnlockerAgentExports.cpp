@@ -1,0 +1,519 @@
+#include "UnlockerAgentExports.h"
+
+#include <Windows.h>
+
+#include <atomic>
+#include <chrono>
+#include <cctype>
+#include <cstdint>
+#include <cstring>
+#include <mutex>
+#include <sstream>
+#include <string>
+
+namespace {
+
+using TalosForge::NativeAgent::AgentState;
+using TalosForge::NativeAgent::AgentStatus;
+
+constexpr uint32_t kLuaExecuteAddress = 0x00819210;
+constexpr uint32_t kHardwareFlagAddress = 0x00B499A4;
+
+std::mutex g_sync;
+std::atomic<uint64_t> g_heartbeatUnixMs{0};
+std::atomic<AgentState> g_state{AgentState::Booting};
+std::atomic<bool> g_stop{false};
+std::string g_lastError;
+bool g_initialized = false;
+HANDLE g_serverThread = nullptr;
+HMODULE g_module = nullptr;
+std::string g_pipeName;
+uint32_t g_queueDepth = 0;
+
+using FrameScriptExecuteFn = void(__cdecl*)(const char*, const char*, int);
+
+uint64_t NowUnixMs() {
+    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now());
+    return static_cast<uint64_t>(now.time_since_epoch().count());
+}
+
+void SetErrorLocked(const char* message) {
+    g_lastError = message ? message : "";
+    g_state.store(AgentState::Faulted);
+}
+
+bool ReadLine(HANDLE pipe, std::string& line) {
+    line.clear();
+    char ch = 0;
+    DWORD read = 0;
+    while (true) {
+        const BOOL ok = ReadFile(pipe, &ch, 1, &read, nullptr);
+        if (!ok || read == 0) {
+            return false;
+        }
+
+        if (ch == '\n') {
+            break;
+        }
+
+        if (ch != '\r') {
+            line.push_back(ch);
+        }
+    }
+
+    return true;
+}
+
+bool WriteLine(HANDLE pipe, const std::string& line) {
+    std::string payload = line;
+    payload.push_back('\n');
+    DWORD written = 0;
+    return WriteFile(pipe, payload.data(), static_cast<DWORD>(payload.size()), &written, nullptr) == TRUE;
+}
+
+bool TryExtractJsonString(const std::string& json, const std::string& key, std::string& value) {
+    value.clear();
+    const std::string pattern = "\"" + key + "\"";
+    size_t pos = json.find(pattern);
+    if (pos == std::string::npos) {
+        return false;
+    }
+
+    pos = json.find(':', pos + pattern.size());
+    if (pos == std::string::npos) {
+        return false;
+    }
+
+    pos = json.find('"', pos + 1);
+    if (pos == std::string::npos) {
+        return false;
+    }
+
+    ++pos;
+    bool escaped = false;
+    while (pos < json.size()) {
+        const char ch = json[pos++];
+        if (escaped) {
+            switch (ch) {
+            case 'n': value.push_back('\n'); break;
+            case 'r': value.push_back('\r'); break;
+            case 't': value.push_back('\t'); break;
+            case '\\': value.push_back('\\'); break;
+            case '"': value.push_back('"'); break;
+            default: value.push_back(ch); break;
+            }
+            escaped = false;
+            continue;
+        }
+
+        if (ch == '\\') {
+            escaped = true;
+            continue;
+        }
+
+        if (ch == '"') {
+            return true;
+        }
+
+        value.push_back(ch);
+    }
+
+    return false;
+}
+
+bool TryExtractJsonNumber(const std::string& json, const std::string& key, double& value) {
+    const std::string pattern = "\"" + key + "\"";
+    size_t pos = json.find(pattern);
+    if (pos == std::string::npos) {
+        return false;
+    }
+
+    pos = json.find(':', pos + pattern.size());
+    if (pos == std::string::npos) {
+        return false;
+    }
+
+    ++pos;
+    while (pos < json.size() && isspace(static_cast<unsigned char>(json[pos])) != 0) {
+        ++pos;
+    }
+
+    size_t end = pos;
+    while (end < json.size()) {
+        const char ch = json[end];
+        if ((ch >= '0' && ch <= '9') || ch == '.' || ch == '-' || ch == '+') {
+            ++end;
+        }
+        else {
+            break;
+        }
+    }
+
+    if (end <= pos) {
+        return false;
+    }
+
+    std::istringstream iss(json.substr(pos, end - pos));
+    iss >> value;
+    return !iss.fail();
+}
+
+bool TryExtractJsonUInt64(const std::string& json, const std::string& key, uint64_t& value) {
+    std::string raw;
+    if (TryExtractJsonString(json, key, raw)) {
+        if (raw.rfind("0x", 0) == 0 || raw.rfind("0X", 0) == 0) {
+            std::istringstream iss(raw.substr(2));
+            iss >> std::hex >> value;
+            return !iss.fail();
+        }
+
+        std::istringstream iss(raw);
+        iss >> value;
+        return !iss.fail();
+    }
+
+    double numeric = 0;
+    if (!TryExtractJsonNumber(json, key, numeric)) {
+        return false;
+    }
+
+    if (numeric < 0) {
+        return false;
+    }
+
+    value = static_cast<uint64_t>(numeric);
+    return true;
+}
+
+bool ExecuteLua(const std::string& code, std::string& error) {
+    if (code.empty()) {
+        error = "Lua code is empty.";
+        return false;
+    }
+
+    auto fn = reinterpret_cast<FrameScriptExecuteFn>(kLuaExecuteAddress);
+    volatile uint32_t* flag = reinterpret_cast<volatile uint32_t*>(kHardwareFlagAddress);
+
+    __try {
+        *flag = 1;
+        fn(code.c_str(), "TalosForge", 0);
+        *flag = 0;
+        return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        *flag = 0;
+        error = "FrameScript_Execute raised an exception.";
+        return false;
+    }
+}
+
+std::string EscapeLua(const std::string& text) {
+    std::string out;
+    out.reserve(text.size() + 8);
+    for (char ch : text) {
+        if (ch == '\\' || ch == '\'') {
+            out.push_back('\\');
+        }
+
+        out.push_back(ch);
+    }
+
+    return out;
+}
+
+bool BuildLuaFromOpcode(
+    const std::string& opcode,
+    const std::string& payloadJson,
+    std::string& lua,
+    std::string& error) {
+    lua.clear();
+    error.clear();
+
+    if (opcode == "LuaDoString") {
+        std::string code;
+        if (!TryExtractJsonString(payloadJson, "code", code)) {
+            error = "Missing code.";
+            return false;
+        }
+
+        lua = code;
+        return true;
+    }
+
+    if (opcode == "CastSpellByName") {
+        std::string spell;
+        if (!TryExtractJsonString(payloadJson, "spell", spell)) {
+            error = "Missing spell.";
+            return false;
+        }
+
+        lua = "CastSpellByName('" + EscapeLua(spell) + "')";
+        return true;
+    }
+
+    if (opcode == "SetTargetGuid") {
+        uint64_t guid = 0;
+        if (!TryExtractJsonUInt64(payloadJson, "guid", guid)) {
+            error = "Missing guid.";
+            return false;
+        }
+
+        lua = "if _G.SetTargetGuid then SetTargetGuid('" + std::to_string(guid) + "') else error('SetTargetGuid unavailable') end";
+        return true;
+    }
+
+    if (opcode == "Face") {
+        double facing = 0;
+        double smoothing = 0;
+        if (!TryExtractJsonNumber(payloadJson, "facing", facing) ||
+            !TryExtractJsonNumber(payloadJson, "smoothing", smoothing)) {
+            error = "Missing facing/smoothing.";
+            return false;
+        }
+
+        lua = "if _G.Face then Face(" + std::to_string(facing) + "," + std::to_string(smoothing) + ") else error('Face unavailable') end";
+        return true;
+    }
+
+    if (opcode == "MoveTo") {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double overshoot = 0;
+        if (!TryExtractJsonNumber(payloadJson, "x", x) ||
+            !TryExtractJsonNumber(payloadJson, "y", y) ||
+            !TryExtractJsonNumber(payloadJson, "z", z) ||
+            !TryExtractJsonNumber(payloadJson, "overshootThreshold", overshoot)) {
+            error = "Missing move parameters.";
+            return false;
+        }
+
+        lua = "if _G.MoveTo then MoveTo(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + "," + std::to_string(overshoot) + ") else error('MoveTo unavailable') end";
+        return true;
+    }
+
+    if (opcode == "Interact") {
+        uint64_t guid = 0;
+        if (TryExtractJsonUInt64(payloadJson, "guid", guid)) {
+            lua = "if _G.Interact then Interact('" + std::to_string(guid) + "') elseif _G.InteractGuid then InteractGuid('" + std::to_string(guid) + "') else error('Interact unavailable') end";
+        }
+        else {
+            lua = "if _G.Interact then Interact() elseif _G.InteractUnit then InteractUnit('target') else error('Interact unavailable') end";
+        }
+
+        return true;
+    }
+
+    if (opcode == "Stop") {
+        lua = "if _G.Stop then Stop() else if _G.MoveForwardStop then MoveForwardStop() end if _G.MoveBackwardStop then MoveBackwardStop() end if _G.StrafeLeftStop then StrafeLeftStop() end if _G.StrafeRightStop then StrafeRightStop() end end";
+        return true;
+    }
+
+    error = "Unsupported opcode.";
+    return false;
+}
+
+DWORD WINAPI PipeServerThreadProc(LPVOID) {
+    while (!g_stop.load()) {
+        HANDLE pipe = CreateNamedPipeA(
+            g_pipeName.c_str(),
+            PIPE_ACCESS_DUPLEX,
+            PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+            PIPE_UNLIMITED_INSTANCES,
+            8192,
+            8192,
+            200,
+            nullptr);
+        if (pipe == INVALID_HANDLE_VALUE) {
+            Sleep(100);
+            continue;
+        }
+
+        const BOOL connected = ConnectNamedPipe(pipe, nullptr) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
+        if (!connected) {
+            CloseHandle(pipe);
+            continue;
+        }
+
+        while (!g_stop.load()) {
+            std::string opcode;
+            std::string payload;
+            std::string timeoutRaw;
+            if (!ReadLine(pipe, opcode) || !ReadLine(pipe, payload) || !ReadLine(pipe, timeoutRaw)) {
+                break;
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(g_sync);
+                ++g_queueDepth;
+            }
+
+            g_heartbeatUnixMs.store(NowUnixMs());
+            std::string lua;
+            std::string error;
+            bool success = BuildLuaFromOpcode(opcode, payload, lua, error);
+            std::string code = success ? "OK" : "AGENT_INVALID_REQUEST";
+            std::string message = success ? ("ACK:" + opcode) : error;
+
+            if (success) {
+                success = ExecuteLua(lua, error);
+                if (!success) {
+                    code = "AGENT_EXECUTION_FAILED";
+                    message = error;
+                }
+            }
+
+            WriteLine(pipe, success ? "1" : "0");
+            WriteLine(pipe, code);
+            WriteLine(pipe, message);
+            WriteLine(pipe, payload);
+
+            {
+                std::lock_guard<std::mutex> lock(g_sync);
+                if (g_queueDepth > 0) {
+                    --g_queueDepth;
+                }
+
+                if (!success) {
+                    SetErrorLocked(message.c_str());
+                }
+                else {
+                    g_state.store(AgentState::Ready);
+                    g_lastError.clear();
+                }
+            }
+        }
+
+        FlushFileBuffers(pipe);
+        DisconnectNamedPipe(pipe);
+        CloseHandle(pipe);
+    }
+
+    return 0;
+}
+
+void StartPipeServerLocked() {
+    if (g_serverThread != nullptr) {
+        return;
+    }
+
+    const DWORD pid = GetCurrentProcessId();
+    g_pipeName = "\\\\.\\pipe\\TalosForge.Agent.Native." + std::to_string(pid);
+    g_stop.store(false);
+    g_serverThread = CreateThread(nullptr, 0, PipeServerThreadProc, nullptr, 0, nullptr);
+}
+
+void StopPipeServerLocked() {
+    g_stop.store(true);
+    if (g_serverThread != nullptr) {
+        WaitForSingleObject(g_serverThread, 1000);
+        CloseHandle(g_serverThread);
+        g_serverThread = nullptr;
+    }
+}
+
+} // namespace
+
+BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID) {
+    switch (reason) {
+    case DLL_PROCESS_ATTACH:
+        g_module = module;
+        DisableThreadLibraryCalls(module);
+        {
+            std::lock_guard<std::mutex> lock(g_sync);
+            g_initialized = true;
+            g_state.store(AgentState::Ready);
+            g_heartbeatUnixMs.store(NowUnixMs());
+            g_lastError.clear();
+            StartPipeServerLocked();
+        }
+        break;
+    case DLL_PROCESS_DETACH:
+        {
+            std::lock_guard<std::mutex> lock(g_sync);
+            StopPipeServerLocked();
+            g_initialized = false;
+            g_state.store(AgentState::Booting);
+        }
+        break;
+    default:
+        break;
+    }
+
+    return TRUE;
+}
+
+AGENT_API bool AGENT_CALL AgentInitialize(const TalosForge::NativeAgent::AgentInitConfig* config) {
+    std::lock_guard<std::mutex> lock(g_sync);
+    g_lastError.clear();
+
+    if (config == nullptr || config->version == 0) {
+        SetErrorLocked("Invalid config.");
+        return false;
+    }
+
+    g_initialized = true;
+    g_state.store(AgentState::Ready);
+    g_heartbeatUnixMs.store(NowUnixMs());
+    StartPipeServerLocked();
+    return true;
+}
+
+AGENT_API bool AGENT_CALL AgentShutdown() {
+    std::lock_guard<std::mutex> lock(g_sync);
+    StopPipeServerLocked();
+    g_initialized = false;
+    g_state.store(AgentState::Booting);
+    g_heartbeatUnixMs.store(NowUnixMs());
+    g_lastError.clear();
+    g_queueDepth = 0;
+    return true;
+}
+
+AGENT_API bool AGENT_CALL AgentEnqueueCommand(const char* opcode, const char* payloadJson, uint32_t) {
+    std::lock_guard<std::mutex> lock(g_sync);
+    if (!g_initialized) {
+        SetErrorLocked("Agent not initialized.");
+        return false;
+    }
+
+    if (opcode == nullptr || opcode[0] == '\0') {
+        SetErrorLocked("Opcode is required.");
+        return false;
+    }
+
+    std::string lua;
+    std::string error;
+    if (!BuildLuaFromOpcode(opcode, payloadJson ? payloadJson : "{}", lua, error)) {
+        SetErrorLocked(error.c_str());
+        return false;
+    }
+
+    if (!ExecuteLua(lua, error)) {
+        SetErrorLocked(error.c_str());
+        return false;
+    }
+
+    g_heartbeatUnixMs.store(NowUnixMs());
+    g_state.store(AgentState::Ready);
+    g_lastError.clear();
+    return true;
+}
+
+AGENT_API bool AGENT_CALL AgentTryGetStatus(AgentStatus* status) {
+    if (status == nullptr) {
+        return false;
+    }
+
+    std::lock_guard<std::mutex> lock(g_sync);
+    status->state = static_cast<uint32_t>(g_state.load());
+    status->heartbeatUnixMs = g_heartbeatUnixMs.load();
+    status->queueDepth = g_queueDepth;
+    std::memset(status->lastError, 0, sizeof(status->lastError));
+    if (!g_lastError.empty()) {
+        std::strncpy(status->lastError, g_lastError.c_str(), sizeof(status->lastError) - 1);
+    }
+
+    return true;
+}

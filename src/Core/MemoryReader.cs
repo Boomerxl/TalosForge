@@ -75,6 +75,7 @@ public sealed class MemoryReader : IMemoryReader
             {
                 return false;
             }
+            var processId = process.Id;
 
             var desiredAccess = ProcessVmRead |
                                 ProcessVmWrite |
@@ -82,11 +83,11 @@ public sealed class MemoryReader : IMemoryReader
                                 ProcessQueryInformation |
                                 ProcessQueryLimitedInformation;
 
-            var handle = OpenProcess(desiredAccess, false, process.Id);
+            var handle = OpenProcess(desiredAccess, false, processId);
             if (handle == IntPtr.Zero)
             {
                 var error = Marshal.GetLastWin32Error();
-                throw new Win32Exception(error, $"OpenProcess failed for PID {process.Id}.");
+                throw new Win32Exception(error, $"OpenProcess failed for PID {processId}.");
             }
 
             if (!IsTarget32Bit(handle))
@@ -105,7 +106,7 @@ public sealed class MemoryReader : IMemoryReader
             {
                 CloseHandle(handle);
                 process.Dispose();
-                throw new InvalidOperationException($"Unable to read main module for PID {process.Id}.", ex);
+                throw new InvalidOperationException($"Unable to read main module for PID {processId}.", ex);
             }
 
             if (baseAddress == IntPtr.Zero)

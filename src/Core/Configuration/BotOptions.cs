@@ -14,10 +14,10 @@ public sealed class BotOptions
     public string CommandMmfName { get; set; } = "TalosForge.Cmd.v1";
     public string EventMmfName { get; set; } = "TalosForge.Evt.v1";
     public int RingCapacityBytes { get; set; } = 1_048_576;
-    public int UnlockerTimeoutMs { get; set; } = 250;
-    public int UnlockerRetryCount { get; set; } = 2;
-    public int UnlockerBackoffBaseMs { get; set; } = 50;
-    public int UnlockerBackoffMaxMs { get; set; } = 1_000;
+    public int UnlockerTimeoutMs { get; set; } = 1_200;
+    public int UnlockerRetryCount { get; set; } = 0;
+    public int UnlockerBackoffBaseMs { get; set; } = 150;
+    public int UnlockerBackoffMaxMs { get; set; } = 2_500;
     public string UnlockerStatusFilePath { get; set; } =
         Path.Combine(Path.GetTempPath(), "TalosForge.UnlockerHost.status.json");
     public int UnlockerStatusStaleMs { get; set; } = 3_000;

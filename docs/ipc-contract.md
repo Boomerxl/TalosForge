@@ -35,6 +35,7 @@ Opcodes:
 - `Face`
 - `MoveTo`
 - `Interact`
+- `Stop`
 
 ## Ack Payload Envelope
 

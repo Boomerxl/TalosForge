@@ -44,6 +44,10 @@ public static class Program
         const string inGameUiIntervalArg = "--ingame-ui-interval";
         const string realUnlockerArg = "--real-unlocker";
         const string mockUnlockerArg = "--use-mock-unlocker";
+        const string unlockerTimeoutArg = "--unlocker-timeout-ms";
+        const string unlockerRetryArg = "--unlocker-retry-count";
+        const string unlockerBackoffBaseArg = "--unlocker-backoff-base-ms";
+        const string unlockerBackoffMaxArg = "--unlocker-backoff-max-ms";
         var runtime = new RuntimeOptions();
 
         for (var i = 0; i < args.Length; i++)
@@ -54,6 +58,10 @@ public static class Program
             var matchedTelemetryLevel = false;
             var matchedPluginDir = false;
             var matchedInGameUiInterval = false;
+            var matchedUnlockerTimeout = false;
+            var matchedUnlockerRetry = false;
+            var matchedUnlockerBackoffBase = false;
+            var matchedUnlockerBackoffMax = false;
             var interval = 0;
 
             if (argument.Equals(smokeArg, StringComparison.OrdinalIgnoreCase))
@@ -144,13 +152,78 @@ public static class Program
                 value = argument[(inGameUiIntervalArg.Length + 1)..];
                 matchedInGameUiInterval = true;
             }
+            else if (argument.Equals(unlockerTimeoutArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default timeout {Timeout}.", unlockerTimeoutArg, options.UnlockerTimeoutMs);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedUnlockerTimeout = true;
+            }
+            else if (argument.StartsWith(unlockerTimeoutArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(unlockerTimeoutArg.Length + 1)..];
+                matchedUnlockerTimeout = true;
+            }
+            else if (argument.Equals(unlockerRetryArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default retry count {Retries}.", unlockerRetryArg, options.UnlockerRetryCount);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedUnlockerRetry = true;
+            }
+            else if (argument.StartsWith(unlockerRetryArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(unlockerRetryArg.Length + 1)..];
+                matchedUnlockerRetry = true;
+            }
+            else if (argument.Equals(unlockerBackoffBaseArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default backoff base {Base}.", unlockerBackoffBaseArg, options.UnlockerBackoffBaseMs);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedUnlockerBackoffBase = true;
+            }
+            else if (argument.StartsWith(unlockerBackoffBaseArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(unlockerBackoffBaseArg.Length + 1)..];
+                matchedUnlockerBackoffBase = true;
+            }
+            else if (argument.Equals(unlockerBackoffMaxArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    logger.LogWarning("Missing value for {Argument}. Keeping default backoff max {Max}.", unlockerBackoffMaxArg, options.UnlockerBackoffMaxMs);
+                    continue;
+                }
+
+                value = args[++i];
+                matchedUnlockerBackoffMax = true;
+            }
+            else if (argument.StartsWith(unlockerBackoffMaxArg + "=", StringComparison.OrdinalIgnoreCase))
+            {
+                value = argument[(unlockerBackoffMaxArg.Length + 1)..];
+                matchedUnlockerBackoffMax = true;
+            }
 
             if (value == null)
             {
                 continue;
             }
 
-            if ((matchedTelemetryInterval || matchedInGameUiInterval) && !int.TryParse(value, out interval))
+            if ((matchedTelemetryInterval || matchedInGameUiInterval || matchedUnlockerTimeout || matchedUnlockerRetry || matchedUnlockerBackoffBase || matchedUnlockerBackoffMax) &&
+                !int.TryParse(value, out interval))
             {
                 logger.LogWarning("Invalid interval '{Value}'.", value);
                 continue;
@@ -199,6 +272,59 @@ public static class Program
                     "In-game overlay interval set to every {Interval} ticks (enabled={Enabled}).",
                     options.InGameOverlayEveryTicks,
                     options.EnableInGameOverlay);
+            }
+
+            if (matchedUnlockerTimeout)
+            {
+                if (interval < 1)
+                {
+                    logger.LogWarning("Unlocker timeout must be >= 1. Keeping {Timeout}.", options.UnlockerTimeoutMs);
+                    continue;
+                }
+
+                options.UnlockerTimeoutMs = interval;
+                logger.LogInformation("Unlocker timeout set to {TimeoutMs}ms.", options.UnlockerTimeoutMs);
+            }
+
+            if (matchedUnlockerRetry)
+            {
+                if (interval < 0)
+                {
+                    logger.LogWarning("Unlocker retry count must be >= 0. Keeping {Retries}.", options.UnlockerRetryCount);
+                    continue;
+                }
+
+                options.UnlockerRetryCount = interval;
+                logger.LogInformation("Unlocker retry count set to {Retries}.", options.UnlockerRetryCount);
+            }
+
+            if (matchedUnlockerBackoffBase)
+            {
+                if (interval < 0)
+                {
+                    logger.LogWarning("Unlocker backoff base must be >= 0. Keeping {Base}.", options.UnlockerBackoffBaseMs);
+                    continue;
+                }
+
+                options.UnlockerBackoffBaseMs = interval;
+                if (options.UnlockerBackoffMaxMs < options.UnlockerBackoffBaseMs)
+                {
+                    options.UnlockerBackoffMaxMs = options.UnlockerBackoffBaseMs;
+                }
+
+                logger.LogInformation("Unlocker backoff base set to {BackoffBaseMs}ms.", options.UnlockerBackoffBaseMs);
+            }
+
+            if (matchedUnlockerBackoffMax)
+            {
+                if (interval < 0)
+                {
+                    logger.LogWarning("Unlocker backoff max must be >= 0. Keeping {Max}.", options.UnlockerBackoffMaxMs);
+                    continue;
+                }
+
+                options.UnlockerBackoffMaxMs = Math.Max(options.UnlockerBackoffBaseMs, interval);
+                logger.LogInformation("Unlocker backoff max set to {BackoffMaxMs}ms.", options.UnlockerBackoffMaxMs);
             }
         }
 

@@ -1,0 +1,2 @@
+16:25:19 info: TalosForge.AdapterBridge[0] Bridge mode: wow-agent pipe=TalosForge.Agent.v1 connect_timeout_ms=1200 request_timeout_ms=2500 evasion=full
+16:25:19 info: TalosForge.AdapterBridge.Runtime.PipeBridgeService[0] AdapterBridge started. pipe=TalosForge.UnlockerAdapter.v1 mode=wow-agent

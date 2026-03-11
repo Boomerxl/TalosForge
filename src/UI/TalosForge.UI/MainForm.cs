@@ -23,6 +23,11 @@ public sealed class MainForm : Form
     private readonly Label _targetValue;
     private readonly Label _commandsValue;
     private readonly Label _unlockerValue;
+    private readonly Label _timeoutsConsecutiveValue;
+    private readonly Label _timeoutsTotalValue;
+    private readonly Label _backoffWaitsValue;
+    private readonly Label _lastBackoffMsValue;
+    private readonly Label _heartbeatAgeValue;
     private readonly RichTextBox _logBox;
     private readonly ToolTip _toolTip;
 
@@ -41,13 +46,14 @@ public sealed class MainForm : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4,
+            RowCount = 5,
             Padding = new Padding(10),
         };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 122));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
         var topControls = new FlowLayoutPanel
         {
@@ -159,6 +165,34 @@ public sealed class MainForm : Form
         metrics.Controls.Add(MakeHeaderLabel("Unlocker"), 10, 0);
         metrics.Controls.Add(_unlockerValue, 11, 0);
 
+        var unlockerDiagnostics = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 10,
+            Padding = new Padding(4, 0, 4, 0),
+        };
+        for (var i = 0; i < 10; i++)
+        {
+            unlockerDiagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10f));
+        }
+
+        _timeoutsConsecutiveValue = MakeValueLabel("-");
+        _timeoutsTotalValue = MakeValueLabel("-");
+        _backoffWaitsValue = MakeValueLabel("-");
+        _lastBackoffMsValue = MakeValueLabel("-");
+        _heartbeatAgeValue = MakeValueLabel("-");
+
+        unlockerDiagnostics.Controls.Add(MakeHeaderLabel("Consecutive TO"), 0, 0);
+        unlockerDiagnostics.Controls.Add(_timeoutsConsecutiveValue, 1, 0);
+        unlockerDiagnostics.Controls.Add(MakeHeaderLabel("Total TO"), 2, 0);
+        unlockerDiagnostics.Controls.Add(_timeoutsTotalValue, 3, 0);
+        unlockerDiagnostics.Controls.Add(MakeHeaderLabel("Backoff Waits"), 4, 0);
+        unlockerDiagnostics.Controls.Add(_backoffWaitsValue, 5, 0);
+        unlockerDiagnostics.Controls.Add(MakeHeaderLabel("Last Backoff"), 6, 0);
+        unlockerDiagnostics.Controls.Add(_lastBackoffMsValue, 7, 0);
+        unlockerDiagnostics.Controls.Add(MakeHeaderLabel("Heartbeat Age"), 8, 0);
+        unlockerDiagnostics.Controls.Add(_heartbeatAgeValue, 9, 0);
+
         var logTitle = new Label
         {
             Text = "Runtime Log",
@@ -177,8 +211,9 @@ public sealed class MainForm : Form
 
         root.Controls.Add(topControls, 0, 0);
         root.Controls.Add(metrics, 0, 1);
-        root.Controls.Add(logTitle, 0, 2);
-        root.Controls.Add(_logBox, 0, 3);
+        root.Controls.Add(unlockerDiagnostics, 0, 2);
+        root.Controls.Add(logTitle, 0, 3);
+        root.Controls.Add(_logBox, 0, 4);
 
         Controls.Add(root);
     }
@@ -279,7 +314,7 @@ public sealed class MainForm : Form
 
         BeginInvoke(new Action(() =>
         {
-            UpdateUnlockerUi(health.State, health.Summary);
+            UpdateUnlockerUi(health);
         }));
     }
 
@@ -307,12 +342,19 @@ public sealed class MainForm : Form
         _statusValue.Text = running ? "Running" : "Stopped";
         if (!running)
         {
-            UpdateUnlockerUi(UnlockerConnectionState.Unknown, "Not running");
+            UpdateUnlockerUi(new UnlockerHealthSnapshot(
+                UnlockerConnectionState.Unknown,
+                "Not running",
+                new UnlockerClientMetrics(0, 0, 0, 0, 0, 0, null, null, null, null),
+                null,
+                false));
         }
     }
 
-    private void UpdateUnlockerUi(UnlockerConnectionState state, string summary)
+    private void UpdateUnlockerUi(UnlockerHealthSnapshot health)
     {
+        var state = health.State;
+        var summary = health.Summary;
         var stateText = state switch
         {
             UnlockerConnectionState.Connected => "Connected",
@@ -347,6 +389,13 @@ public sealed class MainForm : Form
         {
             _toolTip.SetToolTip(_unlockerBadge, summary);
         }
+
+        var diagnostics = UnlockerDiagnosticsFormatter.Build(health, DateTimeOffset.UtcNow);
+        _timeoutsConsecutiveValue.Text = diagnostics.ConsecutiveTimeouts.ToString();
+        _timeoutsTotalValue.Text = diagnostics.TotalTimeouts.ToString();
+        _backoffWaitsValue.Text = diagnostics.BackoffWaits.ToString();
+        _lastBackoffMsValue.Text = $"{diagnostics.LastBackoffMs} ms";
+        _heartbeatAgeValue.Text = diagnostics.HeartbeatAge;
     }
 
     private static TelemetryLevel ParseTelemetryLevel(string? value)

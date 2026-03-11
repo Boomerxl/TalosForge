@@ -58,11 +58,28 @@ public sealed class InGameOverlayService
         return "local frame = _G['TalosForgeStatusFrame'];" +
                "if not frame then " +
                "frame = CreateFrame('Frame','TalosForgeStatusFrame',UIParent);" +
-               "frame:SetSize(420,32);" +
-               "frame:SetPoint('TOP', UIParent, 'TOP', 0, -120);" +
-               "local text = frame:CreateFontString('TalosForgeStatusText','OVERLAY','GameFontNormalLarge');" +
-               "text:SetPoint('CENTER');" +
                "end;" +
+               "frame:ClearAllPoints();" +
+               "frame:SetSize(900,80);" +
+               "frame:SetPoint('CENTER', UIParent, 'CENTER', 0, 0);" +
+               "frame:SetFrameStrata('TOOLTIP');" +
+               "frame:SetFrameLevel(999);" +
+               "if not frame.TalosForgeBg then " +
+               "frame.TalosForgeBg = frame:CreateTexture(nil,'BACKGROUND');" +
+               "end;" +
+               "frame.TalosForgeBg:SetAllPoints(true);" +
+               "frame.TalosForgeBg:SetColorTexture(0,0,0,0.55);" +
+               "local text = _G['TalosForgeStatusText'];" +
+               "if not text then " +
+               "text = frame:CreateFontString('TalosForgeStatusText','OVERLAY');" +
+               "end;" +
+               "text:ClearAllPoints();" +
+               "text:SetPoint('CENTER', frame, 'CENTER', 0, 0);" +
+               "text:SetFont('Fonts\\\\FRIZQT__.TTF',24,'OUTLINE');" +
+               "text:SetTextColor(0.1,1.0,0.1,1.0);" +
+               "text:SetShadowOffset(2,-2);" +
+               "text:SetShadowColor(0,0,0,1);" +
+               "TalosForgeStatusFrame:Show();" +
                "TalosForgeStatusText:SetText([[" + safe + "]]);";
     }
 

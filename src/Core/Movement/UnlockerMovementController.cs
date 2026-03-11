@@ -70,8 +70,8 @@ public sealed class UnlockerMovementController : IMovementController
         await _unlockerClient.SendAsync(
             new UnlockerCommand(
                 DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                UnlockerOpcode.Interact,
-                "{\"stop\":true}",
+                UnlockerOpcode.Stop,
+                "{}",
                 DateTimeOffset.UtcNow),
             cancellationToken).ConfigureAwait(false);
     }

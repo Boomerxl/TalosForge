@@ -21,4 +21,10 @@ public sealed class UnlockerHostOptions
     public int SmokeDurationSeconds { get; set; } = 5;
 
     public string ExecutorMode { get; set; } = "mock";
+
+    // Adapter backend configuration (`--executor adapter`).
+    public string AdapterBackendMode { get; set; } = "pipe";
+    public string AdapterPipeName { get; set; } = "TalosForge.UnlockerAdapter.v1";
+    public int AdapterConnectTimeoutMs { get; set; } = 1_200;
+    public int AdapterRequestTimeoutMs { get; set; } = 2_500;
 }

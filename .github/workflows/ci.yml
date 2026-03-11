@@ -18,6 +18,10 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Build native agent
+        shell: pwsh
+        run: ./scripts/build-native-agent.ps1 -Configuration Release
+
       - name: Restore
         run: dotnet restore TalosForge.sln
 

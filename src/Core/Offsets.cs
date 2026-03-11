@@ -45,5 +45,10 @@ namespace TalosForge.Core
         public const int CAMERA_PITCH_OFFSET = 0x0034;
 
         // Full unit/descriptor fields (health, powers, flags, auras, casting) available in reference.
+        public const int UNIT_SPELL_CAST_START_MS = 0x0A78;
+        public const int UNIT_SPELL_CAST_END_MS = 0x0A7C;
+        public const int UNIT_COMBAT_FLAG = 0x0BEC;
+        public const int PLAYER_DESCRIPTOR_HEALTH = 0x19B8;
+        public const int PLAYER_DESCRIPTOR_MAX_HEALTH = 0x19D8;
     }
 }

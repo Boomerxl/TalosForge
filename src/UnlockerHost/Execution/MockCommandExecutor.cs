@@ -21,6 +21,7 @@ public sealed class MockCommandExecutor : ICommandExecutor
             UnlockerOpcode.Face => "ACK:Face",
             UnlockerOpcode.MoveTo => "ACK:MoveTo",
             UnlockerOpcode.Interact => "ACK:Interact",
+            UnlockerOpcode.Stop => "ACK:Stop",
             _ => $"ACK:Unknown:{(int)command.Opcode}",
         };
 

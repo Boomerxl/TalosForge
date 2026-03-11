@@ -1,0 +1,3 @@
+16:37:16 warn: TalosForge.UnlockerAgentHost[0] Agent runtime mode=auto fallback to simulated (native DLL not found).
+16:37:16 info: TalosForge.UnlockerAgentHost[0] Agent config pipe=TalosForge.Agent.v1 wow_process=Wow runtime=auto retry_count=2 backoff_ms=100-2500 evasion=full
+16:37:16 info: TalosForge.UnlockerAgentHost.Runtime.AgentPipeService[0] UnlockerAgentHost started. pipe=TalosForge.Agent.v1

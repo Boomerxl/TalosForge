@@ -52,10 +52,38 @@ public static class Program
             case "null":
                 logger.LogInformation("Executor mode: null");
                 return new NullCommandExecutor();
+            case "adapter":
+                logger.LogInformation(
+                    "Executor mode: adapter (backend={BackendMode})",
+                    options.AdapterBackendMode);
+                return new AdapterCommandExecutor(CreateAdapterBackend(options, logger));
             default:
                 logger.LogWarning("Unknown executor mode '{Mode}'. Falling back to 'mock'.", options.ExecutorMode);
                 options.ExecutorMode = "mock";
                 return new MockCommandExecutor();
+        }
+    }
+
+    private static IAdapterBackend CreateAdapterBackend(UnlockerHostOptions options, ILogger logger)
+    {
+        switch (options.AdapterBackendMode.Trim().ToLowerInvariant())
+        {
+            case "pipe":
+                logger.LogInformation(
+                    "Adapter backend: pipe name={PipeName} connect_timeout_ms={ConnectTimeout} request_timeout_ms={RequestTimeout}",
+                    options.AdapterPipeName,
+                    options.AdapterConnectTimeoutMs,
+                    options.AdapterRequestTimeoutMs);
+                return new NamedPipeAdapterBackend(options);
+            case "unavailable":
+                logger.LogInformation("Adapter backend: unavailable (explicit)");
+                return new UnavailableAdapterBackend();
+            default:
+                logger.LogWarning(
+                    "Unknown adapter backend mode '{Mode}'. Falling back to 'unavailable'.",
+                    options.AdapterBackendMode);
+                options.AdapterBackendMode = "unavailable";
+                return new UnavailableAdapterBackend();
         }
     }
 
@@ -73,6 +101,10 @@ public static class Program
         const string statsArg = "--stats-interval";
         const string statusFileArg = "--status-file";
         const string statusIntervalArg = "--status-interval-ms";
+        const string adapterBackendArg = "--adapter-backend";
+        const string adapterPipeArg = "--adapter-pipe";
+        const string adapterConnectTimeoutArg = "--adapter-connect-timeout-ms";
+        const string adapterRequestTimeoutArg = "--adapter-request-timeout-ms";
         const string smokeArg = "--smoke";
         const string smokeSecondsArg = "--smoke-seconds";
 
@@ -96,6 +128,10 @@ public static class Program
                 !TryParseOption(args, ref i, statsArg, out value) &&
                 !TryParseOption(args, ref i, statusFileArg, out value) &&
                 !TryParseOption(args, ref i, statusIntervalArg, out value) &&
+                !TryParseOption(args, ref i, adapterBackendArg, out value) &&
+                !TryParseOption(args, ref i, adapterPipeArg, out value) &&
+                !TryParseOption(args, ref i, adapterConnectTimeoutArg, out value) &&
+                !TryParseOption(args, ref i, adapterRequestTimeoutArg, out value) &&
                 !TryParseOption(args, ref i, smokeSecondsArg, out value))
             {
                 logger.LogWarning("Unknown argument: {Argument}", arg);
@@ -145,6 +181,32 @@ public static class Program
                     statusIntervalArg,
                     options.StatusWriteIntervalMs,
                     min: 100,
+                    logger);
+            }
+            else if (arg.StartsWith(adapterBackendArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.AdapterBackendMode = value;
+            }
+            else if (arg.StartsWith(adapterPipeArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.AdapterPipeName = value;
+            }
+            else if (arg.StartsWith(adapterConnectTimeoutArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.AdapterConnectTimeoutMs = ParseInt(
+                    value,
+                    adapterConnectTimeoutArg,
+                    options.AdapterConnectTimeoutMs,
+                    min: 1,
+                    logger);
+            }
+            else if (arg.StartsWith(adapterRequestTimeoutArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.AdapterRequestTimeoutMs = ParseInt(
+                    value,
+                    adapterRequestTimeoutArg,
+                    options.AdapterRequestTimeoutMs,
+                    min: 1,
                     logger);
             }
             else if (arg.StartsWith(smokeSecondsArg, StringComparison.OrdinalIgnoreCase))

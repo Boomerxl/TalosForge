@@ -1,0 +1,7 @@
+16:25:22 info: TalosForge.UnlockerHost[0] Executor mode: adapter (backend=pipe)
+16:25:22 info: TalosForge.UnlockerHost[0] Adapter backend: pipe name=TalosForge.UnlockerAdapter.v1 connect_timeout_ms=1200 request_timeout_ms=2500
+16:25:22 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] UnlockerHost started. cmd_ring=TalosForge.Cmd.v1 evt_ring=TalosForge.Evt.v1 executor=adapter
+16:25:32 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=68 acks_written=68 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:25:42 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=147 acks_written=147 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:25:52 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=225 acks_written=225 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:26:02 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=305 acks_written=305 acks_dropped=0 decode_failures=0 executor_failures=0 force=False

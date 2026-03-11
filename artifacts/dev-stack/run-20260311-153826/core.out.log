@@ -1,0 +1,6 @@
+15:38:35 info: TalosForge[0] Real unlocker mode enabled.
+15:38:35 info: TalosForge[0] In-game overlay enabled.
+15:38:35 info: TalosForge[0] In-game overlay interval set to every 1 ticks (enabled=True).
+15:38:35 info: TalosForge[0] TalosForge initializing... Custodem finge!
+15:38:35 info: TalosForge[0] Attach succeeded. BaseAddress: 0x400000
+15:38:35 fail: TalosForge[0] Attach failed System.ComponentModel.Win32Exception (299): ReadProcessMemory failed at 0x1079CE0.    at TalosForge.Core.MemoryReader.ReadBytesInternal(IntPtr address, Int32 size) in C:\Utilities\TalosForge\src\Core\MemoryReader.cs:line 254    at TalosForge.Core.MemoryReader.Read[T](IntPtr address) in C:\Utilities\TalosForge\src\Core\MemoryReader.cs:line 148    at TalosForge.Core.MemoryReader.ReadPointer(IntPtr address) in C:\Utilities\TalosForge\src\Core\MemoryReader.cs:line 195    at TalosForge.Core.Runtime.BotRuntimeHost.RunAsync(CancellationToken cancellationToken) in C:\Utilities\TalosForge\src\Core\Runtime\BotRuntimeHost.cs:line 76

@@ -1,0 +1,1339 @@
+15:42:25 info: TalosForge[0] Real unlocker mode enabled.
+15:42:25 info: TalosForge[0] In-game overlay enabled.
+15:42:25 info: TalosForge[0] In-game overlay interval set to every 1 ticks (enabled=True).
+15:42:25 info: TalosForge[0] TalosForge initializing... Custodem finge!
+15:42:25 info: TalosForge[0] Attach succeeded. BaseAddress: 0x400000
+15:42:25 info: TalosForge[0] STATIC_CLIENT_CONNECTION pointer: 0x1B9D8948 (source=0xC79CE0)
+15:42:25 info: TalosForge[0] Using external unlocker endpoint (real in-game actions expected).
+15:42:25 info: TalosForge.Core.Plugins.PluginHost[0] Loaded plugin SampleCombatPlugin v1.0.0
+15:42:25 info: TalosForge[0] Plugin host initialized. directory=C:\Utilities\TalosForge\src\Plugins\SampleCombatPlugin\bin\Release\net8.0 loaded=1
+15:42:25 info: TalosForge[0] Loaded plugins: SampleCombatPlugin
+15:42:27 info: TalosForge.Core.Bot.BotEngine[0] tick=1 state=Idle tick_ms=1233 snapshot_ms=6 events_count=0 commands_count=0
+15:42:27 info: TalosForge.Core.Bot.BotEngine[0] tick=2 state=Idle tick_ms=543 snapshot_ms=1 events_count=0 commands_count=1
+15:42:27 info: TalosForge.Core.Bot.BotEngine[0] tick=3 state=Idle tick_ms=138 snapshot_ms=0 events_count=0 commands_count=1
+15:42:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=3 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:42:27 info: TalosForge.Core.Bot.BotEngine[0] tick=4 state=Idle tick_ms=126 snapshot_ms=5 events_count=0 commands_count=1
+15:42:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=4 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:42:28 fail: TalosForge.Core.ObjectManager.ObjectManagerService[0] ObjectManager scan failed at tick 5 System.InvalidOperationException: No process is associated with this object.    at System.Diagnostics.Process.EnsureState(State state)    at System.Diagnostics.Process.EnsureState(State state)    at System.Diagnostics.Process.get_Id()    at TalosForge.Core.MemoryReader.Attach() in C:\Utilities\TalosForge\src\Core\MemoryReader.cs:line 108    at TalosForge.Core.ObjectManager.ObjectManagerService.GetSnapshot(Int64 tickId) in C:\Utilities\TalosForge\src\Core\ObjectManager\ObjectManagerService.cs:line 33
+15:42:28 info: TalosForge.Core.Bot.BotEngine[0] tick=5 state=Idle tick_ms=927 snapshot_ms=817 events_count=0 commands_count=1
+15:42:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=5 success=False objects=0 player_guid=none target_guid=none error=No process is associated with this object.
+15:42:28 info: TalosForge.Core.Bot.BotEngine[0] tick=6 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:42:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=6 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=7 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=7 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=8 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=8 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=9 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=9 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=10 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=10 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=11 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=11 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=12 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=12 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=13 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=13 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] tick=14 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=14 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=15 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=15 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=16 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=16 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=17 state=Idle tick_ms=77 snapshot_ms=4 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=17 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=18 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=18 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=19 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=19 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=20 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=20 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=21 state=Idle tick_ms=94 snapshot_ms=2 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=21 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] tick=22 state=Idle tick_ms=121 snapshot_ms=3 events_count=0 commands_count=1
+15:42:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=22 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] tick=23 state=Idle tick_ms=190 snapshot_ms=13 events_count=0 commands_count=1
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=23 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] tick=24 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=24 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] tick=25 state=Idle tick_ms=128 snapshot_ms=5 events_count=0 commands_count=1
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=25 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] tick=26 state=Idle tick_ms=161 snapshot_ms=7 events_count=0 commands_count=1
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=26 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] tick=27 state=Idle tick_ms=117 snapshot_ms=5 events_count=0 commands_count=1
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=27 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] tick=28 state=Idle tick_ms=142 snapshot_ms=4 events_count=0 commands_count=1
+15:42:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=28 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] tick=29 state=Idle tick_ms=173 snapshot_ms=6 events_count=0 commands_count=1
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=29 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] tick=30 state=Idle tick_ms=156 snapshot_ms=5 events_count=0 commands_count=1
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=30 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] tick=31 state=Idle tick_ms=158 snapshot_ms=7 events_count=0 commands_count=1
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=31 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] tick=32 state=Idle tick_ms=332 snapshot_ms=6 events_count=0 commands_count=1
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=32 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] tick=33 state=Idle tick_ms=171 snapshot_ms=8 events_count=0 commands_count=1
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=33 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] tick=34 state=Idle tick_ms=158 snapshot_ms=5 events_count=0 commands_count=1
+15:42:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=34 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=35 state=Idle tick_ms=142 snapshot_ms=5 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=35 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=36 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=36 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=37 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=37 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=38 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=38 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=39 state=Idle tick_ms=125 snapshot_ms=3 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=39 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=40 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=40 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=41 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=41 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] tick=42 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:42:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=42 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=43 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=43 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=44 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=44 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=45 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=45 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=46 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=46 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=47 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=47 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=48 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=48 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=49 state=Idle tick_ms=94 snapshot_ms=5 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=49 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] tick=50 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=50 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=51 state=Idle tick_ms=94 snapshot_ms=7 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=51 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=52 state=Idle tick_ms=79 snapshot_ms=2 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=52 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=53 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=53 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=54 state=Idle tick_ms=94 snapshot_ms=2 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=54 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=55 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=55 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=56 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=56 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=57 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=57 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] tick=58 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=58 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=59 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=59 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=60 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=60 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=61 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=61 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=62 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=62 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=63 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=63 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=64 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=64 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=65 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=65 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] tick=66 state=Idle tick_ms=106 snapshot_ms=3 events_count=0 commands_count=1
+15:42:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=66 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=67 state=Idle tick_ms=109 snapshot_ms=6 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=67 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=68 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=68 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=69 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=69 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=70 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=70 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=71 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=71 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=72 state=Idle tick_ms=113 snapshot_ms=4 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=72 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=73 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=73 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] tick=74 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:37 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=74 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=75 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=75 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=76 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=76 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=77 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=77 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=78 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=78 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=79 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=79 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=80 state=Idle tick_ms=78 snapshot_ms=4 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=80 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=81 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=81 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] tick=82 state=Idle tick_ms=93 snapshot_ms=2 events_count=0 commands_count=1
+15:42:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=82 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=83 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=83 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=84 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=84 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=85 state=Idle tick_ms=77 snapshot_ms=2 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=85 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=86 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=86 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=87 state=Idle tick_ms=79 snapshot_ms=4 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=87 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=88 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=88 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=89 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=89 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] tick=90 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=90 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=91 state=Idle tick_ms=78 snapshot_ms=4 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=91 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=92 state=Idle tick_ms=77 snapshot_ms=2 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=92 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=93 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=93 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=94 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=94 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=95 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=95 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=96 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=96 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=97 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=97 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] tick=98 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=98 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=99 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=99 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=100 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=100 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=101 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=101 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=102 state=Idle tick_ms=79 snapshot_ms=4 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=102 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=103 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=103 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=104 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=104 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=105 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=105 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] tick=106 state=Idle tick_ms=94 snapshot_ms=5 events_count=0 commands_count=1
+15:42:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=106 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=107 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=107 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=108 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=108 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=109 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=109 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=110 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=110 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=111 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=111 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=112 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=112 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=113 state=Idle tick_ms=77 snapshot_ms=2 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=113 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] tick=114 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:42 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=114 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=115 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=115 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=116 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=116 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=117 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=117 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=118 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=118 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=119 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=119 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=120 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=120 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=121 state=Idle tick_ms=91 snapshot_ms=3 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=121 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] tick=122 state=Idle tick_ms=76 snapshot_ms=4 events_count=0 commands_count=1
+15:42:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=122 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=123 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=123 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=124 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=124 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=125 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=125 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=126 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=126 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=127 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=127 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=128 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=128 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=129 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=129 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] tick=130 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=130 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=131 state=Idle tick_ms=94 snapshot_ms=2 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=131 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=132 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=132 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=133 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=133 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=134 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=134 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=135 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=135 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=136 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=136 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] tick=137 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=137 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=138 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=138 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=139 state=Idle tick_ms=125 snapshot_ms=5 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=139 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=140 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=140 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=141 state=Idle tick_ms=141 snapshot_ms=5 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=141 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=142 state=Idle tick_ms=125 snapshot_ms=5 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=142 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=143 state=Idle tick_ms=124 snapshot_ms=5 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=143 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=144 state=Idle tick_ms=140 snapshot_ms=7 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=144 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] tick=145 state=Idle tick_ms=127 snapshot_ms=4 events_count=0 commands_count=1
+15:42:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=145 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=146 state=Idle tick_ms=125 snapshot_ms=3 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=146 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=147 state=Idle tick_ms=142 snapshot_ms=6 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=147 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=148 state=Idle tick_ms=143 snapshot_ms=4 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=148 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=149 state=Idle tick_ms=123 snapshot_ms=5 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=149 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=150 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=150 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=151 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=151 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=152 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=152 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] tick=153 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=153 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=154 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=154 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=155 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=155 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=156 state=Idle tick_ms=79 snapshot_ms=2 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=156 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=157 state=Idle tick_ms=93 snapshot_ms=2 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=157 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=158 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=158 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=159 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=159 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=160 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=160 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] tick=161 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=161 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=162 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=162 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=163 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=163 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=164 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=164 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=165 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=165 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=166 state=Idle tick_ms=94 snapshot_ms=2 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=166 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=167 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=167 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=168 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=168 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] tick=169 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=169 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=170 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=170 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=171 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=171 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=172 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=172 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=173 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=173 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=174 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=174 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=175 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=175 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=176 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=176 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] tick=177 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=177 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=178 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=178 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=179 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=179 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=180 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=180 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=181 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=181 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=182 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=182 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=183 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=183 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=184 state=Idle tick_ms=111 snapshot_ms=5 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=184 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] tick=185 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=185 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=186 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=186 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=187 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=187 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=188 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=188 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=189 state=Idle tick_ms=111 snapshot_ms=3 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=189 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=190 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=190 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=191 state=Idle tick_ms=107 snapshot_ms=3 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=191 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] tick=192 state=Idle tick_ms=142 snapshot_ms=4 events_count=0 commands_count=1
+15:42:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=192 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=193 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=193 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=194 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=194 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=195 state=Idle tick_ms=111 snapshot_ms=4 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=195 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=196 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=196 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=197 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=197 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=198 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=198 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=199 state=Idle tick_ms=158 snapshot_ms=3 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=199 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] tick=200 state=Idle tick_ms=110 snapshot_ms=8 events_count=0 commands_count=1
+15:42:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=200 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=201 state=Idle tick_ms=95 snapshot_ms=6 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=201 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=202 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=202 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=203 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=203 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=204 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=204 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=205 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=205 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=206 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=206 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=207 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=207 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] tick=208 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=208 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=209 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=209 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=210 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=210 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=211 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=211 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=212 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=212 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=213 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=213 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=214 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=214 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=215 state=Idle tick_ms=111 snapshot_ms=4 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=215 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] tick=216 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:42:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=216 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=217 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=217 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=218 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=218 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=219 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=219 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=220 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=220 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=221 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=221 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=222 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=222 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=223 state=Idle tick_ms=93 snapshot_ms=8 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=223 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] tick=224 state=Idle tick_ms=79 snapshot_ms=6 events_count=0 commands_count=1
+15:42:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=224 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=225 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=225 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=226 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=226 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=227 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=227 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=228 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=228 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=229 state=Idle tick_ms=94 snapshot_ms=8 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=229 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=230 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=230 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=231 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=231 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] tick=232 state=Idle tick_ms=80 snapshot_ms=6 events_count=0 commands_count=1
+15:42:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=232 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=233 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=233 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=234 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=234 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=235 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=235 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=236 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=236 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=237 state=Idle tick_ms=92 snapshot_ms=6 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=237 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=238 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=238 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=239 state=Idle tick_ms=93 snapshot_ms=7 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=239 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] tick=240 state=Idle tick_ms=79 snapshot_ms=2 events_count=0 commands_count=1
+15:42:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=240 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=241 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=241 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=242 state=Idle tick_ms=78 snapshot_ms=5 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=242 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=243 state=Idle tick_ms=79 snapshot_ms=2 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=243 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=244 state=Idle tick_ms=77 snapshot_ms=2 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=244 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=245 state=Idle tick_ms=94 snapshot_ms=7 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=245 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=246 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=246 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=247 state=Idle tick_ms=79 snapshot_ms=2 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=247 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] tick=248 state=Idle tick_ms=78 snapshot_ms=4 events_count=0 commands_count=1
+15:42:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=248 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=249 state=Idle tick_ms=77 snapshot_ms=2 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=249 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=250 state=Idle tick_ms=94 snapshot_ms=2 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=250 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=251 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=251 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=252 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=252 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=253 state=Idle tick_ms=107 snapshot_ms=4 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=253 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=254 state=Idle tick_ms=111 snapshot_ms=4 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=254 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=255 state=Idle tick_ms=93 snapshot_ms=2 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=255 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] tick=256 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=256 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=257 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=257 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=258 state=Idle tick_ms=111 snapshot_ms=4 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=258 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=259 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=259 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=260 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=260 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=261 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=261 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=262 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=262 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=263 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=263 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] tick=264 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=264 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=265 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=265 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=266 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=266 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=267 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=267 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=268 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=268 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=269 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=269 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=270 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=270 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=271 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=271 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] tick=272 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=272 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=273 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=273 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=274 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=274 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=275 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=275 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=276 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=276 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=277 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=277 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=278 state=Idle tick_ms=107 snapshot_ms=3 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=278 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=279 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=279 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] tick=280 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=280 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=281 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=281 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=282 state=Idle tick_ms=107 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=282 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=283 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=283 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=284 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=284 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=285 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=285 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=286 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=286 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=287 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=287 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] tick=288 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:43:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=288 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=289 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=289 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=290 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=290 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=291 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=291 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=292 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=292 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=293 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=293 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=294 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=294 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=295 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=295 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] tick=296 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=296 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=297 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=297 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=298 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=298 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=299 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=299 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=300 state=Idle tick_ms=142 snapshot_ms=3 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=300 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=301 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=301 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=302 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=302 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=303 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=303 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] tick=304 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=304 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=305 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=305 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=306 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=306 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=307 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=307 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=308 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=308 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=309 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=309 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=310 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=310 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=311 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=311 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] tick=312 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=312 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=313 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=313 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=314 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=314 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=315 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=315 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=316 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=316 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=317 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=317 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=318 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=318 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=319 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=319 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] tick=320 state=Idle tick_ms=93 snapshot_ms=5 events_count=0 commands_count=1
+15:43:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=320 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] tick=321 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=321 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] tick=322 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=322 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] tick=323 state=Idle tick_ms=78 snapshot_ms=7 events_count=0 commands_count=1
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=323 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] tick=324 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=324 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] tick=325 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=325 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] tick=326 state=Idle tick_ms=162 snapshot_ms=3 events_count=0 commands_count=1
+15:43:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=326 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] tick=327 state=Idle tick_ms=348 snapshot_ms=18 events_count=0 commands_count=1
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=327 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] tick=328 state=Idle tick_ms=206 snapshot_ms=7 events_count=0 commands_count=1
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=328 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] tick=329 state=Idle tick_ms=280 snapshot_ms=14 events_count=0 commands_count=1
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=329 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] tick=330 state=Idle tick_ms=234 snapshot_ms=8 events_count=0 commands_count=1
+15:43:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=330 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] tick=331 state=Idle tick_ms=235 snapshot_ms=10 events_count=0 commands_count=1
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=331 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] tick=332 state=Idle tick_ms=252 snapshot_ms=6 events_count=0 commands_count=1
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=332 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] tick=333 state=Idle tick_ms=268 snapshot_ms=6 events_count=0 commands_count=1
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=333 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] tick=334 state=Idle tick_ms=231 snapshot_ms=16 events_count=0 commands_count=1
+15:43:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=334 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=335 state=Idle tick_ms=250 snapshot_ms=7 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=335 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=336 state=Idle tick_ms=157 snapshot_ms=7 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=336 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=337 state=Idle tick_ms=124 snapshot_ms=6 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=337 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=338 state=Idle tick_ms=141 snapshot_ms=5 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=338 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=339 state=Idle tick_ms=154 snapshot_ms=8 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=339 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=340 state=Idle tick_ms=155 snapshot_ms=7 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=340 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] tick=341 state=Idle tick_ms=155 snapshot_ms=4 events_count=0 commands_count=1
+15:43:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=341 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=342 state=Idle tick_ms=141 snapshot_ms=6 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=342 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=343 state=Idle tick_ms=156 snapshot_ms=4 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=343 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=344 state=Idle tick_ms=124 snapshot_ms=5 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=344 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=345 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=345 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=346 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=346 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=347 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=347 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] tick=348 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:43:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=348 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=349 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=349 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=350 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=350 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=351 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=351 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=352 state=Idle tick_ms=124 snapshot_ms=4 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=352 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=353 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=353 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=354 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=354 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=355 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=355 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] tick=356 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:14 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=356 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=357 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=357 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=358 state=Idle tick_ms=124 snapshot_ms=3 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=358 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=359 state=Idle tick_ms=126 snapshot_ms=3 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=359 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=360 state=Idle tick_ms=110 snapshot_ms=5 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=360 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=361 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=361 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=362 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=362 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=363 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=363 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] tick=364 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=364 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=365 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=365 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=366 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=366 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=367 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=367 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=368 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=368 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=369 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=369 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=370 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=370 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=371 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=371 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] tick=372 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=372 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=373 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=373 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=374 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=374 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=375 state=Idle tick_ms=108 snapshot_ms=5 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=375 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=376 state=Idle tick_ms=107 snapshot_ms=3 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=376 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=377 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=377 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=378 state=Idle tick_ms=141 snapshot_ms=4 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=378 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=379 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=379 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] tick=380 state=Idle tick_ms=108 snapshot_ms=5 events_count=0 commands_count=1
+15:43:17 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=380 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:19 info: TalosForge.Core.Bot.BotEngine[0] tick=381 state=Idle tick_ms=1206 snapshot_ms=5 events_count=0 commands_count=0
+15:43:19 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=381 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:20 info: TalosForge.Core.Bot.BotEngine[0] tick=382 state=Idle tick_ms=1401 snapshot_ms=9 events_count=0 commands_count=0
+15:43:20 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=382 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:22 info: TalosForge.Core.Bot.BotEngine[0] tick=383 state=Idle tick_ms=1512 snapshot_ms=0 events_count=0 commands_count=0
+15:43:22 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=383 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:22 info: TalosForge.Core.Bot.BotEngine[0] tick=384 state=Idle tick_ms=715 snapshot_ms=0 events_count=0 commands_count=1
+15:43:22 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=384 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:22 info: TalosForge.Core.Bot.BotEngine[0] tick=385 state=Idle tick_ms=124 snapshot_ms=0 events_count=0 commands_count=1
+15:43:22 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=385 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=386 state=Idle tick_ms=125 snapshot_ms=3 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=386 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=387 state=Idle tick_ms=138 snapshot_ms=6 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=387 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=388 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=388 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=389 state=Idle tick_ms=144 snapshot_ms=5 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=389 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=390 state=Idle tick_ms=121 snapshot_ms=7 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=390 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=391 state=Idle tick_ms=124 snapshot_ms=5 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=391 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=392 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=392 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] tick=393 state=Idle tick_ms=111 snapshot_ms=5 events_count=0 commands_count=1
+15:43:23 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=393 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=394 state=Idle tick_ms=107 snapshot_ms=5 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=394 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=395 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=395 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=396 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=396 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=397 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=397 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=398 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=398 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=399 state=Idle tick_ms=125 snapshot_ms=6 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=399 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] tick=400 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:24 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=400 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] tick=401 state=Idle tick_ms=219 snapshot_ms=5 events_count=0 commands_count=1
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=401 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] tick=402 state=Idle tick_ms=187 snapshot_ms=7 events_count=0 commands_count=1
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=402 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] tick=403 state=Idle tick_ms=201 snapshot_ms=6 events_count=0 commands_count=1
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=403 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] tick=404 state=Idle tick_ms=155 snapshot_ms=9 events_count=0 commands_count=1
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=404 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] tick=405 state=Idle tick_ms=172 snapshot_ms=8 events_count=0 commands_count=1
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=405 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] tick=406 state=Idle tick_ms=140 snapshot_ms=5 events_count=0 commands_count=1
+15:43:25 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=406 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:26 info: TalosForge.Core.Bot.BotEngine[0] tick=407 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:43:26 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=407 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:26 info: TalosForge.Core.Bot.BotEngine[0] tick=408 state=Idle tick_ms=142 snapshot_ms=5 events_count=0 commands_count=1
+15:43:26 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=408 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:26 info: TalosForge.Core.Bot.BotEngine[0] tick=409 state=Idle tick_ms=139 snapshot_ms=5 events_count=0 commands_count=1
+15:43:26 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=409 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=410 state=Idle tick_ms=894 snapshot_ms=4 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=410 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=411 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=411 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=412 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=412 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=413 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=413 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=414 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=414 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=415 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=415 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] tick=416 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:27 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=416 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=417 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=417 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=418 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=418 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=419 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=419 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=420 state=Idle tick_ms=126 snapshot_ms=6 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=420 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=421 state=Idle tick_ms=123 snapshot_ms=6 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=421 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=422 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=422 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=423 state=Idle tick_ms=125 snapshot_ms=5 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=423 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] tick=424 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:28 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=424 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=425 state=Idle tick_ms=125 snapshot_ms=6 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=425 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=426 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=426 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=427 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=427 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=428 state=Idle tick_ms=111 snapshot_ms=3 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=428 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=429 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=429 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=430 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=430 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=431 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=431 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] tick=432 state=Idle tick_ms=123 snapshot_ms=5 events_count=0 commands_count=1
+15:43:29 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=432 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=433 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=433 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=434 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=434 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=435 state=Idle tick_ms=126 snapshot_ms=6 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=435 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=436 state=Idle tick_ms=108 snapshot_ms=5 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=436 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=437 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=437 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=438 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=438 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=439 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=439 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] tick=440 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:30 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=440 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=441 state=Idle tick_ms=116 snapshot_ms=4 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=441 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=442 state=Idle tick_ms=140 snapshot_ms=11 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=442 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=443 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=443 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=444 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=444 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=445 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=445 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=446 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=446 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=447 state=Idle tick_ms=93 snapshot_ms=5 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=447 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] tick=448 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:31 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=448 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=449 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=449 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=450 state=Idle tick_ms=92 snapshot_ms=5 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=450 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=451 state=Idle tick_ms=92 snapshot_ms=5 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=451 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=452 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=452 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=453 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=453 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=454 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=454 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=455 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=455 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] tick=456 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:32 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=456 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=457 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=457 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=458 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=458 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=459 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=459 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=460 state=Idle tick_ms=109 snapshot_ms=6 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=460 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=461 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=461 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=462 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=462 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=463 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=463 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] tick=464 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:33 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=464 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=465 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=465 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=466 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=466 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=467 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=467 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=468 state=Idle tick_ms=142 snapshot_ms=7 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=468 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=469 state=Idle tick_ms=125 snapshot_ms=5 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=469 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=470 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=470 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=471 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=471 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] tick=472 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:34 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=472 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] tick=473 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=473 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] tick=474 state=Idle tick_ms=109 snapshot_ms=3 events_count=0 commands_count=1
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=474 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] tick=475 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=475 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] tick=476 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=476 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] tick=477 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=477 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] tick=478 state=Idle tick_ms=108 snapshot_ms=3 events_count=0 commands_count=1
+15:43:35 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=478 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:36 info: TalosForge.Core.Bot.BotEngine[0] tick=479 state=Idle tick_ms=1219 snapshot_ms=4 events_count=0 commands_count=0
+15:43:36 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=479 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:38 info: TalosForge.Core.Bot.BotEngine[0] tick=480 state=Idle tick_ms=1358 snapshot_ms=3 events_count=0 commands_count=0
+15:43:38 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=480 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=481 state=Idle tick_ms=764 snapshot_ms=0 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=481 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=482 state=Idle tick_ms=91 snapshot_ms=0 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=482 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=483 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=483 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=484 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=484 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=485 state=Idle tick_ms=78 snapshot_ms=2 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=485 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=486 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=486 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=487 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=487 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] tick=488 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:39 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=488 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] tick=489 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=489 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] tick=490 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=490 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] tick=491 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=491 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] tick=492 state=Idle tick_ms=77 snapshot_ms=3 events_count=0 commands_count=1
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=492 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] tick=493 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:40 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=493 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:41 info: TalosForge.Core.Bot.BotEngine[0] tick=494 state=Idle tick_ms=1208 snapshot_ms=2 events_count=0 commands_count=0
+15:43:41 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=494 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:43 info: TalosForge.Core.Bot.BotEngine[0] tick=495 state=Idle tick_ms=1363 snapshot_ms=4 events_count=0 commands_count=0
+15:43:43 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=495 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=496 state=Idle tick_ms=861 snapshot_ms=0 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=496 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=497 state=Idle tick_ms=95 snapshot_ms=0 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=497 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=498 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=498 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=499 state=Idle tick_ms=108 snapshot_ms=7 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=499 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=500 state=Idle tick_ms=92 snapshot_ms=2 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=500 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=501 state=Idle tick_ms=94 snapshot_ms=7 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=501 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=502 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=502 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=503 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=503 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] tick=504 state=Idle tick_ms=77 snapshot_ms=2 events_count=0 commands_count=1
+15:43:44 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=504 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=505 state=Idle tick_ms=79 snapshot_ms=3 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=505 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=506 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=506 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=507 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=507 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=508 state=Idle tick_ms=107 snapshot_ms=4 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=508 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=509 state=Idle tick_ms=96 snapshot_ms=3 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=509 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=510 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=510 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] tick=511 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:43:45 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=511 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:46 info: TalosForge.Core.Bot.BotEngine[0] tick=512 state=Idle tick_ms=160 snapshot_ms=4 events_count=0 commands_count=1
+15:43:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=512 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:46 info: TalosForge.Core.Bot.BotEngine[0] tick=513 state=Idle tick_ms=391 snapshot_ms=71 events_count=0 commands_count=1
+15:43:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=513 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:46 info: TalosForge.Core.Bot.BotEngine[0] tick=514 state=Idle tick_ms=285 snapshot_ms=6 events_count=0 commands_count=1
+15:43:46 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=514 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] tick=515 state=Idle tick_ms=360 snapshot_ms=8 events_count=0 commands_count=1
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=515 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] tick=516 state=Idle tick_ms=277 snapshot_ms=8 events_count=0 commands_count=1
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=516 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] tick=517 state=Idle tick_ms=307 snapshot_ms=7 events_count=0 commands_count=1
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=517 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] tick=518 state=Idle tick_ms=322 snapshot_ms=24 events_count=0 commands_count=1
+15:43:47 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=518 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] tick=519 state=Idle tick_ms=238 snapshot_ms=12 events_count=0 commands_count=1
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=519 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] tick=520 state=Idle tick_ms=299 snapshot_ms=17 events_count=0 commands_count=1
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=520 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] tick=521 state=Idle tick_ms=170 snapshot_ms=19 events_count=0 commands_count=1
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=521 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] tick=522 state=Idle tick_ms=141 snapshot_ms=5 events_count=0 commands_count=1
+15:43:48 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=522 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=523 state=Idle tick_ms=187 snapshot_ms=6 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=523 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=524 state=Idle tick_ms=140 snapshot_ms=6 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=524 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=525 state=Idle tick_ms=156 snapshot_ms=6 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=525 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=526 state=Idle tick_ms=141 snapshot_ms=6 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=526 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=527 state=Idle tick_ms=140 snapshot_ms=7 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=527 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=528 state=Idle tick_ms=127 snapshot_ms=5 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=528 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] tick=529 state=Idle tick_ms=139 snapshot_ms=9 events_count=0 commands_count=1
+15:43:49 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=529 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=530 state=Idle tick_ms=158 snapshot_ms=4 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=530 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=531 state=Idle tick_ms=172 snapshot_ms=7 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=531 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=532 state=Idle tick_ms=139 snapshot_ms=6 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=532 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=533 state=Idle tick_ms=218 snapshot_ms=6 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=533 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=534 state=Idle tick_ms=156 snapshot_ms=5 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=534 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=535 state=Idle tick_ms=139 snapshot_ms=5 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=535 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] tick=536 state=Idle tick_ms=141 snapshot_ms=5 events_count=0 commands_count=1
+15:43:50 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=536 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] tick=537 state=Idle tick_ms=203 snapshot_ms=6 events_count=0 commands_count=1
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=537 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] tick=538 state=Idle tick_ms=186 snapshot_ms=7 events_count=0 commands_count=1
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=538 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] tick=539 state=Idle tick_ms=206 snapshot_ms=7 events_count=0 commands_count=1
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=539 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] tick=540 state=Idle tick_ms=155 snapshot_ms=11 events_count=0 commands_count=1
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=540 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] tick=541 state=Idle tick_ms=145 snapshot_ms=5 events_count=0 commands_count=1
+15:43:51 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=541 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] tick=542 state=Idle tick_ms=195 snapshot_ms=19 events_count=0 commands_count=1
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=542 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] tick=543 state=Idle tick_ms=155 snapshot_ms=7 events_count=0 commands_count=1
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=543 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] tick=544 state=Idle tick_ms=157 snapshot_ms=7 events_count=0 commands_count=1
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=544 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] tick=545 state=Idle tick_ms=357 snapshot_ms=9 events_count=0 commands_count=1
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=545 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] tick=546 state=Idle tick_ms=202 snapshot_ms=8 events_count=0 commands_count=1
+15:43:52 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=546 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] tick=547 state=Idle tick_ms=169 snapshot_ms=9 events_count=0 commands_count=1
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=547 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] tick=548 state=Idle tick_ms=174 snapshot_ms=5 events_count=0 commands_count=1
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=548 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] tick=549 state=Idle tick_ms=188 snapshot_ms=7 events_count=0 commands_count=1
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=549 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] tick=550 state=Idle tick_ms=173 snapshot_ms=9 events_count=0 commands_count=1
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=550 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] tick=551 state=Idle tick_ms=156 snapshot_ms=8 events_count=0 commands_count=1
+15:43:53 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=551 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:54 info: TalosForge.Core.Bot.BotEngine[0] tick=552 state=Idle tick_ms=316 snapshot_ms=6 events_count=0 commands_count=1
+15:43:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=552 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:54 info: TalosForge.Core.Bot.BotEngine[0] tick=553 state=Idle tick_ms=201 snapshot_ms=19 events_count=0 commands_count=1
+15:43:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=553 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:54 info: TalosForge.Core.Bot.BotEngine[0] tick=554 state=Idle tick_ms=314 snapshot_ms=4 events_count=0 commands_count=1
+15:43:54 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=554 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:55 info: TalosForge.Core.Bot.BotEngine[0] tick=555 state=Idle tick_ms=358 snapshot_ms=17 events_count=0 commands_count=1
+15:43:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=555 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:55 info: TalosForge.Core.Bot.BotEngine[0] tick=556 state=Idle tick_ms=409 snapshot_ms=16 events_count=0 commands_count=1
+15:43:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=556 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:55 info: TalosForge.Core.Bot.BotEngine[0] tick=557 state=Idle tick_ms=421 snapshot_ms=16 events_count=0 commands_count=1
+15:43:55 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=557 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] tick=558 state=Idle tick_ms=316 snapshot_ms=10 events_count=0 commands_count=1
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=558 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] tick=559 state=Idle tick_ms=410 snapshot_ms=8 events_count=0 commands_count=1
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=559 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] tick=560 state=Idle tick_ms=182 snapshot_ms=13 events_count=0 commands_count=1
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=560 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] tick=561 state=Idle tick_ms=142 snapshot_ms=5 events_count=0 commands_count=1
+15:43:56 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=561 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=562 state=Idle tick_ms=154 snapshot_ms=4 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=562 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=563 state=Idle tick_ms=142 snapshot_ms=8 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=563 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=564 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=564 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=565 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=565 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=566 state=Idle tick_ms=174 snapshot_ms=12 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=566 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=567 state=Idle tick_ms=141 snapshot_ms=6 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=567 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=568 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=568 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] tick=569 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:57 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=569 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=570 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=570 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=571 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=571 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=572 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=572 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=573 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=573 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=574 state=Idle tick_ms=94 snapshot_ms=5 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=574 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=575 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=575 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=576 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=576 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] tick=577 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:58 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=577 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=578 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=578 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=579 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=579 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=580 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=580 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=581 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=581 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=582 state=Idle tick_ms=94 snapshot_ms=5 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=582 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=583 state=Idle tick_ms=78 snapshot_ms=3 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=583 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] tick=584 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:43:59 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=584 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=585 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=585 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=586 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=586 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=587 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=587 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=588 state=Idle tick_ms=111 snapshot_ms=7 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=588 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=589 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=589 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=590 state=Idle tick_ms=110 snapshot_ms=3 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=590 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=591 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=591 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] tick=592 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:00 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=592 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:01 info: TalosForge.Core.Bot.BotEngine[0] tick=593 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:44:01 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=593 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:02 info: TalosForge.Core.Bot.BotEngine[0] tick=594 state=Idle tick_ms=1218 snapshot_ms=4 events_count=0 commands_count=0
+15:44:02 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=594 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:03 info: TalosForge.Core.Bot.BotEngine[0] tick=595 state=Idle tick_ms=1360 snapshot_ms=4 events_count=0 commands_count=0
+15:44:03 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=595 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] tick=596 state=Idle tick_ms=800 snapshot_ms=0 events_count=0 commands_count=1
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=596 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] tick=597 state=Idle tick_ms=109 snapshot_ms=0 events_count=0 commands_count=1
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=597 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] tick=598 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=598 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] tick=599 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=599 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] tick=600 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:44:04 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=600 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=601 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=601 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=602 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=602 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=603 state=Idle tick_ms=90 snapshot_ms=9 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=603 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=604 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=604 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=605 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=605 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=606 state=Idle tick_ms=109 snapshot_ms=6 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=606 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=607 state=Idle tick_ms=110 snapshot_ms=5 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=607 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] tick=608 state=Idle tick_ms=124 snapshot_ms=4 events_count=0 commands_count=1
+15:44:05 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=608 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=609 state=Idle tick_ms=109 snapshot_ms=5 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=609 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=610 state=Idle tick_ms=111 snapshot_ms=4 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=610 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=611 state=Idle tick_ms=109 snapshot_ms=4 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=611 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=612 state=Idle tick_ms=125 snapshot_ms=4 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=612 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=613 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=613 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=614 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=614 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=615 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=615 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] tick=616 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:06 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=616 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=617 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=617 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=618 state=Idle tick_ms=107 snapshot_ms=8 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=618 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=619 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=619 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=620 state=Idle tick_ms=107 snapshot_ms=3 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=620 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=621 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=621 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=622 state=Idle tick_ms=95 snapshot_ms=7 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=622 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=623 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=623 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] tick=624 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:44:07 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=624 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=625 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=625 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=626 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=626 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=627 state=Idle tick_ms=95 snapshot_ms=4 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=627 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=628 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=628 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=629 state=Idle tick_ms=93 snapshot_ms=6 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=629 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=630 state=Idle tick_ms=94 snapshot_ms=6 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=630 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=631 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=631 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] tick=632 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:08 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=632 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=633 state=Idle tick_ms=110 snapshot_ms=4 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=633 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=634 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=634 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=635 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=635 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=636 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=636 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=637 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=637 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=638 state=Idle tick_ms=94 snapshot_ms=5 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=638 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=639 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=639 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] tick=640 state=Idle tick_ms=108 snapshot_ms=4 events_count=0 commands_count=1
+15:44:09 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=640 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=641 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=641 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=642 state=Idle tick_ms=93 snapshot_ms=8 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=642 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=643 state=Idle tick_ms=93 snapshot_ms=5 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=643 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=644 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=644 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=645 state=Idle tick_ms=111 snapshot_ms=3 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=645 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=646 state=Idle tick_ms=126 snapshot_ms=4 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=646 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=647 state=Idle tick_ms=92 snapshot_ms=4 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=647 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] tick=648 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:10 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=648 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=649 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=649 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=650 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=650 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=651 state=Idle tick_ms=95 snapshot_ms=11 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=651 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=652 state=Idle tick_ms=93 snapshot_ms=3 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=652 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=653 state=Idle tick_ms=93 snapshot_ms=4 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=653 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=654 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=654 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=655 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=655 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] tick=656 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:11 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=656 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] tick=657 state=Idle tick_ms=95 snapshot_ms=3 events_count=0 commands_count=1
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=657 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] tick=658 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=658 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] tick=659 state=Idle tick_ms=92 snapshot_ms=3 events_count=0 commands_count=1
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=659 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] tick=660 state=Idle tick_ms=94 snapshot_ms=3 events_count=0 commands_count=1
+15:44:12 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=660 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:13 info: TalosForge.Core.Bot.BotEngine[0] tick=661 state=Idle tick_ms=1205 snapshot_ms=3 events_count=0 commands_count=0
+15:44:13 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=661 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.
+15:44:15 info: TalosForge.Core.Bot.BotEngine[0] tick=662 state=Idle tick_ms=1362 snapshot_ms=5 events_count=0 commands_count=0
+15:44:15 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=662 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:44:16 info: TalosForge.Core.Bot.BotEngine[0] tick=663 state=Idle tick_ms=1066 snapshot_ms=0 events_count=0 commands_count=1
+15:44:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=663 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:44:16 info: TalosForge.Core.Bot.BotEngine[0] tick=664 state=Idle tick_ms=110 snapshot_ms=0 events_count=0 commands_count=1
+15:44:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=664 success=False objects=0 player_guid=none target_guid=none error=Client connection pointer is invalid (0x0).
+15:44:16 info: TalosForge.Core.Bot.BotEngine[0] tick=665 state=Idle tick_ms=94 snapshot_ms=4 events_count=0 commands_count=1
+15:44:16 info: TalosForge.Core.Bot.BotEngine[0] snapshot tick=665 success=False objects=0 player_guid=none target_guid=none error=WoW process not found.

@@ -1,0 +1,17 @@
+16:37:28 info: TalosForge.UnlockerHost[0] Executor mode: adapter (backend=pipe)
+16:37:28 info: TalosForge.UnlockerHost[0] Adapter backend: pipe name=TalosForge.UnlockerAdapter.v1 connect_timeout_ms=1200 request_timeout_ms=2500
+16:37:28 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] UnlockerHost started. cmd_ring=TalosForge.Cmd.v1 evt_ring=TalosForge.Evt.v1 executor=adapter
+16:37:38 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=68 acks_written=68 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:37:48 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=149 acks_written=149 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:37:58 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=229 acks_written=229 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:38:08 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=307 acks_written=307 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:38:18 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=385 acks_written=385 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:38:28 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=465 acks_written=465 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:38:38 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=545 acks_written=545 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:38:48 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=615 acks_written=615 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:38:58 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=640 acks_written=640 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:39:08 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=702 acks_written=702 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:39:19 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=782 acks_written=782 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:39:29 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=863 acks_written=863 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:39:39 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=943 acks_written=943 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
+16:39:49 info: TalosForge.UnlockerHost.Host.UnlockerHostService[0] host-stats commands_read=1023 acks_written=1023 acks_dropped=0 decode_failures=0 executor_failures=0 force=False
