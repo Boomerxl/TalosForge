@@ -7,6 +7,8 @@
 #include <cctype>
 #include <cstdint>
 #include <cstring>
+#include <deque>
+#include <memory>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -18,6 +20,8 @@ using TalosForge::NativeAgent::AgentStatus;
 
 constexpr uint32_t kLuaExecuteAddress = 0x00819210;
 constexpr uint32_t kHardwareFlagAddress = 0x00B499A4;
+constexpr UINT kDispatchLuaMessage = WM_APP + 0x4A1;
+constexpr int kDefaultCommandTimeoutMs = 2500;
 
 std::mutex g_sync;
 std::atomic<uint64_t> g_heartbeatUnixMs{0};
@@ -29,6 +33,25 @@ HANDLE g_serverThread = nullptr;
 HMODULE g_module = nullptr;
 std::string g_pipeName;
 uint32_t g_queueDepth = 0;
+std::mutex g_dispatchSync;
+HWND g_dispatchWindow = nullptr;
+WNDPROC g_dispatchPrevWndProc = nullptr;
+
+struct PendingLuaDispatch {
+    std::string lua;
+    std::string error;
+    bool success = false;
+    HANDLE doneEvent = nullptr;
+
+    ~PendingLuaDispatch() {
+        if (doneEvent != nullptr) {
+            CloseHandle(doneEvent);
+            doneEvent = nullptr;
+        }
+    }
+};
+
+std::deque<std::shared_ptr<PendingLuaDispatch>> g_dispatchQueue;
 
 using FrameScriptExecuteFn = void(__cdecl*)(const char*, const char*, int);
 
@@ -261,6 +284,226 @@ bool ExecuteLua(const std::string& code, std::string& error) {
     }
 }
 
+BOOL CALLBACK EnumVisibleTopLevelWindowsProc(HWND hwnd, LPARAM lParam) {
+    if (GetWindow(hwnd, GW_OWNER) != nullptr || !IsWindowVisible(hwnd)) {
+        return TRUE;
+    }
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    if (pid != GetCurrentProcessId()) {
+        return TRUE;
+    }
+
+    auto out = reinterpret_cast<HWND*>(lParam);
+    *out = hwnd;
+    return FALSE;
+}
+
+BOOL CALLBACK EnumAnyTopLevelWindowsProc(HWND hwnd, LPARAM lParam) {
+    if (GetWindow(hwnd, GW_OWNER) != nullptr) {
+        return TRUE;
+    }
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    if (pid != GetCurrentProcessId()) {
+        return TRUE;
+    }
+
+    auto out = reinterpret_cast<HWND*>(lParam);
+    *out = hwnd;
+    return FALSE;
+}
+
+HWND FindCurrentProcessWindow() {
+    HWND window = nullptr;
+    EnumWindows(EnumVisibleTopLevelWindowsProc, reinterpret_cast<LPARAM>(&window));
+    if (window != nullptr) {
+        return window;
+    }
+
+    EnumWindows(EnumAnyTopLevelWindowsProc, reinterpret_cast<LPARAM>(&window));
+    return window;
+}
+
+LRESULT CALLBACK DispatchWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    if (msg == kDispatchLuaMessage) {
+        while (true) {
+            std::shared_ptr<PendingLuaDispatch> pending;
+            {
+                std::lock_guard<std::mutex> lock(g_dispatchSync);
+                if (g_dispatchQueue.empty()) {
+                    break;
+                }
+
+                pending = g_dispatchQueue.front();
+                g_dispatchQueue.pop_front();
+            }
+
+            if (!pending) {
+                continue;
+            }
+
+            std::string error;
+            pending->success = ExecuteLua(pending->lua, error);
+            if (!pending->success) {
+                pending->error = error;
+            }
+
+            if (pending->doneEvent != nullptr) {
+                SetEvent(pending->doneEvent);
+            }
+        }
+
+        return 0;
+    }
+
+    WNDPROC previous = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        previous = g_dispatchPrevWndProc;
+    }
+
+    if (previous != nullptr) {
+        return CallWindowProcA(previous, hwnd, msg, wParam, lParam);
+    }
+
+    return DefWindowProcA(hwnd, msg, wParam, lParam);
+}
+
+bool EnsureDispatchWindow(std::string& error) {
+    error.clear();
+
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        if (g_dispatchWindow != nullptr &&
+            g_dispatchPrevWndProc != nullptr &&
+            IsWindow(g_dispatchWindow)) {
+            return true;
+        }
+    }
+
+    HWND window = nullptr;
+    for (int attempt = 0; attempt < 40; attempt++) {
+        window = FindCurrentProcessWindow();
+        if (window != nullptr) {
+            break;
+        }
+
+        Sleep(50);
+    }
+
+    if (window == nullptr) {
+        error = "Unable to locate WoW window for game-thread dispatch.";
+        return false;
+    }
+
+    SetLastError(0);
+    const LONG_PTR previous = SetWindowLongPtrA(
+        window,
+        GWLP_WNDPROC,
+        reinterpret_cast<LONG_PTR>(&DispatchWndProc));
+    const DWORD setError = GetLastError();
+    if (previous == 0 && setError != 0) {
+        error = "SetWindowLongPtrA failed for dispatch window.";
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        g_dispatchWindow = window;
+        g_dispatchPrevWndProc = reinterpret_cast<WNDPROC>(previous);
+    }
+
+    return true;
+}
+
+void FailAndDrainDispatchQueue(const char* message) {
+    std::deque<std::shared_ptr<PendingLuaDispatch>> pending;
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        pending.swap(g_dispatchQueue);
+    }
+
+    for (auto& item : pending) {
+        if (!item) {
+            continue;
+        }
+
+        item->success = false;
+        item->error = message ? message : "Dispatch queue drained.";
+        if (item->doneEvent != nullptr) {
+            SetEvent(item->doneEvent);
+        }
+    }
+}
+
+void UninstallDispatchWindow() {
+    HWND window = nullptr;
+    WNDPROC previous = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        window = g_dispatchWindow;
+        previous = g_dispatchPrevWndProc;
+        g_dispatchWindow = nullptr;
+        g_dispatchPrevWndProc = nullptr;
+    }
+
+    if (window != nullptr && previous != nullptr && IsWindow(window)) {
+        SetWindowLongPtrA(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(previous));
+    }
+
+    FailAndDrainDispatchQueue("Dispatch window was uninstalled.");
+}
+
+bool DispatchLuaOnGameThread(const std::string& lua, int timeoutMs, std::string& error) {
+    error.clear();
+    if (lua.empty()) {
+        error = "Lua code is empty.";
+        return false;
+    }
+
+    if (!EnsureDispatchWindow(error)) {
+        return false;
+    }
+
+    auto pending = std::make_shared<PendingLuaDispatch>();
+    pending->lua = lua;
+    pending->doneEvent = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    if (pending->doneEvent == nullptr) {
+        error = "CreateEvent failed for dispatch command.";
+        return false;
+    }
+
+    HWND dispatchWindow = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        dispatchWindow = g_dispatchWindow;
+        g_dispatchQueue.push_back(pending);
+    }
+
+    if (dispatchWindow == nullptr || !PostMessageA(dispatchWindow, kDispatchLuaMessage, 0, 0)) {
+        error = "PostMessage failed for Lua dispatch.";
+        return false;
+    }
+
+    const DWORD wait = WaitForSingleObject(
+        pending->doneEvent,
+        static_cast<DWORD>(timeoutMs > 0 ? timeoutMs : kDefaultCommandTimeoutMs));
+    if (wait != WAIT_OBJECT_0) {
+        error = "Lua dispatch timed out on game thread.";
+        return false;
+    }
+
+    if (!pending->success) {
+        error = pending->error.empty() ? "Lua dispatch failed." : pending->error;
+        return false;
+    }
+
+    return true;
+}
+
 std::string EscapeLua(const std::string& text) {
     std::string out;
     out.reserve(text.size() + 8);
@@ -409,8 +652,21 @@ DWORD WINAPI PipeServerThreadProc(LPVOID) {
             std::string code = success ? "OK" : "AGENT_INVALID_REQUEST";
             std::string message = success ? ("ACK:" + opcode) : error;
 
+            int timeoutMs = kDefaultCommandTimeoutMs;
+            if (!timeoutRaw.empty()) {
+                try {
+                    const int parsed = std::stoi(timeoutRaw);
+                    if (parsed > 0) {
+                        timeoutMs = parsed;
+                    }
+                }
+                catch (...) {
+                    // Keep default timeout.
+                }
+            }
+
             if (success) {
-                success = ExecuteLua(lua, error);
+                success = DispatchLuaOnGameThread(lua, timeoutMs, error);
                 if (!success) {
                     code = "AGENT_EXECUTION_FAILED";
                     message = error;
@@ -459,6 +715,8 @@ void StartPipeServerLocked() {
 
 void StopPipeServerLocked() {
     g_stop.store(true);
+    FailAndDrainDispatchQueue("Agent shutdown.");
+    UninstallDispatchWindow();
     if (g_serverThread != nullptr) {
         WaitForSingleObject(g_serverThread, 1000);
         CloseHandle(g_serverThread);
@@ -543,7 +801,7 @@ AGENT_API bool AGENT_CALL AgentEnqueueCommand(const char* opcode, const char* pa
         return false;
     }
 
-    if (!ExecuteLua(lua, error)) {
+    if (!DispatchLuaOnGameThread(lua, kDefaultCommandTimeoutMs, error)) {
         SetErrorLocked(error.c_str());
         return false;
     }
