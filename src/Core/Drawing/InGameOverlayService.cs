@@ -65,26 +65,57 @@ public sealed class InGameOverlayService
         return "local frame = _G['TalosForgeStatusFrame'];" +
                "if not frame then " +
                "frame = CreateFrame('Frame','TalosForgeStatusFrame',UIParent);" +
-               "end;" +
-               "frame:ClearAllPoints();" +
-               "frame:SetSize(900,80);" +
-               "frame:SetPoint('CENTER', UIParent, 'CENTER', 0, 0);" +
+               "frame:SetSize(460,132);" +
+               "frame:SetPoint('TOPLEFT',UIParent,'TOPLEFT',24,-220);" +
                "frame:SetFrameStrata('TOOLTIP');" +
-               "frame:SetFrameLevel(999);" +
-               "if not frame.TalosForgeBg then " +
-               "frame.TalosForgeBg = frame:CreateTexture(nil,'BACKGROUND');" +
+               "frame:SetFrameLevel(9999);" +
+               "frame:SetMovable(true);" +
+               "frame:EnableMouse(true);" +
+               "frame:RegisterForDrag('LeftButton');" +
+               "frame:SetScript('OnDragStart', function(self) self:StartMoving() end);" +
+               "frame:SetScript('OnDragStop', function(self) self:StopMovingOrSizing() end);" +
+               "local bg = frame:CreateTexture(nil,'BACKGROUND');" +
+               "bg:SetAllPoints(true);" +
+               "bg:SetTexture(0,0,0,0.72);" +
+               "frame.TalosForgeBg = bg;" +
+               "local titleBg = frame:CreateTexture(nil,'BORDER');" +
+               "titleBg:SetPoint('TOPLEFT',frame,'TOPLEFT',0,0);" +
+               "titleBg:SetPoint('TOPRIGHT',frame,'TOPRIGHT',0,0);" +
+               "titleBg:SetHeight(22);" +
+               "titleBg:SetTexture(0.08,0.28,0.08,0.95);" +
+               "frame.TalosForgeTitleBg = titleBg;" +
+               "local title = frame:CreateFontString(nil,'OVERLAY');" +
+               "if GameFontNormalLarge then title:SetFontObject(GameFontNormalLarge) elseif GameFontNormal then title:SetFontObject(GameFontNormal) elseif ChatFontNormal then title:SetFontObject(ChatFontNormal) end;" +
+               "title:SetPoint('TOPLEFT',frame,'TOPLEFT',8,-4);" +
+               "title:SetTextColor(0.2,1.0,0.2,1.0);" +
+               "title:SetShadowOffset(1,-1);" +
+               "title:SetShadowColor(0,0,0,1);" +
+               "title:SetText('TalosForge Native');" +
+               "frame.TalosForgeTitle = title;" +
+               "local text = frame:CreateFontString(nil,'OVERLAY');" +
+               "if GameFontHighlightSmall then text:SetFontObject(GameFontHighlightSmall) elseif GameFontNormalSmall then text:SetFontObject(GameFontNormalSmall) elseif ChatFontNormal then text:SetFontObject(ChatFontNormal) end;" +
+               "text:SetPoint('TOPLEFT',frame,'TOPLEFT',10,-30);" +
+               "text:SetPoint('BOTTOMRIGHT',frame,'BOTTOMRIGHT',-10,10);" +
+               "text:SetJustifyH('LEFT');" +
+               "text:SetJustifyV('TOP');" +
+               "text:SetTextColor(0.82,0.95,0.82,1);" +
+               "text:SetShadowOffset(1,-1);" +
+               "text:SetShadowColor(0,0,0,1);" +
+               "frame.TalosForgeText = text;" +
                "end;" +
-               "frame.TalosForgeBg:SetAllPoints(true);" +
-               "frame.TalosForgeBg:SetTexture(0,0,0,0.55);" +
                "if not frame.TalosForgeText then " +
-               "frame.TalosForgeText = frame:CreateFontString(nil,'OVERLAY','GameFontNormalHuge');" +
+               "local text = frame:CreateFontString(nil,'OVERLAY');" +
+               "if GameFontHighlightSmall then text:SetFontObject(GameFontHighlightSmall) elseif GameFontNormalSmall then text:SetFontObject(GameFontNormalSmall) elseif ChatFontNormal then text:SetFontObject(ChatFontNormal) end;" +
+               "text:SetPoint('TOPLEFT',frame,'TOPLEFT',10,-30);" +
+               "text:SetPoint('BOTTOMRIGHT',frame,'BOTTOMRIGHT',-10,10);" +
+               "text:SetJustifyH('LEFT');" +
+               "text:SetJustifyV('TOP');" +
+               "text:SetTextColor(0.82,0.95,0.82,1);" +
+               "text:SetShadowOffset(1,-1);" +
+               "text:SetShadowColor(0,0,0,1);" +
+               "frame.TalosForgeText = text;" +
                "end;" +
-               "frame.TalosForgeText:ClearAllPoints();" +
-               "frame.TalosForgeText:SetPoint('CENTER', frame, 'CENTER', 0, 0);" +
-               "frame.TalosForgeText:SetTextColor(0.1,1.0,0.1,1.0);" +
-               "frame.TalosForgeText:SetShadowOffset(2,-2);" +
-               "frame.TalosForgeText:SetShadowColor(0,0,0,1);" +
-               "TalosForgeStatusFrame:Show();" +
+               "frame:Show();" +
                "frame.TalosForgeText:SetText([[" + safe + "]]);";
     }
 
