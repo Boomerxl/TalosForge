@@ -10,8 +10,12 @@ namespace TalosForge.Core.Drawing;
 /// </summary>
 public sealed class InGameOverlayService
 {
+    private const int MinPublishIntervalMs = 1000;
+
     private readonly IUnlockerClient _unlockerClient;
     private readonly BotOptions _options;
+    private long _lastPublishUnixMs;
+    private bool _overlayVisible;
 
     public InGameOverlayService(IUnlockerClient unlockerClient, BotOptions options)
     {
@@ -31,42 +35,82 @@ public sealed class InGameOverlayService
             return 0;
         }
 
+        if (!ShouldRender(snapshot))
+        {
+            if (!_overlayVisible)
+            {
+                return 0;
+            }
+
+            _overlayVisible = false;
+            await SendLuaAsync(BuildHideLua(), tickId, cancellationToken).ConfigureAwait(false);
+            return 1;
+        }
+
         var interval = _options.InGameOverlayEveryTicks;
-        if (interval <= 0 || tickId % interval != 0)
+        var forcePublish = !_overlayVisible;
+        if (!forcePublish && (interval <= 0 || tickId % interval != 0))
         {
             return 0;
         }
 
-        // Avoid issuing Lua into non-world/login states where game-side script
-        // context can be unstable and pointers are not yet valid.
-        if (!snapshot.Success || snapshot.Player is null)
+        var nowUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        if (!forcePublish && nowUnixMs - _lastPublishUnixMs < MinPublishIntervalMs)
         {
             return 0;
         }
+
+        _lastPublishUnixMs = nowUnixMs;
+        _overlayVisible = true;
 
         var message = BuildOverlayMessage(tickId, state, snapshot, queuedCommands);
-        var lua = BuildLua(message);
-        var payload = JsonSerializer.Serialize(new { code = lua });
+        await SendLuaAsync(BuildLua(message), nowUnixMs, cancellationToken).ConfigureAwait(false);
+        return 1;
+    }
 
+    private async Task SendLuaAsync(string lua, long commandId, CancellationToken cancellationToken)
+    {
+        var payload = JsonSerializer.Serialize(new { code = lua });
         var command = new UnlockerCommand(
-            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            commandId,
             UnlockerOpcode.LuaDoString,
             payload,
             DateTimeOffset.UtcNow);
 
         await _unlockerClient.SendAsync(command, cancellationToken).ConfigureAwait(false);
-        return 1;
     }
 
     internal static string BuildLua(string message)
     {
         var safe = (message ?? string.Empty).Replace("]]", "] ]");
 
-        return "local frame = _G['TalosForgeStatusFrame'];" +
+        return "if not _G.TalosForgeDiag then _G.TalosForgeDiag = { lastLuaError = '', errorCount = 0, lastLuaErrorAt = '' } end;" +
+               "if not _G.TalosForgeDiagInstalled and _G.seterrorhandler and _G.geterrorhandler then " +
+               "local prev = geterrorhandler();" +
+               "seterrorhandler(function(msg) " +
+               "local diag = _G.TalosForgeDiag or {};" +
+               "diag.lastLuaError = tostring(msg or '');" +
+               "diag.errorCount = (tonumber(diag.errorCount) or 0) + 1;" +
+               "diag.lastLuaErrorAt = (date and date('%H:%M:%S')) or '';" +
+               "_G.TalosForgeDiag = diag;" +
+               "if prev then return prev(msg) end;" +
+               "end);" +
+               "_G.TalosForgeDiagInstalled = true;" +
+               "end;" +
+               "local tfDiag = _G.TalosForgeDiag or {};" +
+               "local tfDiagText = tostring(tfDiag.lastLuaError or '');" +
+               "if string.len(tfDiagText) > 96 then tfDiagText = string.sub(tfDiagText,1,96) .. '...' end;" +
+               "local tfSummary = [[" + safe + "]];" +
+               "if tfDiagText ~= '' then tfSummary = tfSummary .. '\\nLuaErr: ' .. tfDiagText end;" +
+               "local tfCanDraw = (_G.UnitExists and UnitExists('player'));" +
+               "if not tfCanDraw then " +
+               "if _G.TalosForgeStatusFrame then _G.TalosForgeStatusFrame:Hide() end;" +
+               "else " +
+               "local frame = _G['TalosForgeStatusFrame'];" +
                "if not frame then " +
                "frame = CreateFrame('Frame','TalosForgeStatusFrame',UIParent);" +
-               "frame:SetSize(460,132);" +
-               "frame:SetPoint('TOPLEFT',UIParent,'TOPLEFT',24,-220);" +
+               "frame:SetSize(360,92);" +
+               "frame:SetPoint('TOPLEFT',UIParent,'TOPLEFT',20,-140);" +
                "frame:SetFrameStrata('TOOLTIP');" +
                "frame:SetFrameLevel(9999);" +
                "frame:SetMovable(true);" +
@@ -93,7 +137,6 @@ public sealed class InGameOverlayService
                "title:SetText('TalosForge Native');" +
                "frame.TalosForgeTitle = title;" +
                "local text = frame:CreateFontString(nil,'OVERLAY');" +
-               "if GameFontHighlightSmall then text:SetFontObject(GameFontHighlightSmall) elseif GameFontNormalSmall then text:SetFontObject(GameFontNormalSmall) elseif ChatFontNormal then text:SetFontObject(ChatFontNormal) end;" +
                "text:SetPoint('TOPLEFT',frame,'TOPLEFT',10,-30);" +
                "text:SetPoint('BOTTOMRIGHT',frame,'BOTTOMRIGHT',-10,10);" +
                "text:SetJustifyH('LEFT');" +
@@ -105,7 +148,6 @@ public sealed class InGameOverlayService
                "end;" +
                "if not frame.TalosForgeText then " +
                "local text = frame:CreateFontString(nil,'OVERLAY');" +
-               "if GameFontHighlightSmall then text:SetFontObject(GameFontHighlightSmall) elseif GameFontNormalSmall then text:SetFontObject(GameFontNormalSmall) elseif ChatFontNormal then text:SetFontObject(ChatFontNormal) end;" +
                "text:SetPoint('TOPLEFT',frame,'TOPLEFT',10,-30);" +
                "text:SetPoint('BOTTOMRIGHT',frame,'BOTTOMRIGHT',-10,10);" +
                "text:SetJustifyH('LEFT');" +
@@ -115,8 +157,29 @@ public sealed class InGameOverlayService
                "text:SetShadowColor(0,0,0,1);" +
                "frame.TalosForgeText = text;" +
                "end;" +
+               "if frame.TalosForgeText then " +
+               "if GameFontHighlightSmall then frame.TalosForgeText:SetFontObject(GameFontHighlightSmall) " +
+               "elseif GameFontNormalSmall then frame.TalosForgeText:SetFontObject(GameFontNormalSmall) " +
+               "elseif GameFontNormal then frame.TalosForgeText:SetFontObject(GameFontNormal) " +
+               "elseif ChatFontNormal then frame.TalosForgeText:SetFontObject(ChatFontNormal) " +
+               "elseif SystemFont_Shadow_Small then frame.TalosForgeText:SetFontObject(SystemFont_Shadow_Small) " +
+               "elseif SystemFont_Small then frame.TalosForgeText:SetFontObject(SystemFont_Small) end; " +
+               "if not frame.TalosForgeText:GetFont() then frame.TalosForgeText:SetFont('Fonts\\\\FRIZQT__.TTF',12,'') end; " +
+               "end;" +
                "frame:Show();" +
-               "frame.TalosForgeText:SetText([[" + safe + "]]);";
+               "if frame.TalosForgeText and frame.TalosForgeText:GetFont() then frame.TalosForgeText:SetText(tfSummary) end;" +
+               "end;";
+    }
+
+    internal static string BuildHideLua()
+    {
+        return "if _G.TalosForgeStatusFrame then _G.TalosForgeStatusFrame:Hide() end;" +
+               "if _G.TalosForgeBenchDiagFrame then _G.TalosForgeBenchDiagFrame:Hide() end;";
+    }
+
+    internal static bool ShouldRender(WorldSnapshot snapshot)
+    {
+        return snapshot.Success && snapshot.Player is not null;
     }
 
     private static string BuildOverlayMessage(long tickId, BotState state, WorldSnapshot snapshot, int queuedCommands)

@@ -57,9 +57,10 @@ public sealed class BotEngine : IBotEngine
 
             var events = _eventBus.ProcessSnapshot(snapshot);
             var state = DetermineState(snapshot, events);
+            var canIssueInGameCommands = CanIssueInGameCommands(snapshot);
             var commandsCount = 0;
 
-            if (_pluginHost != null)
+            if (_pluginHost != null && canIssueInGameCommands)
             {
                 try
                 {
@@ -253,5 +254,10 @@ public sealed class BotEngine : IBotEngine
         }
 
         return BotState.Idle;
+    }
+
+    private static bool CanIssueInGameCommands(WorldSnapshot snapshot)
+    {
+        return snapshot.Success && snapshot.Player is not null;
     }
 }

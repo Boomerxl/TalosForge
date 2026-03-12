@@ -22,11 +22,15 @@ constexpr uint32_t kLuaExecuteAddress = 0x00819210;
 constexpr uint32_t kHardwareFlagAddress = 0x00B499A4;
 constexpr UINT kDispatchLuaMessage = WM_APP + 0x4A1;
 constexpr int kDefaultCommandTimeoutMs = 2500;
+constexpr int kStartupWaitTimeoutMs = 2000;
+constexpr int kStartupPollIntervalMs = 20;
 
 std::mutex g_sync;
 std::atomic<uint64_t> g_heartbeatUnixMs{0};
 std::atomic<AgentState> g_state{AgentState::Booting};
 std::atomic<bool> g_stop{false};
+std::atomic<bool> g_startupInProgress{false};
+std::atomic<bool> g_processDetaching{false};
 std::string g_lastError;
 bool g_initialized = false;
 HANDLE g_serverThread = nullptr;
@@ -55,6 +59,8 @@ std::deque<std::shared_ptr<PendingLuaDispatch>> g_dispatchQueue;
 
 using FrameScriptExecuteFn = void(__cdecl*)(const char*, const char*, int);
 
+DWORD WINAPI StartupThread(LPVOID lpParam);
+
 uint64_t NowUnixMs() {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now());
@@ -64,6 +70,13 @@ uint64_t NowUnixMs() {
 void SetErrorLocked(const char* message) {
     g_lastError = message ? message : "";
     g_state.store(AgentState::Faulted);
+}
+
+void SetFaultState(const char* message) {
+    std::lock_guard<std::mutex> lock(g_sync);
+    g_initialized = false;
+    SetErrorLocked(message);
+    g_heartbeatUnixMs.store(NowUnixMs());
 }
 
 bool ReadLine(HANDLE pipe, std::string& line) {
@@ -702,113 +715,273 @@ DWORD WINAPI PipeServerThreadProc(LPVOID) {
     return 0;
 }
 
-void StartPipeServerLocked() {
-    if (g_serverThread != nullptr) {
-        return;
+bool StartPipeServer(std::string& error) {
+    error.clear();
+
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (g_serverThread != nullptr) {
+            return true;
+        }
+
+        const DWORD pid = GetCurrentProcessId();
+        g_pipeName = "\\\\.\\pipe\\TalosForge.Agent.Native." + std::to_string(pid);
+        g_stop.store(false);
     }
 
-    const DWORD pid = GetCurrentProcessId();
-    g_pipeName = "\\\\.\\pipe\\TalosForge.Agent.Native." + std::to_string(pid);
-    g_stop.store(false);
-    g_serverThread = CreateThread(nullptr, 0, PipeServerThreadProc, nullptr, 0, nullptr);
+    HANDLE thread = CreateThread(nullptr, 0, PipeServerThreadProc, nullptr, 0, nullptr);
+    if (thread == nullptr) {
+        error = "CreateThread failed for pipe server.";
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (g_serverThread == nullptr) {
+            g_serverThread = thread;
+            return true;
+        }
+    }
+
+    // Another caller won the race and already published a server thread.
+    CloseHandle(thread);
+    return true;
 }
 
-void StopPipeServerLocked() {
-    g_stop.store(true);
-    FailAndDrainDispatchQueue("Agent shutdown.");
-    UninstallDispatchWindow();
-    if (g_serverThread != nullptr) {
-        WaitForSingleObject(g_serverThread, 1000);
-        CloseHandle(g_serverThread);
+void StopPipeServer() {
+    HANDLE serverThread = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        g_stop.store(true);
+        serverThread = g_serverThread;
         g_serverThread = nullptr;
     }
+
+    FailAndDrainDispatchQueue("Agent shutdown.");
+    UninstallDispatchWindow();
+    if (serverThread != nullptr) {
+        WaitForSingleObject(serverThread, 1000);
+        CloseHandle(serverThread);
+    }
+}
+
+bool StartAsyncInitialization(std::string& error) {
+    error.clear();
+
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (g_initialized) {
+            return true;
+        }
+
+        if (g_startupInProgress.load()) {
+            return true;
+        }
+
+        g_startupInProgress.store(true);
+        g_state.store(AgentState::Booting);
+        g_lastError.clear();
+    }
+
+    HANDLE startupThread = CreateThread(nullptr, 0, StartupThread, g_module, 0, nullptr);
+    if (startupThread == nullptr) {
+        g_startupInProgress.store(false);
+        error = "CreateThread failed for startup.";
+        SetFaultState(error.c_str());
+        return false;
+    }
+
+    CloseHandle(startupThread);
+    return true;
+}
+
+bool WaitForReadyState(int timeoutMs) {
+    const int waitBudget = timeoutMs > 0 ? timeoutMs : kStartupWaitTimeoutMs;
+    int waitedMs = 0;
+
+    while (waitedMs < waitBudget) {
+        {
+            std::lock_guard<std::mutex> lock(g_sync);
+            if (g_initialized && g_state.load() == AgentState::Ready) {
+                return true;
+            }
+
+            if (g_state.load() == AgentState::Faulted) {
+                return false;
+            }
+        }
+
+        if (!g_startupInProgress.load()) {
+            break;
+        }
+
+        Sleep(kStartupPollIntervalMs);
+        waitedMs += kStartupPollIntervalMs;
+    }
+
+    std::lock_guard<std::mutex> lock(g_sync);
+    return g_initialized && g_state.load() == AgentState::Ready;
+}
+
+// ------------------------------------------------------------------
+// New StartupThread – runs all initialization outside of DllMain
+// ------------------------------------------------------------------
+DWORD WINAPI StartupThread(LPVOID lpParam)
+{
+    g_startupInProgress.store(true);
+    (void)lpParam;
+
+    if (g_processDetaching.load()) {
+        g_startupInProgress.store(false);
+        return 0;
+    }
+    
+    // Initialization intentionally stays minimal and non-blocking.
+    std::string startError;
+    if (!StartPipeServer(startError)) {
+        SetFaultState(startError.c_str());
+        g_startupInProgress.store(false);
+        return 0;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        g_initialized = true;
+        g_state.store(AgentState::Ready);
+        g_heartbeatUnixMs.store(NowUnixMs());
+        g_lastError.clear();
+    }
+
+    g_startupInProgress.store(false);
+    return 0;
 }
 
 } // namespace
 
-BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID) {
-    switch (reason) {
+// ------------------------------------------------------------------
+// DllMain – minimal work, then launch startup thread
+// ------------------------------------------------------------------
+BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
+{
+    switch (reason)
+    {
     case DLL_PROCESS_ATTACH:
         g_module = module;
         DisableThreadLibraryCalls(module);
         {
-            std::lock_guard<std::mutex> lock(g_sync);
-            g_initialized = true;
-            g_state.store(AgentState::Ready);
-            g_heartbeatUnixMs.store(NowUnixMs());
-            g_lastError.clear();
-            StartPipeServerLocked();
+            std::string startError;
+            StartAsyncInitialization(startError);
         }
         break;
+
     case DLL_PROCESS_DETACH:
-        {
-            std::lock_guard<std::mutex> lock(g_sync);
-            StopPipeServerLocked();
-            g_initialized = false;
-            g_state.store(AgentState::Booting);
-        }
-        break;
-    default:
+        g_processDetaching.store(true);
+        g_stop.store(true);
         break;
     }
-
     return TRUE;
 }
 
+// ------------------------------------------------------------------
+// Exported Agent API (unchanged)
+// ------------------------------------------------------------------
 AGENT_API bool AGENT_CALL AgentInitialize(const TalosForge::NativeAgent::AgentInitConfig* config) {
-    std::lock_guard<std::mutex> lock(g_sync);
-    g_lastError.clear();
-
     if (config == nullptr || config->version == 0) {
-        SetErrorLocked("Invalid config.");
+        SetFaultState("Invalid config.");
         return false;
     }
 
-    g_initialized = true;
-    g_state.store(AgentState::Ready);
-    g_heartbeatUnixMs.store(NowUnixMs());
-    StartPipeServerLocked();
+    if (g_processDetaching.load()) {
+        SetFaultState("Process is detaching.");
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (g_initialized && g_state.load() == AgentState::Ready) {
+            return true;
+        }
+
+        g_lastError.clear();
+    }
+
+    std::string startError;
+    if (!StartAsyncInitialization(startError)) {
+        return false;
+    }
+
+    if (!WaitForReadyState(kStartupWaitTimeoutMs)) {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (g_lastError.empty()) {
+            SetErrorLocked("Initialization timed out.");
+        }
+
+        return false;
+    }
+
     return true;
 }
 
 AGENT_API bool AGENT_CALL AgentShutdown() {
-    std::lock_guard<std::mutex> lock(g_sync);
-    StopPipeServerLocked();
-    g_initialized = false;
-    g_state.store(AgentState::Booting);
-    g_heartbeatUnixMs.store(NowUnixMs());
-    g_lastError.clear();
-    g_queueDepth = 0;
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (!g_initialized && g_serverThread == nullptr) {
+            g_state.store(AgentState::Booting);
+            g_heartbeatUnixMs.store(NowUnixMs());
+            g_lastError.clear();
+            g_queueDepth = 0;
+            return true;
+        }
+
+        g_state.store(AgentState::Booting);
+    }
+
+    StopPipeServer();
+
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        g_initialized = false;
+        g_heartbeatUnixMs.store(NowUnixMs());
+        g_lastError.clear();
+        g_queueDepth = 0;
+    }
+
     return true;
 }
 
 AGENT_API bool AGENT_CALL AgentEnqueueCommand(const char* opcode, const char* payloadJson, uint32_t) {
-    std::lock_guard<std::mutex> lock(g_sync);
-    if (!g_initialized) {
-        SetErrorLocked("Agent not initialized.");
-        return false;
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        if (!g_initialized || g_state.load() != AgentState::Ready) {
+            SetErrorLocked("Agent not ready.");
+            return false;
+        }
     }
 
     if (opcode == nullptr || opcode[0] == '\0') {
-        SetErrorLocked("Opcode is required.");
+        SetFaultState("Opcode is required.");
         return false;
     }
 
     std::string lua;
     std::string error;
     if (!BuildLuaFromOpcode(opcode, payloadJson ? payloadJson : "{}", lua, error)) {
-        SetErrorLocked(error.c_str());
+        SetFaultState(error.c_str());
         return false;
     }
 
     if (!DispatchLuaOnGameThread(lua, kDefaultCommandTimeoutMs, error)) {
-        SetErrorLocked(error.c_str());
+        SetFaultState(error.c_str());
         return false;
     }
 
-    g_heartbeatUnixMs.store(NowUnixMs());
-    g_state.store(AgentState::Ready);
-    g_lastError.clear();
+    {
+        std::lock_guard<std::mutex> lock(g_sync);
+        g_heartbeatUnixMs.store(NowUnixMs());
+        g_state.store(AgentState::Ready);
+        g_lastError.clear();
+    }
+
     return true;
 }
 

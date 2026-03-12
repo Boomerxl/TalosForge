@@ -32,7 +32,7 @@ public sealed class InGameOverlayServiceTests
     }
 
     [Fact]
-    public async Task TryPublishAsync_Respects_Tick_Interval()
+    public async Task TryPublishAsync_Respects_Tick_Interval_After_First_Visible_Publish()
     {
         var client = new RecordingUnlockerClient();
         var options = new BotOptions
@@ -42,15 +42,22 @@ public sealed class InGameOverlayServiceTests
         };
         var service = new InGameOverlayService(client, options);
 
-        var commands = await service.TryPublishAsync(
+        var firstCommands = await service.TryPublishAsync(
+            tickId: 4,
+            state: BotState.Idle,
+            snapshot: CreateSnapshot(success: true),
+            queuedCommands: 0,
+            cancellationToken: CancellationToken.None);
+        var secondCommands = await service.TryPublishAsync(
             tickId: 4,
             state: BotState.Idle,
             snapshot: CreateSnapshot(success: true),
             queuedCommands: 0,
             cancellationToken: CancellationToken.None);
 
-        Assert.Equal(0, commands);
-        Assert.Empty(client.Commands);
+        Assert.Equal(1, firstCommands);
+        Assert.Equal(0, secondCommands);
+        Assert.Single(client.Commands);
     }
 
     [Fact]
@@ -81,6 +88,8 @@ public sealed class InGameOverlayServiceTests
         Assert.NotNull(lua);
         Assert.Contains("frame.TalosForgeText:SetText", lua!, StringComparison.Ordinal);
         Assert.Contains("TalosForge [ok] Tick:6 State:Movement Obj:2 Target:0x000000000000004D Cmd:5", lua!, StringComparison.Ordinal);
+        Assert.Contains("TalosForgeDiag", lua!, StringComparison.Ordinal);
+        Assert.Contains("LuaErr:", lua!, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -103,6 +112,77 @@ public sealed class InGameOverlayServiceTests
 
         Assert.Equal(0, commands);
         Assert.Empty(client.Commands);
+    }
+
+    [Fact]
+    public async Task TryPublishAsync_When_Player_Missing_But_Snapshot_Succeeds_Does_Not_Send_Command()
+    {
+        var client = new RecordingUnlockerClient();
+        var options = new BotOptions
+        {
+            EnableInGameOverlay = true,
+            InGameOverlayEveryTicks = 1,
+        };
+        var service = new InGameOverlayService(client, options);
+
+        var snapshot = new WorldSnapshot(
+            TickId: 1,
+            TimestampUtc: DateTimeOffset.UtcNow,
+            Objects: Array.Empty<WowObjectSnapshot>(),
+            Player: null,
+            Success: true,
+            ErrorMessage: null);
+
+        var commands = await service.TryPublishAsync(
+            tickId: 8,
+            state: BotState.Idle,
+            snapshot: snapshot,
+            queuedCommands: 0,
+            cancellationToken: CancellationToken.None);
+
+        Assert.Equal(0, commands);
+        Assert.Empty(client.Commands);
+    }
+
+    [Fact]
+    public async Task TryPublishAsync_Hides_Overlay_Once_When_State_Becomes_Invalid()
+    {
+        var client = new RecordingUnlockerClient();
+        var options = new BotOptions
+        {
+            EnableInGameOverlay = true,
+            InGameOverlayEveryTicks = 1,
+        };
+        var service = new InGameOverlayService(client, options);
+
+        var firstCommands = await service.TryPublishAsync(
+            tickId: 1,
+            state: BotState.Idle,
+            snapshot: CreateSnapshot(success: true),
+            queuedCommands: 0,
+            cancellationToken: CancellationToken.None);
+        var secondCommands = await service.TryPublishAsync(
+            tickId: 2,
+            state: BotState.Idle,
+            snapshot: CreateSnapshot(success: false),
+            queuedCommands: 0,
+            cancellationToken: CancellationToken.None);
+        var thirdCommands = await service.TryPublishAsync(
+            tickId: 3,
+            state: BotState.Idle,
+            snapshot: CreateSnapshot(success: false),
+            queuedCommands: 0,
+            cancellationToken: CancellationToken.None);
+
+        Assert.Equal(1, firstCommands);
+        Assert.Equal(1, secondCommands);
+        Assert.Equal(0, thirdCommands);
+        Assert.Equal(2, client.Commands.Count);
+
+        using var payload = JsonDocument.Parse(client.Commands[1].PayloadJson);
+        var lua = payload.RootElement.GetProperty("code").GetString();
+        Assert.NotNull(lua);
+        Assert.Contains("TalosForgeStatusFrame:Hide()", lua!, StringComparison.Ordinal);
     }
 
     private static WorldSnapshot CreateSnapshot(bool success)

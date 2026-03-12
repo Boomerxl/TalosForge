@@ -13,12 +13,17 @@ public sealed class ObjectManagerService : IObjectManager
     private const long MinValidPointer = 0x10000;
     private const long MaxValidPointer = 0x7FFFFFFF;
     private static readonly TimeSpan LocalPlayerCacheTtl = TimeSpan.FromMilliseconds(200);
+    private static readonly TimeSpan PointerCacheTtl = TimeSpan.FromSeconds(2);
 
     private readonly IMemoryReader _memoryReader;
     private readonly ILogger<ObjectManagerService> _logger;
     private readonly object _localPlayerLock = new();
+    private readonly object _pointerCacheLock = new();
     private PlayerSnapshot? _cachedLocalPlayer;
     private DateTimeOffset _cachedLocalPlayerExpiresUtc = DateTimeOffset.MinValue;
+    private IntPtr _cachedClientConnection;
+    private IntPtr _cachedObjectManager;
+    private DateTimeOffset _cachedPointerChainExpiresUtc = DateTimeOffset.MinValue;
 
     public ObjectManagerService(IMemoryReader memoryReader, ILogger<ObjectManagerService> logger)
     {
@@ -45,7 +50,14 @@ public sealed class ObjectManagerService : IObjectManager
                 baseAddress,
                 Offsets.STATIC_CLIENT_CONNECTION,
                 "client connection");
-            if (clientConnection == IntPtr.Zero || !IsLikelyPointer(clientConnection))
+            var hasValidClientConnection = clientConnection != IntPtr.Zero && IsLikelyPointer(clientConnection);
+            if (!hasValidClientConnection && TryGetCachedPointerChain(out var cachedClientConnection, out _))
+            {
+                clientConnection = cachedClientConnection;
+                hasValidClientConnection = clientConnection != IntPtr.Zero && IsLikelyPointer(clientConnection);
+            }
+
+            if (!hasValidClientConnection)
             {
                 return WorldSnapshot.Empty(
                     tickId,
@@ -53,12 +65,22 @@ public sealed class ObjectManagerService : IObjectManager
             }
 
             var objectManagerAddress = IntPtr.Add(clientConnection, Offsets.OBJECT_MANAGER_OFFSET);
-            if (!TryReadPointer(objectManagerAddress, out var objectManagerPointer) || !IsLikelyPointer(objectManagerPointer))
+            var hasValidObjectManager = TryReadPointer(objectManagerAddress, out var objectManagerPointer) &&
+                                        IsLikelyPointer(objectManagerPointer);
+            if (!hasValidObjectManager && TryGetCachedPointerChain(out _, out var cachedObjectManager))
+            {
+                objectManagerPointer = cachedObjectManager;
+                hasValidObjectManager = objectManagerPointer != IntPtr.Zero && IsLikelyPointer(objectManagerPointer);
+            }
+
+            if (!hasValidObjectManager)
             {
                 return WorldSnapshot.Empty(
                     tickId,
                     $"Object manager pointer is invalid at 0x{objectManagerAddress.ToInt64():X}.");
             }
+
+            CachePointerChain(clientConnection, objectManagerPointer);
 
             if (!TryRead(IntPtr.Add(objectManagerPointer, Offsets.LOCAL_GUID_OFFSET), out ulong localGuid))
             {
@@ -284,14 +306,9 @@ public sealed class ObjectManagerService : IObjectManager
 
     private bool TryReadNextObjectPointer(IntPtr objectPointer, out IntPtr nextObjectPointer)
     {
-        nextObjectPointer = IntPtr.Zero;
-
-        if (TryRead(objectPointer, out CGObject cgObject) && cgObject.NextObjectPtr != IntPtr.Zero)
-        {
-            nextObjectPointer = cgObject.NextObjectPtr;
-            return true;
-        }
-
+        // Prefer the raw link field over full-struct reads. In live WoW sessions the
+        // larger CGObject overlay can intermittently fail across page boundaries even
+        // when the next-object link at +0x3C is still readable.
         return TryReadPointer(IntPtr.Add(objectPointer, Offsets.NEXT_OBJECT_OFFSET), out nextObjectPointer);
     }
 
@@ -406,6 +423,35 @@ public sealed class ObjectManagerService : IObjectManager
             }
 
             player = null;
+            return false;
+        }
+    }
+
+    private void CachePointerChain(IntPtr clientConnection, IntPtr objectManagerPointer)
+    {
+        lock (_pointerCacheLock)
+        {
+            _cachedClientConnection = clientConnection;
+            _cachedObjectManager = objectManagerPointer;
+            _cachedPointerChainExpiresUtc = DateTimeOffset.UtcNow.Add(PointerCacheTtl);
+        }
+    }
+
+    private bool TryGetCachedPointerChain(out IntPtr clientConnection, out IntPtr objectManagerPointer)
+    {
+        lock (_pointerCacheLock)
+        {
+            if (DateTimeOffset.UtcNow <= _cachedPointerChainExpiresUtc &&
+                _cachedClientConnection != IntPtr.Zero &&
+                _cachedObjectManager != IntPtr.Zero)
+            {
+                clientConnection = _cachedClientConnection;
+                objectManagerPointer = _cachedObjectManager;
+                return true;
+            }
+
+            clientConnection = IntPtr.Zero;
+            objectManagerPointer = IntPtr.Zero;
             return false;
         }
     }

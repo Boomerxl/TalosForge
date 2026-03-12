@@ -23,7 +23,7 @@ public sealed class InGameOverlayServiceTests
     }
 
     [Fact]
-    public async Task EnabledOverlay_SendsAtIntervalOnly()
+    public async Task EnabledOverlay_SendsImmediately_When_First_Becoming_Visible_Then_Respects_Interval()
     {
         var unlocker = new CollectingUnlockerClient();
         var options = new BotOptions { EnableInGameOverlay = true, InGameOverlayEveryTicks = 3 };
@@ -32,15 +32,15 @@ public sealed class InGameOverlayServiceTests
         var c1 = await service.TryPublishAsync(2, BotState.Idle, BuildSnapshot(2), 0, CancellationToken.None);
         var c2 = await service.TryPublishAsync(3, BotState.Combat, BuildSnapshot(3), 1, CancellationToken.None);
 
-        Assert.Equal(0, c1);
-        Assert.Equal(1, c2);
+        Assert.Equal(1, c1);
+        Assert.Equal(0, c2);
         Assert.Single(unlocker.Commands);
 
         var payload = JsonSerializer.Deserialize<JsonElement>(unlocker.Commands[0].PayloadJson);
         var lua = payload.GetProperty("code").GetString();
         Assert.NotNull(lua);
         Assert.Contains("frame.TalosForgeText", lua, StringComparison.Ordinal);
-        Assert.Contains("Tick:3", lua, StringComparison.Ordinal);
+        Assert.Contains("Tick:2", lua, StringComparison.Ordinal);
     }
 
     private static WorldSnapshot BuildSnapshot(long tickId)
