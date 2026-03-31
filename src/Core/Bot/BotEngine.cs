@@ -17,11 +17,12 @@ public sealed class BotEngine : IBotEngine
     private readonly IEventBus _eventBus;
     private readonly IUnlockerClient _unlockerClient;
     private readonly PluginHost? _pluginHost;
-    private readonly InGameOverlayService? _inGameOverlayService;
+    private readonly TalosForgeHubOverlayService? _hubOverlayService;
     private readonly ILogger<BotEngine> _logger;
     private readonly BotOptions _options;
 
     private long _tickId;
+    private BotTickMetrics? _previousTickMetricsForOverlay;
 
     public BotEngine(
         IObjectManager objectManager,
@@ -30,7 +31,7 @@ public sealed class BotEngine : IBotEngine
         BotOptions options,
         ILogger<BotEngine> logger,
         PluginHost? pluginHost = null,
-        InGameOverlayService? inGameOverlayService = null)
+        TalosForgeHubOverlayService? hubOverlayService = null)
     {
         _objectManager = objectManager;
         _eventBus = eventBus;
@@ -38,7 +39,7 @@ public sealed class BotEngine : IBotEngine
         _options = options;
         _logger = logger;
         _pluginHost = pluginHost;
-        _inGameOverlayService = inGameOverlayService;
+        _hubOverlayService = hubOverlayService;
     }
 
     public BotTickMetrics? LastMetrics { get; private set; }
@@ -85,12 +86,18 @@ public sealed class BotEngine : IBotEngine
                 }
             }
 
-            if (_inGameOverlayService != null)
+            if (_hubOverlayService != null)
             {
                 try
                 {
-                    commandsCount += await _inGameOverlayService
-                        .TryPublishAsync(_tickId, state, snapshot, commandsCount, cancellationToken)
+                    commandsCount += await _hubOverlayService
+                        .TryPublishAsync(
+                            _tickId,
+                            state,
+                            snapshot,
+                            commandsCount,
+                            _previousTickMetricsForOverlay,
+                            cancellationToken)
                         .ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -100,13 +107,13 @@ public sealed class BotEngine : IBotEngine
                 catch (TimeoutException ex)
                 {
                     _logger.LogDebug(
-                        "In-game overlay publish timed out at tick {TickId}: {Message}",
+                        "In-game hub overlay publish timed out at tick {TickId}: {Message}",
                         _tickId,
                         ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "In-game overlay publish failed at tick {TickId}.", _tickId);
+                    _logger.LogWarning(ex, "In-game hub overlay publish failed at tick {TickId}.", _tickId);
                 }
             }
 
@@ -121,6 +128,7 @@ public sealed class BotEngine : IBotEngine
                 events.Count,
                 commandsCount,
                 DateTimeOffset.UtcNow);
+            _previousTickMetricsForOverlay = LastMetrics;
             TickCompleted?.Invoke(LastMetrics, snapshot);
 
             _logger.LogInformation(

@@ -28,8 +28,32 @@ jobs:
       - name: Build
         run: dotnet build TalosForge.sln --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test TalosForge.sln --configuration Release --no-build
+      - name: Test (Deterministic)
+        run: >
+          dotnet test TalosForge.sln
+          --configuration Release
+          --no-build
+          --filter "Suite!=LiveSmoke"
+          --results-directory TestResults
+          --logger "trx;LogFileName=deterministic.trx"
+          --logger "console;verbosity=normal"
+
+      - name: Test (Live Smoke)
+        run: >
+          dotnet test TalosForge.sln
+          --configuration Release
+          --no-build
+          --filter "Suite=LiveSmoke"
+          --results-directory TestResults
+          --logger "trx;LogFileName=live-smoke.trx"
+          --logger "console;verbosity=normal"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
 
       - name: Verify docs
         shell: pwsh

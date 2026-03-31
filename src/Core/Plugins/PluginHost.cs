@@ -110,11 +110,12 @@ public sealed class PluginHost : IDisposable
         ThrowIfDisposed();
 
         var commandsSent = 0;
+        var botContext = new BotContext(snapshot, unlockerClient);
 
         foreach (var plugin in _plugins)
         {
             plugin.Context.SetTickContext(snapshot, events);
-            await plugin.Instance.TickAsync(snapshot, events, cancellationToken).ConfigureAwait(false);
+            await plugin.Instance.TickAsync(botContext, events, cancellationToken).ConfigureAwait(false);
 
             while (plugin.Context.TryDequeue(out var command))
             {

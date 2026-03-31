@@ -6,4 +6,5 @@ public sealed class RuntimeOptions
     public int SmokeDurationSeconds { get; set; } = 2;
     public string? PluginDirectoryOverride { get; set; }
     public bool UseMockUnlocker { get; set; } = true;
+    public string SessionId { get; set; } = string.Empty;
 }

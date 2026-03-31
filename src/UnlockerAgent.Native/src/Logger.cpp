@@ -11,8 +11,8 @@ namespace TalosForge { namespace Native {
     size_t Logger::s_count = 0;
     std::mutex Logger::s_mutex;
 
-    bool g_enableDebugOutput = false;   // OutputDebugString – off by default (security)
-    bool g_enableFileLogging = false;   // file logging – off by default
+    bool g_enableDebugOutput = false;
+    bool g_enableFileLogging = false;
 
     void Logger::Log(Severity sev, const char* category, const char* fmt, ...)
     {

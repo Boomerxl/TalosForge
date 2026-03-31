@@ -61,6 +61,7 @@ dotnet run --project C:/Utilities/TalosForge/src/Core/TalosForge.Core.csproj -c 
 - `--adapter-pipe` (named pipe for adapter bridge, default `TalosForge.UnlockerAdapter.v1`)
 - `--adapter-connect-timeout-ms` (default `1200`)
 - `--adapter-request-timeout-ms` (default `2500`)
+- `--session-id` (optional log/session context)
 - `--smoke`
 - `--smoke-seconds`
 

@@ -19,7 +19,9 @@ param(
     [string]$BridgeCommandArgs = $env:TALOSFORGE_UNLOCKER_CLI_ARGS,
     [bool]$EnableInGameUi = $true,
     [int]$InGameUiInterval = 1,
-    [bool]$UseRealUnlocker = $true
+    [bool]$UseRealUnlocker = $true,
+    [string]$SessionId = "",
+    [switch]$OutputJson
 )
 
 $ErrorActionPreference = "Stop"
@@ -51,6 +53,18 @@ function Write-State([object]$state) {
     }
 
     $state | ConvertTo-Json -Depth 6 | Set-Content -Path $stateFile -Encoding UTF8
+}
+
+function Resolve-SessionId {
+    if (-not [string]::IsNullOrWhiteSpace($SessionId)) {
+        return $SessionId.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:TALOSFORGE_SESSION_ID)) {
+        return $env:TALOSFORGE_SESSION_ID.Trim()
+    }
+
+    return [Guid]::NewGuid().ToString("N")
 }
 
 function Stop-ProcessIfRunning([int]$processId, [string]$name) {
@@ -145,6 +159,10 @@ function Start-Stack {
         New-Item -Path $stateDir -ItemType Directory -Force | Out-Null
     }
 
+    $resolvedSessionId = Resolve-SessionId
+    $priorSessionId = $env:TALOSFORGE_SESSION_ID
+    $env:TALOSFORGE_SESSION_ID = $resolvedSessionId
+
     $runId = Get-Date -Format "yyyyMMdd-HHmmss"
     $runDir = Join-Path $stateDir ("run-" + $runId)
     New-Item -Path $runDir -ItemType Directory -Force | Out-Null
@@ -235,77 +253,150 @@ function Start-Stack {
 
     $started = @()
     try {
-        if ($BridgeMode -eq "wow-agent") {
-            $agentProcess = Start-Process -FilePath "dotnet" -ArgumentList $agentArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $agentOut -RedirectStandardError $agentErr
-            $started += [pscustomobject]@{ Name = "agent"; Pid = $agentProcess.Id }
-            Start-Sleep -Seconds 2
-        }
-
-        $bridgeProcess = Start-Process -FilePath "dotnet" -ArgumentList $bridgeArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $bridgeOut -RedirectStandardError $bridgeErr
-        $started += [pscustomobject]@{ Name = "bridge"; Pid = $bridgeProcess.Id }
-        Start-Sleep -Seconds 2
-
-        $hostProcess = Start-Process -FilePath "dotnet" -ArgumentList $hostArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $hostOut -RedirectStandardError $hostErr
-        $started += [pscustomobject]@{ Name = "host"; Pid = $hostProcess.Id }
-        Start-Sleep -Seconds 2
-
-        $coreProcess = Start-Process -FilePath "dotnet" -ArgumentList $coreArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $coreOut -RedirectStandardError $coreErr
-        $started += [pscustomobject]@{ Name = "core"; Pid = $coreProcess.Id }
-    }
-    catch {
-        foreach ($entry in $started) {
-            Stop-ProcessIfRunning -processId $entry.Pid -name $entry.Name
-        }
-
-        throw "Failed to start dev stack: $($_.Exception.Message)"
-    }
-
-    $state = [pscustomobject]@{
-        startedUtc = [DateTimeOffset]::UtcNow.ToString("o")
-        configuration = $Configuration
-        bridgeMode = $BridgeMode
-        pipeName = $PipeName
-        agentPipeName = $AgentPipeName
-        runDir = $runDir
-        processes = @(
+        try {
             if ($BridgeMode -eq "wow-agent") {
-                [pscustomobject]@{ name = "agent"; pid = $agentProcess.Id; outLog = $agentOut; errLog = $agentErr }
+                $agentProcess = Start-Process -FilePath "dotnet" -ArgumentList $agentArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $agentOut -RedirectStandardError $agentErr
+                $started += [pscustomobject]@{ Name = "agent"; Pid = $agentProcess.Id }
+                Start-Sleep -Seconds 2
             }
-            [pscustomobject]@{ name = "bridge"; pid = $bridgeProcess.Id; outLog = $bridgeOut; errLog = $bridgeErr },
-            [pscustomobject]@{ name = "host"; pid = $hostProcess.Id; outLog = $hostOut; errLog = $hostErr },
-            [pscustomobject]@{ name = "core"; pid = $coreProcess.Id; outLog = $coreOut; errLog = $coreErr }
-        )
-    }
-    Write-State $state
 
-    Write-Host "Dev stack started."
-    if ($BridgeMode -eq "wow-agent") {
-        Write-Host "Agent PID:  $($agentProcess.Id)"
+            $bridgeProcess = Start-Process -FilePath "dotnet" -ArgumentList $bridgeArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $bridgeOut -RedirectStandardError $bridgeErr
+            $started += [pscustomobject]@{ Name = "bridge"; Pid = $bridgeProcess.Id }
+            Start-Sleep -Seconds 2
+
+            $hostProcess = Start-Process -FilePath "dotnet" -ArgumentList $hostArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $hostOut -RedirectStandardError $hostErr
+            $started += [pscustomobject]@{ Name = "host"; Pid = $hostProcess.Id }
+            Start-Sleep -Seconds 2
+
+            $coreProcess = Start-Process -FilePath "dotnet" -ArgumentList $coreArgs -WorkingDirectory $repoRoot -PassThru -RedirectStandardOutput $coreOut -RedirectStandardError $coreErr
+            $started += [pscustomobject]@{ Name = "core"; Pid = $coreProcess.Id }
+        }
+        catch {
+            foreach ($entry in $started) {
+                Stop-ProcessIfRunning -processId $entry.Pid -name $entry.Name
+            }
+
+            throw "Failed to start dev stack: $($_.Exception.Message)"
+        }
+
+        $state = [pscustomobject]@{
+            startedUtc = [DateTimeOffset]::UtcNow.ToString("o")
+            sessionId = $resolvedSessionId
+            configuration = $Configuration
+            bridgeMode = $BridgeMode
+            pipeName = $PipeName
+            agentPipeName = $AgentPipeName
+            runDir = $runDir
+            processes = @(
+                if ($BridgeMode -eq "wow-agent") {
+                    [pscustomobject]@{ name = "agent"; pid = $agentProcess.Id; outLog = $agentOut; errLog = $agentErr }
+                }
+                [pscustomobject]@{ name = "bridge"; pid = $bridgeProcess.Id; outLog = $bridgeOut; errLog = $bridgeErr },
+                [pscustomobject]@{ name = "host"; pid = $hostProcess.Id; outLog = $hostOut; errLog = $hostErr },
+                [pscustomobject]@{ name = "core"; pid = $coreProcess.Id; outLog = $coreOut; errLog = $coreErr }
+            )
+        }
+        Write-State $state
+
+        Write-Host "Dev stack started."
+        Write-Host "Session ID: $resolvedSessionId"
+        if ($BridgeMode -eq "wow-agent") {
+            Write-Host "Agent PID:  $($agentProcess.Id)"
+        }
+        Write-Host "Bridge PID: $($bridgeProcess.Id)"
+        Write-Host "Host PID:   $($hostProcess.Id)"
+        Write-Host "Core PID:   $($coreProcess.Id)"
+        Write-Host ""
+        Write-Host "Logs:"
+        if ($BridgeMode -eq "wow-agent") {
+            Write-Host "  $agentOut"
+        }
+        Write-Host "  $bridgeOut"
+        Write-Host "  $hostOut"
+        Write-Host "  $coreOut"
+        Write-Host ""
+        Write-Host "Use '.\\scripts\\dev-stack.ps1 -Action status' to check process health."
+        Write-Host "Use '.\\scripts\\dev-stack.ps1 -Action stop' to stop all three."
     }
-    Write-Host "Bridge PID: $($bridgeProcess.Id)"
-    Write-Host "Host PID:   $($hostProcess.Id)"
-    Write-Host "Core PID:   $($coreProcess.Id)"
-    Write-Host ""
-    Write-Host "Logs:"
-    if ($BridgeMode -eq "wow-agent") {
-        Write-Host "  $agentOut"
+    finally {
+        if ([string]::IsNullOrWhiteSpace($priorSessionId)) {
+            Remove-Item Env:TALOSFORGE_SESSION_ID -ErrorAction SilentlyContinue
+        } else {
+            $env:TALOSFORGE_SESSION_ID = $priorSessionId
+        }
     }
-    Write-Host "  $bridgeOut"
-    Write-Host "  $hostOut"
-    Write-Host "  $coreOut"
-    Write-Host ""
-    Write-Host "Use '.\\scripts\\dev-stack.ps1 -Action status' to check process health."
-    Write-Host "Use '.\\scripts\\dev-stack.ps1 -Action stop' to stop all three."
 }
 
 function Show-Status {
     $state = Read-State
     if ($null -eq $state) {
+        if ($OutputJson) {
+            [pscustomobject]@{
+                status = "stopped"
+                healthy = $false
+                sessionId = $null
+                startedUtc = $null
+                configuration = $null
+                bridgeMode = $null
+                pipeName = $null
+                agentPipeName = $null
+                runDir = $null
+                expectedProcesses = 0
+                runningProcesses = 0
+                processes = @()
+            } | ConvertTo-Json -Depth 6
+            return
+        }
+
         Write-Host "No dev stack is running (state file not found)."
         return
     }
 
+    $processStatus = @()
+    foreach ($entry in @($state.processes)) {
+        $proc = Get-Process -Id $entry.pid -ErrorAction SilentlyContinue
+        $status = if ($null -ne $proc) { "running" } else { "not running" }
+        $processStatus += [pscustomobject]@{
+            name = $entry.name
+            pid = $entry.pid
+            status = $status
+            outLog = $entry.outLog
+            errLog = $entry.errLog
+        }
+    }
+
+    $expectedCount = @($processStatus).Count
+    $runningCount = @($processStatus | Where-Object { $_.status -eq "running" }).Count
+    $health = if ($expectedCount -eq 0 -or $runningCount -eq 0) {
+        "stopped"
+    } elseif ($runningCount -eq $expectedCount) {
+        "healthy"
+    } else {
+        "degraded"
+    }
+
+    if ($OutputJson) {
+        [pscustomobject]@{
+            status = $health
+            healthy = ($health -eq "healthy")
+            sessionId = $state.sessionId
+            startedUtc = $state.startedUtc
+            configuration = $state.configuration
+            bridgeMode = $state.bridgeMode
+            pipeName = $state.pipeName
+            agentPipeName = if ($state.PSObject.Properties.Name -contains "agentPipeName") { $state.agentPipeName } else { $null }
+            runDir = if ($state.PSObject.Properties.Name -contains "runDir") { $state.runDir } else { $null }
+            expectedProcesses = $expectedCount
+            runningProcesses = $runningCount
+            processes = $processStatus
+        } | ConvertTo-Json -Depth 6
+        return
+    }
+
     Write-Host "Dev stack started at $($state.startedUtc)"
+    if ($state.PSObject.Properties.Name -contains "sessionId") {
+        Write-Host "Session ID:    $($state.sessionId)"
+    }
     Write-Host "Configuration: $($state.configuration)"
     Write-Host "Bridge mode:   $($state.bridgeMode)"
     Write-Host "Pipe name:     $($state.pipeName)"
@@ -317,10 +408,8 @@ function Show-Status {
     }
     Write-Host ""
 
-    foreach ($entry in @($state.processes)) {
-        $proc = Get-Process -Id $entry.pid -ErrorAction SilentlyContinue
-        $status = if ($null -ne $proc) { "running" } else { "not running" }
-        Write-Host ("{0,-6} pid={1,-8} status={2}" -f $entry.name, $entry.pid, $status)
+    foreach ($entry in @($processStatus)) {
+        Write-Host ("{0,-6} pid={1,-8} status={2}" -f $entry.name, $entry.pid, $entry.status)
         Write-Host ("        out={0}" -f $entry.outLog)
         Write-Host ("        err={0}" -f $entry.errLog)
     }

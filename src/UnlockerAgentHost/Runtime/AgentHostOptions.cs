@@ -2,6 +2,7 @@ namespace TalosForge.UnlockerAgentHost.Runtime;
 
 public sealed class AgentHostOptions
 {
+    public string SessionId { get; set; } = string.Empty;
     public string PipeName { get; set; } = "TalosForge.Agent.v1";
     public string WowProcessName { get; set; } = "Wow";
     public string RuntimeMode { get; set; } = "auto";
@@ -16,6 +17,7 @@ public sealed class AgentHostOptions
     public int SmokeDurationSeconds { get; set; } = 10;
     public bool DisableEvasion { get; set; }
     public bool SimulateEvasionInitFailure { get; set; }
+    public string? LuaCommand { get; set; }
 #if DEBUG
     public string EvasionProfile { get; set; } = "off";
 #else

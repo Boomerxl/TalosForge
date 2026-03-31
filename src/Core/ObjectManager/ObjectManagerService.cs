@@ -126,7 +126,12 @@ public sealed class ObjectManagerService : IObjectManager
                     LootReady: false,
                     IsMoving: false,
                     runtimeData.Health,
-                    runtimeData.MaxHealth);
+                    runtimeData.MaxHealth,
+                    Mana: runtimeData.Mana,
+                    MaxMana: runtimeData.MaxMana,
+                    Level: runtimeData.Level,
+                    Name: localObject.Name,
+                    Auras: localObject.Auras);
 
                 CacheLocalPlayer(player);
             }
@@ -200,7 +205,6 @@ public sealed class ObjectManagerService : IObjectManager
             float facing;
             ulong? objectTargetGuid = targetGuid;
 
-            // Preferred path: Binana object layout.
             if (TryRead(objectPointer, out CGObject cgObject))
             {
                 guid = cgObject.Guid;
@@ -208,10 +212,16 @@ public sealed class ObjectManagerService : IObjectManager
             }
             else
             {
-                // Fallback path for partial mappings/tests.
                 guid = _memoryReader.Read<ulong>(IntPtr.Add(objectPointer, Offsets.OBJECT_GUID));
                 type = _memoryReader.Read<int>(IntPtr.Add(objectPointer, Offsets.OBJECT_TYPE));
             }
+
+            uint? health = null, maxHealth = null, mana = null, maxMana = null;
+            int? level = null;
+            uint? entryId = null, unitFlags = null, dynamicFlags = null;
+            int? factionTemplate = null;
+            string? name = null;
+            IReadOnlyList<AuraInfo>? auras = null;
 
             if (type == (int)WowObjectType.Unit || type == (int)WowObjectType.Player)
             {
@@ -221,6 +231,10 @@ public sealed class ObjectManagerService : IObjectManager
                     y = cgUnit.PositionY;
                     z = cgUnit.PositionZ;
                     facing = cgUnit.Facing;
+                    health = cgUnit.Health;
+                    maxHealth = cgUnit.MaxHealth;
+                    mana = cgUnit.Mana;
+                    maxMana = cgUnit.MaxMana;
                 }
                 else
                 {
@@ -229,6 +243,24 @@ public sealed class ObjectManagerService : IObjectManager
                     z = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_POS_Z));
                     facing = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_ROTATION));
                 }
+
+                TryReadDescriptor(objectPointer, Offsets.DESC_OBJECT_ENTRY, out uint rawEntry);
+                if (rawEntry != 0) entryId = rawEntry;
+
+                TryReadDescriptor(objectPointer, Offsets.DESC_UNIT_LEVEL, out int rawLevel);
+                if (rawLevel > 0 && rawLevel <= 255) level = rawLevel;
+
+                TryReadDescriptor(objectPointer, Offsets.DESC_UNIT_FLAGS, out uint rawFlags);
+                unitFlags = rawFlags;
+
+                TryReadDescriptor(objectPointer, Offsets.DESC_UNIT_DYNAMIC_FLAGS, out uint rawDynFlags);
+                dynamicFlags = rawDynFlags;
+
+                TryReadDescriptor(objectPointer, Offsets.DESC_UNIT_FACTION_TEMPLATE, out int rawFaction);
+                if (rawFaction != 0) factionTemplate = rawFaction;
+
+                name = TryReadUnitName(objectPointer, type);
+                auras = AuraReader.ReadAuras(_memoryReader, objectPointer);
 
                 if (type == (int)WowObjectType.Player && TryRead(objectPointer, out CGPlayer cgPlayer) && cgPlayer.TargetGuid != 0)
                 {
@@ -243,6 +275,12 @@ public sealed class ObjectManagerService : IObjectManager
                 facing = _memoryReader.Read<float>(IntPtr.Add(objectPointer, Offsets.OBJECT_ROTATION));
             }
 
+            bool isDead = health.HasValue && health.Value == 0;
+            if (!isDead && dynamicFlags.HasValue)
+            {
+                isDead = (dynamicFlags.Value & Offsets.UNIT_DYNAMIC_FLAG_DEAD) != 0;
+            }
+
             snapshot = new WowObjectSnapshot(
                 objectPointer,
                 guid,
@@ -250,7 +288,19 @@ public sealed class ObjectManagerService : IObjectManager
                 new Vector3(x, y, z),
                 facing,
                 guid == localGuid,
-                objectTargetGuid);
+                objectTargetGuid,
+                Health: health,
+                MaxHealth: maxHealth,
+                Mana: mana,
+                MaxMana: maxMana,
+                Level: level,
+                EntryId: entryId,
+                IsDead: isDead,
+                UnitFlags: unitFlags,
+                DynamicFlags: dynamicFlags,
+                Name: name,
+                FactionTemplate: factionTemplate,
+                Auras: auras);
             return true;
         }
         catch (Exception ex)
@@ -264,6 +314,9 @@ public sealed class ObjectManagerService : IObjectManager
     {
         int? health = null;
         int? maxHealth = null;
+        int? mana = null;
+        int? maxMana = null;
+        int? level = null;
         var inCombat = false;
         var isCasting = false;
 
@@ -271,11 +324,18 @@ public sealed class ObjectManagerService : IObjectManager
         {
             health = NormalizeOptionalValue(cgPlayer.DescriptorHealth);
             maxHealth = NormalizeOptionalValue(cgPlayer.DescriptorMaxHealth);
+            mana = NormalizeOptionalValue(cgPlayer.DescriptorMana);
+            maxMana = NormalizeOptionalValue(cgPlayer.DescriptorMaxMana);
+            level = cgPlayer.Level > 0 ? cgPlayer.Level : null;
             inCombat = cgPlayer.Base.CombatFlag != 0;
             isCasting = IsCasting(cgPlayer.Base.SpellCastStartMs, cgPlayer.Base.SpellCastEndMs);
         }
         else if (TryRead(objectPointer, out CGUnit cgUnit))
         {
+            health = (int?)NormalizeOptionalValue((int)cgUnit.Health);
+            maxHealth = (int?)NormalizeOptionalValue((int)cgUnit.MaxHealth);
+            mana = (int?)NormalizeOptionalValue((int)cgUnit.Mana);
+            maxMana = (int?)NormalizeOptionalValue((int)cgUnit.MaxMana);
             inCombat = cgUnit.CombatFlag != 0;
             isCasting = IsCasting(cgUnit.SpellCastStartMs, cgUnit.SpellCastEndMs);
         }
@@ -301,7 +361,51 @@ public sealed class ObjectManagerService : IObjectManager
             isCasting = IsCasting(castStartMs, castEndMs);
         }
 
-        return new LocalPlayerRuntimeData(health, maxHealth, inCombat, isCasting);
+        return new LocalPlayerRuntimeData(health, maxHealth, mana, maxMana, level, inCombat, isCasting);
+    }
+
+    private bool TryReadDescriptor<T>(IntPtr objectPointer, int descriptorOffset, out T value) where T : struct
+    {
+        value = default;
+        try
+        {
+            var descriptorBase = _memoryReader.ReadPointer(IntPtr.Add(objectPointer, Offsets.OBJECT_DESCRIPTOR_PTR));
+            if (!IsLikelyPointer(descriptorBase))
+                return false;
+            value = _memoryReader.Read<T>(IntPtr.Add(descriptorBase, descriptorOffset));
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private string? TryReadUnitName(IntPtr objectPointer, int objectType)
+    {
+        try
+        {
+            if (objectType == (int)WowObjectType.Unit)
+            {
+                var nameInfoPtr = _memoryReader.ReadPointer(IntPtr.Add(objectPointer, Offsets.UNIT_NAME_INFO_PTR));
+                if (IsLikelyPointer(nameInfoPtr))
+                {
+                    var namePtr = _memoryReader.ReadPointer(IntPtr.Add(nameInfoPtr, Offsets.UNIT_NAME_STRING_OFFSET));
+                    if (IsLikelyPointer(namePtr))
+                    {
+                        var name = _memoryReader.ReadString(namePtr, 64);
+                        if (!string.IsNullOrWhiteSpace(name))
+                            return name;
+                    }
+                }
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private bool TryReadNextObjectPointer(IntPtr objectPointer, out IntPtr nextObjectPointer)
@@ -464,6 +568,9 @@ public sealed class ObjectManagerService : IObjectManager
     private sealed record LocalPlayerRuntimeData(
         int? Health,
         int? MaxHealth,
+        int? Mana,
+        int? MaxMana,
+        int? Level,
         bool InCombat,
         bool IsCasting);
 }

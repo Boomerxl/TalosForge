@@ -7,7 +7,7 @@ namespace TalosForge.UnlockerAgentHost.Runtime;
 
 public sealed class NativePipeAgentRuntime : IAgentRuntime
 {
-    private static readonly TimeSpan InjectionRetryCooldown = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan InjectionRetryCooldown = TimeSpan.Zero;
 
     private readonly AgentHostOptions _options;
     private readonly object _sync = new();
@@ -48,7 +48,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
         }
 
         var profile = string.IsNullOrWhiteSpace(evasionProfile) ? "off" : evasionProfile.Trim().ToLowerInvariant();
-        var pipeName = $"{_options.NativePipePrefix}.{processId}";
+        var pipeName = DiscoverAgentPipeName(processId) ?? $"{_options.NativePipePrefix}.{processId}";
 
         try
         {
@@ -110,9 +110,25 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
             return new AgentRuntimeReadyResult(false, injectError, AgentResultCodes.InjectionFailed);
         }
 
+        // The native DLL may use optional deferred activation (kDeferredActivationMs in agent)
+        // then writes the discovery file. Poll for the actual pipe name.
+        var postInjectPipeName = pipeName;
+        var discoveryDeadline = Environment.TickCount64 + _options.NativeConnectTimeoutMs;
+        while (Environment.TickCount64 < discoveryDeadline)
+        {
+            var discovered = DiscoverAgentPipeName(processId);
+            if (!string.IsNullOrEmpty(discovered))
+            {
+                postInjectPipeName = discovered!;
+                break;
+            }
+            await Task.Delay(250, cancellationToken).ConfigureAwait(false);
+        }
+
         try
         {
-            await EnsurePipeConnectedAsync(processId, pipeName, _options.NativeConnectTimeoutMs, cancellationToken).ConfigureAwait(false);
+            var remainingMs = Math.Max(500, (int)(discoveryDeadline - Environment.TickCount64));
+            await EnsurePipeConnectedAsync(processId, postInjectPipeName, remainingMs, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -123,7 +139,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
             MarkDisconnected();
             return new AgentRuntimeReadyResult(
                 false,
-                $"Native pipe connect failed ({ex.GetType().Name}).",
+                $"Native pipe connect failed ({ex.GetType().Name}). pipe={postInjectPipeName}",
                 AgentResultCodes.HookNotReady);
         }
 
@@ -136,7 +152,7 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
 
         return new AgentRuntimeReadyResult(
             true,
-            $"Native runtime ready (pid={processId}, pipe={pipeName}, evasion={profile}).",
+            $"Native runtime ready (pid={processId}, pipe={postInjectPipeName}, evasion={profile}).",
             AgentResultCodes.Ok);
     }
 
@@ -260,9 +276,10 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
 
         var candidates = new[]
         {
+            Path.Combine(repoRoot, "artifacts", "native-agent", "build", "Release", "Release", "d3dhelper.dll"),
+            Path.Combine(repoRoot, "artifacts", "native-agent", "build", "Debug", "Debug", "d3dhelper.dll"),
+            Path.Combine(repoRoot, "src", "UnlockerAgent.Native", "build", "Release", "d3dhelper.dll"),
             Path.Combine(repoRoot, "artifacts", "native-agent", "build", "Release", "Release", "TalosForge.UnlockerAgent.Native.dll"),
-            Path.Combine(repoRoot, "artifacts", "native-agent", "build", "Debug", "Debug", "TalosForge.UnlockerAgent.Native.dll"),
-            Path.Combine(repoRoot, "src", "UnlockerAgent.Native", "build", "Release", "TalosForge.UnlockerAgent.Native.dll")
         };
 
         return candidates.FirstOrDefault(File.Exists);
@@ -399,6 +416,31 @@ public sealed class NativePipeAgentRuntime : IAgentRuntime
             _writer = null;
             _reader = null;
             _pipe = null;
+        }
+    }
+
+    /// <summary>
+    /// Reads the obfuscated pipe name from the discovery file written by the native agent.
+    /// Returns just the pipe name portion (after \\.\pipe\) for NamedPipeClientStream.
+    /// </summary>
+    private static string? DiscoverAgentPipeName(int processId)
+    {
+        try
+        {
+            var discoveryPath = Path.Combine(Path.GetTempPath(), $"TalosForge.pipe.{processId}");
+            if (!File.Exists(discoveryPath)) return null;
+
+            var fullPipePath = File.ReadAllText(discoveryPath).Trim();
+            if (string.IsNullOrEmpty(fullPipePath)) return null;
+
+            const string pipePrefix = @"\\.\pipe\";
+            return fullPipePath.StartsWith(pipePrefix, StringComparison.OrdinalIgnoreCase)
+                ? fullPipePath[pipePrefix.Length..]
+                : fullPipePath;
+        }
+        catch
+        {
+            return null;
         }
     }
 

@@ -28,7 +28,8 @@ public sealed class PipeBridgeService
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "AdapterBridge started. pipe={Pipe} mode={Mode}",
+            "AdapterBridge started. session_id={SessionId} pipe={Pipe} mode={Mode}",
+            _options.SessionId,
             _options.PipeName,
             _options.Mode);
 
@@ -60,7 +61,7 @@ public sealed class PipeBridgeService
             }
         }
 
-        _logger.LogInformation("AdapterBridge stopped.");
+        _logger.LogInformation("AdapterBridge stopped. session_id={SessionId}", _options.SessionId);
     }
 
     private async Task HandleClientAsync(NamedPipeServerStream server, CancellationToken cancellationToken)

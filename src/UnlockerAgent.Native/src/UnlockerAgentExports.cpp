@@ -1,4 +1,11 @@
 #include "UnlockerAgentExports.h"
+#include "AntiDetection.h"
+#include "HWBPManager.h"
+#include "VEHHandler.h"
+#include "HookRegistry.h"
+#include "WoWHooks.h"
+#include "Logger.h"
+#include "LuaFrameOverlay.h"
 
 #include <Windows.h>
 
@@ -12,19 +19,28 @@
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <unordered_set>
+#include <vector>
 
 namespace {
 
 using TalosForge::NativeAgent::AgentState;
 using TalosForge::NativeAgent::AgentStatus;
 
-constexpr uint32_t kLuaExecuteAddress = 0x00819210;
-constexpr uint32_t kHardwareFlagAddress = 0x00B499A4;
-constexpr UINT kDispatchLuaMessage = WM_APP + 0x4A1;
+constexpr uint32_t kLuaStatePtrAddr    = 0x00D3F78C;
+constexpr uint32_t kLuaLoadBufferAddr  = 0x0084F860;
+constexpr uint32_t kLuaPCallAddr       = 0x0084EC50;
+constexpr uint32_t kLuaGetTopAddr      = 0x0084DBD0;
+constexpr uint32_t kLuaToLStringAddr   = 0x0084E0E0;
+constexpr uint32_t kLuaSetTopAddr      = 0x0084DBF0;
 constexpr int kDefaultCommandTimeoutMs = 2500;
 constexpr int kStartupWaitTimeoutMs = 2000;
 constexpr int kStartupPollIntervalMs = 20;
+// Optional delay before installing timer/pipe (was used for Warden; 0 = activate immediately).
+constexpr int kDeferredActivationMs = 0;
 
+constexpr UINT_PTR kDispatchTimerId = 0x7F01;
+constexpr UINT kDispatchTimerIntervalMs = 16;
 std::mutex g_sync;
 std::atomic<uint64_t> g_heartbeatUnixMs{0};
 std::atomic<AgentState> g_state{AgentState::Booting};
@@ -38,13 +54,16 @@ HMODULE g_module = nullptr;
 std::string g_pipeName;
 uint32_t g_queueDepth = 0;
 std::mutex g_dispatchSync;
-HWND g_dispatchWindow = nullptr;
-WNDPROC g_dispatchPrevWndProc = nullptr;
+
+HWND g_gameWindow = nullptr;
+bool g_timerInstalled = false;
 
 struct PendingLuaDispatch {
     std::string lua;
     std::string error;
+    std::string result;
     bool success = false;
+    bool wantsResult = false;
     HANDLE doneEvent = nullptr;
 
     ~PendingLuaDispatch() {
@@ -57,9 +76,15 @@ struct PendingLuaDispatch {
 
 std::deque<std::shared_ptr<PendingLuaDispatch>> g_dispatchQueue;
 
-using FrameScriptExecuteFn = void(__cdecl*)(const char*, const char*, int);
+using LuaLoadBufferFn  = int(__cdecl*)(void* L, const char* buff, int size, const char* name);
+using LuaPCallFn       = int(__cdecl*)(void* L, int nargs, int nresults, int errfunc);
+using LuaGetTopFn      = int(__cdecl*)(void* L);
+using LuaSetTopFn      = void(__cdecl*)(void* L, int index);
+using LuaToLStringFn   = const char*(__cdecl*)(void* L, int index, size_t* len);
 
 DWORD WINAPI StartupThread(LPVOID lpParam);
+void FailAndDrainDispatchQueue(const char* message);
+std::string EscapeLua(const std::string& text);
 
 uint64_t NowUnixMs() {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
@@ -77,6 +102,24 @@ void SetFaultState(const char* message) {
     g_initialized = false;
     SetErrorLocked(message);
     g_heartbeatUnixMs.store(NowUnixMs());
+}
+
+// -----------------------------------------------------------------
+//  Generate an opaque pipe name derived from process identity
+// -----------------------------------------------------------------
+std::string GenerateObfuscatedPipeName() {
+    DWORD pid = GetCurrentProcessId();
+    FILETIME ct, et, kt, ut;
+    GetProcessTimes(GetCurrentProcess(), &ct, &et, &kt, &ut);
+
+    uint32_t seed = pid ^ ct.dwLowDateTime ^ 0xA3B7C9D1;
+    seed = ((seed >> 16) ^ seed) * 0x45d9f3b;
+    seed = ((seed >> 16) ^ seed) * 0x45d9f3b;
+    seed = (seed >> 16) ^ seed;
+
+    char buf[64];
+    snprintf(buf, sizeof(buf), "\\\\.\\pipe\\WinSvc_%08X", seed);
+    return buf;
 }
 
 bool ReadLine(HANDLE pipe, std::string& line) {
@@ -275,161 +318,290 @@ bool TryExtractJsonUInt64(const std::string& json, const std::string& key, uint6
     return true;
 }
 
+static int SehRunLua(const char* code, int codeLen, int* outLoadResult, int* outCallResult) {
+    __try {
+        void* L = *reinterpret_cast<void**>(kLuaStatePtrAddr);
+        if (!L) return -1;
+
+        auto loadbuf = reinterpret_cast<LuaLoadBufferFn>(kLuaLoadBufferAddr);
+        auto pcall   = reinterpret_cast<LuaPCallFn>(kLuaPCallAddr);
+        auto gettop  = reinterpret_cast<LuaGetTopFn>(kLuaGetTopAddr);
+        auto settop  = reinterpret_cast<LuaSetTopFn>(kLuaSetTopAddr);
+
+        *outLoadResult = loadbuf(L, code, codeLen, "");
+        if (*outLoadResult != 0) {
+            int top = gettop(L);
+            if (top > 0) settop(L, top - 1);
+            return -2;
+        }
+
+        *outCallResult = pcall(L, 0, 0, 0);
+        if (*outCallResult != 0) {
+            int top = gettop(L);
+            if (top > 0) settop(L, top - 1);
+            return -3;
+        }
+
+        return 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return -99;
+    }
+}
+
+static int SehRunLuaQuery(const char* code, int codeLen, char* outBuf, int outBufSize, int* outLen) {
+    __try {
+        void* L = *reinterpret_cast<void**>(kLuaStatePtrAddr);
+        if (!L) return -1;
+
+        auto loadbuf  = reinterpret_cast<LuaLoadBufferFn>(kLuaLoadBufferAddr);
+        auto pcall    = reinterpret_cast<LuaPCallFn>(kLuaPCallAddr);
+        auto gettop   = reinterpret_cast<LuaGetTopFn>(kLuaGetTopAddr);
+        auto settop   = reinterpret_cast<LuaSetTopFn>(kLuaSetTopAddr);
+        auto tolstr   = reinterpret_cast<LuaToLStringFn>(kLuaToLStringAddr);
+
+        int topBefore = gettop(L);
+
+        int lr = loadbuf(L, code, codeLen, "");
+        if (lr != 0) {
+            int top = gettop(L);
+            if (top > topBefore) settop(L, topBefore);
+            return -2;
+        }
+
+        int cr = pcall(L, 0, 1, 0);
+        if (cr != 0) {
+            int top = gettop(L);
+            if (top > topBefore) settop(L, topBefore);
+            return -3;
+        }
+
+        int top = gettop(L);
+        if (top > topBefore) {
+            size_t slen = 0;
+            const char* s = tolstr(L, -1, &slen);
+            if (s && slen > 0 && outBuf && outBufSize > 0) {
+                int copyLen = (int)slen < outBufSize - 1 ? (int)slen : outBufSize - 1;
+                memcpy(outBuf, s, copyLen);
+                outBuf[copyLen] = '\0';
+                *outLen = copyLen;
+            } else {
+                *outLen = 0;
+            }
+            settop(L, topBefore);
+        } else {
+            *outLen = 0;
+        }
+
+        return 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return -99;
+    }
+}
+
+bool ExecuteLuaQuery(const std::string& code, std::string& result, std::string& error) {
+    if (code.empty()) {
+        error = "Lua code is empty.";
+        return false;
+    }
+
+    char buf[4096];
+    int len = 0;
+    int rc = SehRunLuaQuery(code.c_str(), static_cast<int>(code.size()), buf, sizeof(buf), &len);
+
+    switch (rc) {
+    case 0:
+        result.assign(buf, len);
+        return true;
+    case -1: error = "lua_State is null."; return false;
+    case -2: error = "luaL_loadbuffer failed."; return false;
+    case -3: error = "lua_pcall failed."; return false;
+    default: error = "Lua query raised an SEH exception."; return false;
+    }
+}
+
 bool ExecuteLua(const std::string& code, std::string& error) {
     if (code.empty()) {
         error = "Lua code is empty.";
         return false;
     }
 
-    auto fn = reinterpret_cast<FrameScriptExecuteFn>(kLuaExecuteAddress);
-    volatile uint32_t* flag = reinterpret_cast<volatile uint32_t*>(kHardwareFlagAddress);
+    int loadResult = 0, callResult = 0;
+    int rc = SehRunLua(code.c_str(), static_cast<int>(code.size()), &loadResult, &callResult);
 
-    __try {
-        *flag = 1;
-        fn(code.c_str(), "TalosForge", 0);
-        *flag = 0;
-        return true;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
-        *flag = 0;
-        error = "FrameScript_Execute raised an exception.";
-        return false;
+    switch (rc) {
+    case 0:  return true;
+    case -1: error = "lua_State is null."; return false;
+    case -2: error = "luaL_loadbuffer failed (" + std::to_string(loadResult) + ")."; return false;
+    case -3: error = "lua_pcall failed (" + std::to_string(callResult) + ")."; return false;
+    default: error = "Lua execution raised an SEH exception."; return false;
     }
 }
 
-BOOL CALLBACK EnumVisibleTopLevelWindowsProc(HWND hwnd, LPARAM lParam) {
-    if (GetWindow(hwnd, GW_OWNER) != nullptr || !IsWindowVisible(hwnd)) {
-        return TRUE;
-    }
+// -----------------------------------------------------------------
+// Timer-based dispatch – runs on the game thread via WM_TIMER
+// No D3D vtable modification, no WndProc change.
+// -----------------------------------------------------------------
 
-    DWORD pid = 0;
-    GetWindowThreadProcessId(hwnd, &pid);
-    if (pid != GetCurrentProcessId()) {
-        return TRUE;
-    }
-
-    auto out = reinterpret_cast<HWND*>(lParam);
-    *out = hwnd;
-    return FALSE;
-}
-
-BOOL CALLBACK EnumAnyTopLevelWindowsProc(HWND hwnd, LPARAM lParam) {
-    if (GetWindow(hwnd, GW_OWNER) != nullptr) {
-        return TRUE;
-    }
-
-    DWORD pid = 0;
-    GetWindowThreadProcessId(hwnd, &pid);
-    if (pid != GetCurrentProcessId()) {
-        return TRUE;
-    }
-
-    auto out = reinterpret_cast<HWND*>(lParam);
-    *out = hwnd;
-    return FALSE;
-}
-
-HWND FindCurrentProcessWindow() {
-    HWND window = nullptr;
-    EnumWindows(EnumVisibleTopLevelWindowsProc, reinterpret_cast<LPARAM>(&window));
-    if (window != nullptr) {
-        return window;
-    }
-
-    EnumWindows(EnumAnyTopLevelWindowsProc, reinterpret_cast<LPARAM>(&window));
-    return window;
-}
-
-LRESULT CALLBACK DispatchWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    if (msg == kDispatchLuaMessage) {
-        while (true) {
-            std::shared_ptr<PendingLuaDispatch> pending;
-            {
-                std::lock_guard<std::mutex> lock(g_dispatchSync);
-                if (g_dispatchQueue.empty()) {
-                    break;
-                }
-
-                pending = g_dispatchQueue.front();
-                g_dispatchQueue.pop_front();
+VOID CALLBACK DispatchTimerProc(HWND, UINT, UINT_PTR, DWORD) {
+    while (true) {
+        std::shared_ptr<PendingLuaDispatch> pending;
+        {
+            std::lock_guard<std::mutex> lock(g_dispatchSync);
+            if (g_dispatchQueue.empty()) {
+                break;
             }
 
-            if (!pending) {
-                continue;
-            }
+            pending = g_dispatchQueue.front();
+            g_dispatchQueue.pop_front();
+        }
 
-            std::string error;
+        if (!pending) {
+            continue;
+        }
+
+        std::string error;
+        if (pending->wantsResult) {
+            std::string result;
+            pending->success = ExecuteLuaQuery(pending->lua, result, error);
+            if (pending->success) {
+                pending->result = std::move(result);
+            } else {
+                pending->error = error;
+            }
+        } else {
             pending->success = ExecuteLua(pending->lua, error);
             if (!pending->success) {
                 pending->error = error;
             }
-
-            if (pending->doneEvent != nullptr) {
-                SetEvent(pending->doneEvent);
-            }
         }
 
-        return 0;
+        if (pending->doneEvent != nullptr) {
+            SetEvent(pending->doneEvent);
+        }
     }
-
-    WNDPROC previous = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(g_dispatchSync);
-        previous = g_dispatchPrevWndProc;
-    }
-
-    if (previous != nullptr) {
-        return CallWindowProcA(previous, hwnd, msg, wParam, lParam);
-    }
-
-    return DefWindowProcA(hwnd, msg, wParam, lParam);
 }
 
-bool EnsureDispatchWindow(std::string& error) {
-    error.clear();
+struct GameWindowFindCtx {
+    DWORD pid;
+    HWND gxWindow;
+    HWND largest;
+    int largestArea;
+};
 
-    {
-        std::lock_guard<std::mutex> lock(g_dispatchSync);
-        if (g_dispatchWindow != nullptr &&
-            g_dispatchPrevWndProc != nullptr &&
-            IsWindow(g_dispatchWindow)) {
-            return true;
-        }
+static BOOL CALLBACK EnumChildWindowsRecursive(HWND hwnd, LPARAM lp);
+
+static void ConsiderWindowForGame(HWND hwnd, GameWindowFindCtx* c) {
+    if (!IsWindowVisible(hwnd) || IsIconic(hwnd)) {
+        return;
     }
 
-    HWND window = nullptr;
-    for (int attempt = 0; attempt < 40; attempt++) {
-        window = FindCurrentProcessWindow();
-        if (window != nullptr) {
-            break;
-        }
+    wchar_t cls[256];
+    if (GetClassNameW(hwnd, cls, static_cast<int>(sizeof(cls) / sizeof(cls[0]))) <= 0) {
+        return;
+    }
 
+    const bool isGx = _wcsicmp(cls, L"GxWindowClass") == 0;
+    // Owned helper windows are common; GxWindowClass can still be owned by a shell — never skip it.
+    if (GetWindow(hwnd, GW_OWNER) != nullptr && !isGx) {
+        return;
+    }
+
+    RECT r{};
+    if (!GetWindowRect(hwnd, &r)) {
+        return;
+    }
+    const int area = (r.right - r.left) * (r.bottom - r.top);
+    if (area < 50 * 50) {
+        return;
+    }
+
+    if (isGx) {
+        c->gxWindow = hwnd;
+    }
+    if (area > c->largestArea) {
+        c->largestArea = area;
+        c->largest = hwnd;
+    }
+}
+
+static BOOL CALLBACK EnumChildWindowsRecursive(HWND hwnd, LPARAM lp) {
+    auto* c = reinterpret_cast<GameWindowFindCtx*>(lp);
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    if (pid != c->pid) {
+        return TRUE;
+    }
+    ConsiderWindowForGame(hwnd, c);
+    EnumChildWindows(hwnd, EnumChildWindowsRecursive, lp);
+    return TRUE;
+}
+
+HWND FindGameWindow() {
+    // WoW 3.3.5a exposes the real client as GxWindowClass. EnumWindows order is not stable;
+    // taking the "first visible top-level window" often hits a shell/helper HWND so SetTimer + Lua
+    // dispatch run on the wrong thread and nothing appears in-game (no chat, no overlay).
+    GameWindowFindCtx ctx = { GetCurrentProcessId(), nullptr, nullptr, 0 };
+
+    EnumWindows(
+        [](HWND hwnd, LPARAM lp) -> BOOL {
+            auto* c = reinterpret_cast<GameWindowFindCtx*>(lp);
+            DWORD pid = 0;
+            GetWindowThreadProcessId(hwnd, &pid);
+            if (pid != c->pid) {
+                return TRUE;
+            }
+            ConsiderWindowForGame(hwnd, c);
+            EnumChildWindows(hwnd, EnumChildWindowsRecursive, lp);
+
+            return TRUE;
+        },
+        reinterpret_cast<LPARAM>(&ctx));
+
+    if (ctx.gxWindow) {
+        return ctx.gxWindow;
+    }
+    return ctx.largest;
+}
+
+bool InstallDispatchTimer(std::string& error) {
+    error.clear();
+
+    if (g_timerInstalled) {
+        return true;
+    }
+
+    HWND wnd = nullptr;
+    for (int attempt = 0; attempt < 80; attempt++) {
+        wnd = FindGameWindow();
+        if (wnd) break;
         Sleep(50);
     }
 
-    if (window == nullptr) {
-        error = "Unable to locate WoW window for game-thread dispatch.";
+    if (!wnd) {
+        error = "Could not find game window for timer dispatch.";
         return false;
     }
 
-    SetLastError(0);
-    const LONG_PTR previous = SetWindowLongPtrA(
-        window,
-        GWLP_WNDPROC,
-        reinterpret_cast<LONG_PTR>(&DispatchWndProc));
-    const DWORD setError = GetLastError();
-    if (previous == 0 && setError != 0) {
-        error = "SetWindowLongPtrA failed for dispatch window.";
+    UINT_PTR id = SetTimer(wnd, kDispatchTimerId, kDispatchTimerIntervalMs, DispatchTimerProc);
+    if (!id) {
+        error = "SetTimer failed.";
         return false;
     }
 
-    {
-        std::lock_guard<std::mutex> lock(g_dispatchSync);
-        g_dispatchWindow = window;
-        g_dispatchPrevWndProc = reinterpret_cast<WNDPROC>(previous);
-    }
-
+    g_gameWindow = wnd;
+    g_timerInstalled = true;
     return true;
+}
+
+void UninstallDispatchTimer() {
+    if (g_timerInstalled && g_gameWindow) {
+        KillTimer(g_gameWindow, kDispatchTimerId);
+    }
+
+    g_timerInstalled = false;
+    g_gameWindow = nullptr;
+
+    FailAndDrainDispatchQueue("Dispatch timer uninstalled.");
 }
 
 void FailAndDrainDispatchQueue(const char* message) {
@@ -452,24 +624,6 @@ void FailAndDrainDispatchQueue(const char* message) {
     }
 }
 
-void UninstallDispatchWindow() {
-    HWND window = nullptr;
-    WNDPROC previous = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(g_dispatchSync);
-        window = g_dispatchWindow;
-        previous = g_dispatchPrevWndProc;
-        g_dispatchWindow = nullptr;
-        g_dispatchPrevWndProc = nullptr;
-    }
-
-    if (window != nullptr && previous != nullptr && IsWindow(window)) {
-        SetWindowLongPtrA(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(previous));
-    }
-
-    FailAndDrainDispatchQueue("Dispatch window was uninstalled.");
-}
-
 bool DispatchLuaOnGameThread(const std::string& lua, int timeoutMs, std::string& error) {
     error.clear();
     if (lua.empty()) {
@@ -477,7 +631,8 @@ bool DispatchLuaOnGameThread(const std::string& lua, int timeoutMs, std::string&
         return false;
     }
 
-    if (!EnsureDispatchWindow(error)) {
+    if (!g_timerInstalled) {
+        error = "Dispatch timer not installed.";
         return false;
     }
 
@@ -489,16 +644,9 @@ bool DispatchLuaOnGameThread(const std::string& lua, int timeoutMs, std::string&
         return false;
     }
 
-    HWND dispatchWindow = nullptr;
     {
         std::lock_guard<std::mutex> lock(g_dispatchSync);
-        dispatchWindow = g_dispatchWindow;
         g_dispatchQueue.push_back(pending);
-    }
-
-    if (dispatchWindow == nullptr || !PostMessageA(dispatchWindow, kDispatchLuaMessage, 0, 0)) {
-        error = "PostMessage failed for Lua dispatch.";
-        return false;
     }
 
     const DWORD wait = WaitForSingleObject(
@@ -515,6 +663,411 @@ bool DispatchLuaOnGameThread(const std::string& lua, int timeoutMs, std::string&
     }
 
     return true;
+}
+
+bool DispatchLuaQueryOnGameThread(const std::string& lua, int timeoutMs, std::string& result, std::string& error) {
+    error.clear();
+    result.clear();
+    if (lua.empty()) {
+        error = "Lua code is empty.";
+        return false;
+    }
+
+    if (!g_timerInstalled) {
+        error = "Dispatch timer not installed.";
+        return false;
+    }
+
+    auto pending = std::make_shared<PendingLuaDispatch>();
+    pending->lua = lua;
+    pending->wantsResult = true;
+    pending->doneEvent = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    if (pending->doneEvent == nullptr) {
+        error = "CreateEvent failed for dispatch query.";
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(g_dispatchSync);
+        g_dispatchQueue.push_back(pending);
+    }
+
+    const DWORD wait = WaitForSingleObject(
+        pending->doneEvent,
+        static_cast<DWORD>(timeoutMs > 0 ? timeoutMs : kDefaultCommandTimeoutMs));
+    if (wait != WAIT_OBJECT_0) {
+        error = "Lua query timed out on game thread.";
+        return false;
+    }
+
+    if (!pending->success) {
+        error = pending->error.empty() ? "Lua query failed." : pending->error;
+        return false;
+    }
+
+    result = pending->result;
+    return true;
+}
+
+// -----------------------------------------------------------------
+// Internal memory read helpers (in-process, no RPM needed)
+// -----------------------------------------------------------------
+
+// SEH wrappers must be in separate functions with no C++ objects
+static int SehReadBytes(uintptr_t addr, uint32_t size, char* hexBuf) {
+    static const char hex[] = "0123456789abcdef";
+    __try {
+        const uint8_t* ptr = reinterpret_cast<const uint8_t*>(addr);
+        for (uint32_t i = 0; i < size; i++) {
+            hexBuf[i * 2]     = hex[ptr[i] >> 4];
+            hexBuf[i * 2 + 1] = hex[ptr[i] & 0x0F];
+        }
+        return 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+}
+
+bool HandleReadBytes(const std::string& payloadJson, std::string& result, std::string& error) {
+    uint64_t addr = 0;
+    double sizeVal = 0;
+    if (!TryExtractJsonUInt64(payloadJson, "address", addr) || !TryExtractJsonNumber(payloadJson, "size", sizeVal)) {
+        error = "Missing address or size.";
+        return false;
+    }
+    uint32_t size = static_cast<uint32_t>(sizeVal);
+    if (size == 0 || size > 65536) {
+        error = "Invalid size (max 65536).";
+        return false;
+    }
+
+    std::vector<char> hexBuf(size * 2);
+    if (!SehReadBytes(static_cast<uintptr_t>(addr), size, hexBuf.data())) {
+        error = "Access violation reading memory.";
+        return false;
+    }
+    result.assign(hexBuf.data(), hexBuf.size());
+    return true;
+}
+
+static int SehReadChain(uintptr_t base, const int32_t* offsets, size_t count, uint32_t* outAddr) {
+    __try {
+        uintptr_t current = base;
+        for (size_t i = 0; i < count; i++) {
+            if (i < count - 1) {
+                current = *reinterpret_cast<uint32_t*>(current + offsets[i]);
+                if (current == 0) return -1;
+            } else {
+                current = current + offsets[i];
+            }
+        }
+        *outAddr = static_cast<uint32_t>(current);
+        return 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+}
+
+bool HandleReadChain(const std::string& payloadJson, std::string& result, std::string& error) {
+    uint64_t base = 0;
+    if (!TryExtractJsonUInt64(payloadJson, "base", base)) {
+        error = "Missing base address.";
+        return false;
+    }
+
+    std::string offsetsStr;
+    if (!TryExtractJsonString(payloadJson, "offsets", offsetsStr)) {
+        error = "Missing offsets.";
+        return false;
+    }
+
+    std::vector<int32_t> offsets;
+    std::istringstream iss(offsetsStr);
+    std::string token;
+    while (std::getline(iss, token, ',')) {
+        try { offsets.push_back(std::stoi(token)); }
+        catch (...) { error = "Invalid offset value."; return false; }
+    }
+
+    if (offsets.empty()) {
+        error = "Empty offsets.";
+        return false;
+    }
+
+    uint32_t addr = 0;
+    int rc = SehReadChain(static_cast<uintptr_t>(base), offsets.data(), offsets.size(), &addr);
+    if (rc == 0) {
+        error = "Access violation in pointer chain.";
+        return false;
+    }
+    if (rc < 0) {
+        error = "Null pointer in chain.";
+        return false;
+    }
+    char buf[32];
+    snprintf(buf, sizeof(buf), "0x%08X", addr);
+    result = buf;
+    return true;
+}
+
+struct WalkObjectEntry {
+    uint32_t ptr; uint64_t guid; int type;
+    float x, y, z, facing;
+    int combatFlag, castStart, castEnd, health, maxHealth;
+    int mana, maxMana, level;
+    uint32_t entryId, unitFlags, dynamicFlags;
+    int factionTemplate;
+    char name[64];
+};
+
+struct WalkObjectResult {
+    uint64_t localGuid, targetGuid;
+    WalkObjectEntry objects[8192];
+    int count;
+    int errorCode; // 0=ok, 1=clientConn null, 2=objMgr null, 3=AV
+};
+
+static void SehWalkObjects(WalkObjectResult* out) {
+    out->count = 0;
+    out->errorCode = 0;
+    __try {
+        uint32_t clientConn = *reinterpret_cast<uint32_t*>(0x00C79CE0);
+        if (!clientConn) { out->errorCode = 1; return; }
+
+        uint32_t objMgr = *reinterpret_cast<uint32_t*>(clientConn + 0x2ED0);
+        if (!objMgr) { out->errorCode = 2; return; }
+
+        out->localGuid = *reinterpret_cast<uint64_t*>(objMgr + 0x00C0);
+        out->targetGuid = *reinterpret_cast<uint64_t*>(0x00BD07B0);
+        uint32_t current = *reinterpret_cast<uint32_t*>(objMgr + 0x00AC);
+
+        uint32_t visited[8192];
+        int visitCount = 0;
+        while (current && out->count < 8192) {
+            bool seen = false;
+            for (int v = 0; v < visitCount; v++) { if (visited[v] == current) { seen = true; break; } }
+            if (seen) break;
+            if (visitCount < 8192) visited[visitCount++] = current;
+
+            auto& e = out->objects[out->count];
+            e.ptr = current;
+            e.guid = *reinterpret_cast<uint64_t*>(current + 0x0030);
+            e.type = *reinterpret_cast<int*>(current + 0x0014);
+            e.x = *reinterpret_cast<float*>(current + 0x079C);
+            e.y = *reinterpret_cast<float*>(current + 0x0798);
+            e.z = *reinterpret_cast<float*>(current + 0x07A0);
+            e.facing = *reinterpret_cast<float*>(current + 0x07A8);
+            e.combatFlag = 0; e.castStart = 0; e.castEnd = 0;
+            e.health = -1; e.maxHealth = -1;
+            e.mana = -1; e.maxMana = -1; e.level = -1;
+            e.entryId = 0; e.unitFlags = 0; e.dynamicFlags = 0;
+            e.factionTemplate = 0;
+            e.name[0] = '\0';
+
+            if (e.type == 3 || e.type == 4) {
+                e.combatFlag = *reinterpret_cast<int*>(current + 0x0BEC);
+                e.castStart = *reinterpret_cast<int*>(current + 0x0A78);
+                e.castEnd = *reinterpret_cast<int*>(current + 0x0A7C);
+
+                e.health = static_cast<int>(*reinterpret_cast<uint32_t*>(current + 0x1068));
+                e.maxHealth = static_cast<int>(*reinterpret_cast<uint32_t*>(current + 0x1088));
+                e.mana = static_cast<int>(*reinterpret_cast<uint32_t*>(current + 0x106C));
+                e.maxMana = static_cast<int>(*reinterpret_cast<uint32_t*>(current + 0x108C));
+
+                uint32_t descPtr = *reinterpret_cast<uint32_t*>(current + 0x0008);
+                if (descPtr) {
+                    e.entryId = *reinterpret_cast<uint32_t*>(descPtr + 0x000C);
+                    e.level = *reinterpret_cast<int*>(descPtr + 0x00D8);
+                    e.unitFlags = *reinterpret_cast<uint32_t*>(descPtr + 0x00EC);
+                    e.dynamicFlags = *reinterpret_cast<uint32_t*>(descPtr + 0x013C);
+                    e.factionTemplate = *reinterpret_cast<int*>(descPtr + 0x00DC);
+                }
+
+                uint32_t nameInfoPtr = *reinterpret_cast<uint32_t*>(current + 0x0964);
+                if (nameInfoPtr) {
+                    uint32_t nameStrPtr = *reinterpret_cast<uint32_t*>(nameInfoPtr + 0x005C);
+                    if (nameStrPtr) {
+                        const char* src = reinterpret_cast<const char*>(nameStrPtr);
+                        for (int n = 0; n < 63 && src[n]; n++) {
+                            e.name[n] = src[n];
+                            e.name[n + 1] = '\0';
+                        }
+                    }
+                }
+            }
+            if (e.type == 4) {
+                e.health = *reinterpret_cast<int*>(current + 0x19B8);
+                e.maxHealth = *reinterpret_cast<int*>(current + 0x19D8);
+            }
+            out->count++;
+            current = *reinterpret_cast<uint32_t*>(current + 0x003C);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        out->errorCode = 3;
+    }
+}
+
+bool HandleWalkObjects(const std::string&, std::string& result, std::string& error) {
+    static WalkObjectResult walkResult;
+    SehWalkObjects(&walkResult);
+
+    if (walkResult.errorCode == 1) { error = "ClientConnection null."; return false; }
+    if (walkResult.errorCode == 2) { error = "ObjectManager null."; return false; }
+    if (walkResult.errorCode == 3) { error = "Access violation walking object manager."; return false; }
+
+    std::ostringstream json;
+    json << "{\"localGuid\":" << walkResult.localGuid
+         << ",\"targetGuid\":" << walkResult.targetGuid << ",\"objects\":[";
+
+    for (int i = 0; i < walkResult.count; i++) {
+        auto& e = walkResult.objects[i];
+        if (i > 0) json << ",";
+        json << "{\"p\":" << e.ptr
+             << ",\"g\":" << e.guid
+             << ",\"t\":" << e.type
+             << ",\"x\":" << e.x << ",\"y\":" << e.y << ",\"z\":" << e.z
+             << ",\"f\":" << e.facing
+             << ",\"cf\":" << e.combatFlag
+             << ",\"cs\":" << e.castStart << ",\"ce\":" << e.castEnd
+             << ",\"hp\":" << e.health << ",\"mhp\":" << e.maxHealth
+             << ",\"mp\":" << e.mana << ",\"mmp\":" << e.maxMana
+             << ",\"lv\":" << e.level
+             << ",\"eid\":" << e.entryId
+             << ",\"uf\":" << e.unitFlags
+             << ",\"df\":" << e.dynamicFlags
+             << ",\"ft\":" << e.factionTemplate;
+        if (e.name[0]) {
+            json << ",\"nm\":\"";
+            for (int n = 0; e.name[n]; n++) {
+                char c = e.name[n];
+                if (c == '"') json << "\\\"";
+                else if (c == '\\') json << "\\\\";
+                else json << c;
+            }
+            json << "\"";
+        }
+        json << "}";
+    }
+
+    json << "],\"count\":" << walkResult.count << "}";
+    result = json.str();
+    return true;
+}
+
+bool HandleLuaQuery(const std::string& payload, std::string& result, std::string& error) {
+    std::string code;
+    if (!TryExtractJsonString(payload, "code", code)) {
+        error = "Missing 'code' field for Lua query.";
+        return false;
+    }
+
+    int timeoutMs = kDefaultCommandTimeoutMs;
+    double tv = 0;
+    if (TryExtractJsonNumber(payload, "timeoutMs", tv) && tv > 0) {
+        timeoutMs = static_cast<int>(tv);
+    }
+
+    return DispatchLuaQueryOnGameThread(code, timeoutMs, result, error);
+}
+
+bool HandleQuerySpellInfo(const std::string& payload, std::string& result, std::string& error) {
+    std::string spell;
+    if (!TryExtractJsonString(payload, "spell", spell)) {
+        error = "Missing 'spell' field.";
+        return false;
+    }
+
+    std::string lua =
+        "return (function() "
+        "local s,d,e=GetSpellCooldown('" + EscapeLua(spell) + "') "
+        "local u,n=IsUsableSpell('" + EscapeLua(spell) + "') "
+        "local gs,gd=GetSpellCooldown(61304) "
+        "return tostring(s or 0)..','..tostring(d or 0)..','..tostring(e or 0)..','"
+        "..tostring(u or false)..','..tostring(n or false)..','"
+        "..tostring(gs or 0)..','..tostring(gd or 0) end)()";
+
+    return DispatchLuaQueryOnGameThread(lua, kDefaultCommandTimeoutMs, result, error);
+}
+
+bool HandleQueryBags(const std::string&, std::string& result, std::string& error) {
+    std::string lua =
+        "return (function() "
+        "local r='' "
+        "for b=0,4 do "
+        "  local slots=GetContainerNumSlots(b) "
+        "  for s=1,slots do "
+        "    local _,c,_,_,_,_,link=GetContainerItemInfo(b,s) "
+        "    if link then "
+        "      local id=link:match('item:(%d+)') "
+        "      local name=GetItemInfo(link) "
+        "      if id then "
+        "        if r~='' then r=r..';' end "
+        "        r=r..b..','..s..','..id..','..(c or 1)..','..(name or '') "
+        "      end "
+        "    end "
+        "  end "
+        "end "
+        "return r end)()";
+
+    return DispatchLuaQueryOnGameThread(lua, kDefaultCommandTimeoutMs, result, error);
+}
+
+bool HandleQueryAuras(const std::string& payload, std::string& result, std::string& error) {
+    std::string unit = "player";
+    TryExtractJsonString(payload, "unit", unit);
+
+    std::string lua =
+        "return (function() "
+        "local r='' "
+        "for i=1,40 do "
+        "  local name,_,_,count,_,dur,exp,_,_,_,id=UnitBuff('" + EscapeLua(unit) + "',i) "
+        "  if not name then break end "
+        "  if r~='' then r=r..';' end "
+        "  r=r..'B,'..tostring(id or 0)..','..tostring(count or 0)..','..tostring(dur or 0)..','..tostring(exp or 0)..','..name "
+        "end "
+        "for i=1,40 do "
+        "  local name,_,_,count,_,dur,exp,_,_,_,id=UnitDebuff('" + EscapeLua(unit) + "',i) "
+        "  if not name then break end "
+        "  if r~='' then r=r..';' end "
+        "  r=r..'D,'..tostring(id or 0)..','..tostring(count or 0)..','..tostring(dur or 0)..','..tostring(exp or 0)..','..name "
+        "end "
+        "return r end)()";
+
+    return DispatchLuaQueryOnGameThread(lua, kDefaultCommandTimeoutMs, result, error);
+}
+
+bool HandleInternalOpcode(const std::string& opcode, const std::string& payload,
+                          bool& handled, std::string& result, std::string& error) {
+    handled = false;
+    if (opcode == "ReadBytes") {
+        handled = true;
+        return HandleReadBytes(payload, result, error);
+    }
+    if (opcode == "ReadChain") {
+        handled = true;
+        return HandleReadChain(payload, result, error);
+    }
+    if (opcode == "WalkObjects") {
+        handled = true;
+        return HandleWalkObjects(payload, result, error);
+    }
+    if (opcode == "LuaQuery") {
+        handled = true;
+        return HandleLuaQuery(payload, result, error);
+    }
+    if (opcode == "QuerySpellInfo") {
+        handled = true;
+        return HandleQuerySpellInfo(payload, result, error);
+    }
+    if (opcode == "QueryBags") {
+        handled = true;
+        return HandleQueryBags(payload, result, error);
+    }
+    if (opcode == "QueryAuras") {
+        handled = true;
+        return HandleQueryAuras(payload, result, error);
+    }
+    return false;
 }
 
 std::string EscapeLua(const std::string& text) {
@@ -619,12 +1172,41 @@ bool BuildLuaFromOpcode(
         return true;
     }
 
+    if (opcode == "ClickToMove") {
+        double x = 0, y = 0, z = 0;
+        if (!TryExtractJsonNumber(payloadJson, "x", x) ||
+            !TryExtractJsonNumber(payloadJson, "y", y) ||
+            !TryExtractJsonNumber(payloadJson, "z", z)) {
+            error = "Missing coordinates for ClickToMove.";
+            return false;
+        }
+        lua = std::string("if _G.MoveTo then MoveTo(") +
+              std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + ",0) " +
+              "elseif _G.MoveForwardStart then MoveForwardStart() end";
+        return true;
+    }
+
+    if (opcode == "CastSpellByID") {
+        double spellId = 0;
+        if (!TryExtractJsonNumber(payloadJson, "spellId", spellId)) {
+            error = "Missing spellId.";
+            return false;
+        }
+        lua = "CastSpellByID(" + std::to_string(static_cast<int>(spellId)) + ")";
+        return true;
+    }
+
     error = "Unsupported opcode.";
     return false;
 }
 
 DWORD WINAPI PipeServerThreadProc(LPVOID) {
     while (!g_stop.load()) {
+        SECURITY_DESCRIPTOR sd;
+        InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+        SetSecurityDescriptorDacl(&sd, TRUE, nullptr, FALSE);
+        SECURITY_ATTRIBUTES sa = { sizeof(sa), &sd, FALSE };
+
         HANDLE pipe = CreateNamedPipeA(
             g_pipeName.c_str(),
             PIPE_ACCESS_DUPLEX,
@@ -633,7 +1215,7 @@ DWORD WINAPI PipeServerThreadProc(LPVOID) {
             8192,
             8192,
             200,
-            nullptr);
+            &sa);
         if (pipe == INVALID_HANDLE_VALUE) {
             Sleep(100);
             continue;
@@ -661,28 +1243,37 @@ DWORD WINAPI PipeServerThreadProc(LPVOID) {
             g_heartbeatUnixMs.store(NowUnixMs());
             std::string lua;
             std::string error;
-            bool success = BuildLuaFromOpcode(opcode, payload, lua, error);
-            std::string code = success ? "OK" : "AGENT_INVALID_REQUEST";
-            std::string message = success ? ("ACK:" + opcode) : error;
+            std::string internalResult;
+            bool internalHandled = false;
+            bool success = HandleInternalOpcode(opcode, payload, internalHandled, internalResult, error);
+            std::string code;
+            std::string message;
 
-            int timeoutMs = kDefaultCommandTimeoutMs;
-            if (!timeoutRaw.empty()) {
-                try {
-                    const int parsed = std::stoi(timeoutRaw);
-                    if (parsed > 0) {
-                        timeoutMs = parsed;
+            if (internalHandled) {
+                code = success ? "OK" : "AGENT_EXECUTION_FAILED";
+                message = success ? internalResult : error;
+            } else {
+                success = BuildLuaFromOpcode(opcode, payload, lua, error);
+                code = success ? "OK" : "AGENT_INVALID_REQUEST";
+                message = success ? ("ACK:" + opcode) : error;
+
+                int timeoutMs = kDefaultCommandTimeoutMs;
+                if (!timeoutRaw.empty()) {
+                    try {
+                        const int parsed = std::stoi(timeoutRaw);
+                        if (parsed > 0) {
+                            timeoutMs = parsed;
+                        }
                     }
+                    catch (...) {}
                 }
-                catch (...) {
-                    // Keep default timeout.
-                }
-            }
 
-            if (success) {
-                success = DispatchLuaOnGameThread(lua, timeoutMs, error);
-                if (!success) {
-                    code = "AGENT_EXECUTION_FAILED";
-                    message = error;
+                if (success) {
+                    success = DispatchLuaOnGameThread(lua, timeoutMs, error);
+                    if (!success) {
+                        code = "AGENT_EXECUTION_FAILED";
+                        message = error;
+                    }
                 }
             }
 
@@ -724,8 +1315,7 @@ bool StartPipeServer(std::string& error) {
             return true;
         }
 
-        const DWORD pid = GetCurrentProcessId();
-        g_pipeName = "\\\\.\\pipe\\TalosForge.Agent.Native." + std::to_string(pid);
+        g_pipeName = GenerateObfuscatedPipeName();
         g_stop.store(false);
     }
 
@@ -743,7 +1333,6 @@ bool StartPipeServer(std::string& error) {
         }
     }
 
-    // Another caller won the race and already published a server thread.
     CloseHandle(thread);
     return true;
 }
@@ -758,7 +1347,7 @@ void StopPipeServer() {
     }
 
     FailAndDrainDispatchQueue("Agent shutdown.");
-    UninstallDispatchWindow();
+    UninstallDispatchTimer();
     if (serverThread != nullptr) {
         WaitForSingleObject(serverThread, 1000);
         CloseHandle(serverThread);
@@ -824,10 +1413,31 @@ bool WaitForReadyState(int timeoutMs) {
 }
 
 // ------------------------------------------------------------------
-// New StartupThread – runs all initialization outside of DllMain
+// Write the obfuscated pipe name to a discovery file so the host can find it
+// ------------------------------------------------------------------
+void WritePipeDiscoveryFile() {
+    char tempPath[MAX_PATH];
+    if (GetTempPathA(MAX_PATH, tempPath) == 0) return;
+
+    DWORD pid = GetCurrentProcessId();
+    char filePath[MAX_PATH];
+    snprintf(filePath, sizeof(filePath), "%sTalosForge.pipe.%u", tempPath, pid);
+
+    HANDLE hFile = CreateFileA(filePath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_TEMPORARY, nullptr);
+    if (hFile == INVALID_HANDLE_VALUE) return;
+
+    DWORD written;
+    WriteFile(hFile, g_pipeName.c_str(), static_cast<DWORD>(g_pipeName.size()), &written, nullptr);
+    CloseHandle(hFile);
+}
+
+// ------------------------------------------------------------------
+// StartupThread – all initialization outside of DllMain
 // ------------------------------------------------------------------
 DWORD WINAPI StartupThread(LPVOID lpParam)
 {
+    using namespace TalosForge::Native;
+
     g_startupInProgress.store(true);
     (void)lpParam;
 
@@ -835,14 +1445,65 @@ DWORD WINAPI StartupThread(LPVOID lpParam)
         g_startupInProgress.store(false);
         return 0;
     }
-    
-    // Initialization intentionally stays minimal and non-blocking.
+
+    // Phase 1: Optional deferred activation (kDeferredActivationMs; 0 = skip)
+    if constexpr (kDeferredActivationMs > 0) {
+        Log("Agent: deferred activation (%dms)...\n", kDeferredActivationMs);
+        for (int waited = 0; waited < kDeferredActivationMs; waited += kStartupPollIntervalMs) {
+            if (g_processDetaching.load() || g_stop.load()) {
+                g_startupInProgress.store(false);
+                return 0;
+            }
+            Sleep(kStartupPollIntervalMs);
+        }
+    }
+
+    // Phase 2: Install timer-based dispatch for game-thread Lua execution
+    {
+        std::string timerError;
+        if (!InstallDispatchTimer(timerError)) {
+            Log("Agent: dispatch timer failed: %s\n", timerError.c_str());
+            SetFaultState(timerError.c_str());
+            g_startupInProgress.store(false);
+            return 0;
+        }
+        Log("Agent: dispatch timer installed (hwnd=0x%08X)\n",
+            reinterpret_cast<uint32_t>(g_gameWindow));
+    }
+
+    // One-shot chat line (runs as soon as the timer queue works).
+    {
+        static std::atomic<bool> welcomeSent{false};
+        if (!welcomeSent.exchange(true)) {
+            std::string welcomeErr;
+            const std::string welcomeLua =
+                R"(DEFAULT_CHAT_FRAME:AddMessage("Ad lapides mittere", 1.0, 1.0, 1.0))";
+            if (!DispatchLuaOnGameThread(welcomeLua, 5000, welcomeErr)) {
+                Log("Agent: welcome chat line failed: %s\n", welcomeErr.c_str());
+            }
+        }
+    }
+
+    // Phase 2b: WoW Lua UI frame (same script as Core TalosForgeFrameLua.CreateHub — no D3D hook).
+    {
+        std::string frameErr;
+        const std::string frameLua(TalosForge::LuaFrameOverlay::GetCreateFrameScript());
+        if (!DispatchLuaOnGameThread(frameLua, 8000, frameErr)) {
+            Log("Agent: Lua frame overlay failed: %s\n", frameErr.c_str());
+        } else {
+            Log("Agent: Lua frame overlay ready (TF_Debug)\n");
+        }
+    }
+
+    // Phase 3: Start command pipe server
     std::string startError;
     if (!StartPipeServer(startError)) {
         SetFaultState(startError.c_str());
         g_startupInProgress.store(false);
         return 0;
     }
+
+    WritePipeDiscoveryFile();
 
     {
         std::lock_guard<std::mutex> lock(g_sync);
@@ -852,6 +1513,7 @@ DWORD WINAPI StartupThread(LPVOID lpParam)
         g_lastError.clear();
     }
 
+    Log("Agent: startup complete, pipe=%s\n", g_pipeName.c_str());
     g_startupInProgress.store(false);
     return 0;
 }
@@ -859,7 +1521,7 @@ DWORD WINAPI StartupThread(LPVOID lpParam)
 } // namespace
 
 // ------------------------------------------------------------------
-// DllMain – minimal work, then launch startup thread
+// DllMain
 // ------------------------------------------------------------------
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
 {
@@ -868,6 +1530,11 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
     case DLL_PROCESS_ATTACH:
         g_module = module;
         DisableThreadLibraryCalls(module);
+        TalosForge::Native::g_enableDebugOutput = false;
+        TalosForge::Native::g_enableFileLogging = false;
+        TalosForge::Native::HideModuleFromPeb(module);
+        TalosForge::Native::CleanPebDebugFlags();
+        TalosForge::Native::ErasePeHeader(module);
         {
             std::string startError;
             StartAsyncInitialization(startError);
@@ -883,7 +1550,7 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
 }
 
 // ------------------------------------------------------------------
-// Exported Agent API (unchanged)
+// Exported Agent API
 // ------------------------------------------------------------------
 AGENT_API bool AGENT_CALL AgentInitialize(const TalosForge::NativeAgent::AgentInitConfig* config) {
     if (config == nullptr || config->version == 0) {
@@ -1000,4 +1667,8 @@ AGENT_API bool AGENT_CALL AgentTryGetStatus(AgentStatus* status) {
     }
 
     return true;
+}
+
+AGENT_API const char* AGENT_CALL AgentGetPipeName() {
+    return g_pipeName.c_str();
 }

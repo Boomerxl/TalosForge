@@ -1,20 +1,37 @@
 # TalosForge
 
-TalosForge is a modular WoW 3.3.5a automation framework for private-server research workflows.
+TalosForge is a WoW 3.3.5a automation framework with a multi-process runtime:
 
-## Current runtime
-- .NET 8 console solution (`TalosForge.sln`)
-- External memory access via Kernel32 P/Invoke (`OpenProcess`, `ReadProcessMemory`, `CloseHandle`)
-- WoW attach baseline with 32-bit process guard
-- Core contracts for ObjectManager, cache, event bus, bot engine, unlocker IPC, and plugins
-- Desktop control UI (`src/UI/TalosForge.UI`) for start/stop, telemetry, and live metrics
+- `TalosForge.Core` (bot/runtime loop)
+- `TalosForge.UnlockerHost` (shared-memory command/ack endpoint)
+- `TalosForge.AdapterBridge` (adapter transport bridge)
+- `TalosForge.UnlockerAgentHost` (native/simulated in-process agent runtime)
+- `TalosForge.UI` (desktop operator UI wired to supervisor start/stop/status)
 
-## Planned systems
-- Object manager world snapshots
-- TTL cache and state-diff events
-- Adaptive bot loop
-- Shared-memory unlocker transport
-- In-process plugin host and sample routine
-- Navigation/movement integration hooks
+## Supervisor entrypoint
 
-**Disclaimer**: educational/private-server use only.
+Use the thin supervisor script contract:
+
+- `scripts/supervisor.ps1 -Action start`
+- `scripts/supervisor.ps1 -Action stop`
+- `scripts/supervisor.ps1 -Action status -Json`
+
+The supervisor delegates process orchestration to `scripts/dev-stack.ps1` and reports health JSON for status polling.
+
+## Session trace context
+
+Core/Host/Bridge/Agent support optional session metadata:
+
+- CLI: `--session-id <value>` (all services)
+- Env: `TALOSFORGE_SESSION_ID` fallback when CLI arg is omitted
+
+When started through the supervisor, one shared session id is generated and reused across all runtime processes.
+
+## Testing
+
+- Deterministic tests and live smoke tests are split in CI.
+- Live smoke tests use explicit xUnit skip semantics when runtime preconditions are unmet (for example, WoW not running or agent not injected).
+
+## Documentation
+
+See [docs/README.md](/docs/README.md) for architecture and IPC details.

@@ -51,6 +51,7 @@ Safety note:
 - `--agent-connect-timeout-ms` (default `1200`)
 - `--agent-request-timeout-ms` (default `2500`)
 - `--agent-evasion-profile off|standard|full`
+- `--session-id` (optional log/session context)
 - `--smoke`
 - `--smoke-seconds`
 

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using TalosForge.UnlockerAgentHost.Models;
 using TalosForge.UnlockerAgentHost.Execution;
 using TalosForge.UnlockerAgentHost.Runtime;
 
@@ -6,8 +8,13 @@ namespace TalosForge.UnlockerAgentHost;
 
 public static class Program
 {
+    private const string SessionIdArg = "--session-id";
+    private const string SessionIdEnv = "TALOSFORGE_SESSION_ID";
+
     public static async Task Main(string[] args)
     {
+        var (sessionId, filteredArgs) = ExtractSessionContext(args);
+
         using var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder
@@ -16,12 +23,20 @@ public static class Program
                 {
                     console.SingleLine = true;
                     console.TimestampFormat = "HH:mm:ss ";
+                    console.IncludeScopes = true;
                 });
         });
 
         var logger = loggerFactory.CreateLogger("TalosForge.UnlockerAgentHost");
-        var options = ParseArgs(args, logger);
+        using var scope = logger.BeginScope(new Dictionary<string, object>
+        {
+            ["session_id"] = sessionId
+        });
+
+        var options = ParseArgs(filteredArgs, logger);
+        options.SessionId = sessionId;
         using var cts = new CancellationTokenSource();
+        logger.LogInformation("Session context initialized. session_id={SessionId}", sessionId);
 
         Console.CancelKeyPress += (_, e) =>
         {
@@ -56,6 +71,17 @@ public static class Program
             options.BackoffBaseMs,
             options.BackoffMaxMs,
             options.DisableEvasion ? "off" : options.EvasionProfile);
+
+        if (!string.IsNullOrWhiteSpace(options.LuaCommand))
+        {
+            var oneShotSucceeded = await ExecuteOneShotLuaAsync(
+                processor,
+                options,
+                options.LuaCommand,
+                cts.Token).ConfigureAwait(false);
+            Environment.ExitCode = oneShotSucceeded ? 0 : 1;
+            return;
+        }
 
         await service.RunAsync(cts.Token).ConfigureAwait(false);
     }
@@ -109,6 +135,7 @@ public static class Program
         const string smokeArg = "--smoke";
         const string smokeSecondsArg = "--smoke-seconds";
         const string simulateEvasionFailureArg = "--simulate-evasion-init-failure";
+        const string luaArg = "--lua";
 
         for (var i = 0; i < args.Length; i++)
         {
@@ -142,7 +169,8 @@ public static class Program
                 !TryParseOption(args, ref i, nativePipePrefixArg, out value) &&
                 !TryParseOption(args, ref i, nativeConnectTimeoutArg, out value) &&
                 !TryParseOption(args, ref i, evasionProfileArg, out value) &&
-                !TryParseOption(args, ref i, smokeSecondsArg, out value))
+                !TryParseOption(args, ref i, smokeSecondsArg, out value) &&
+                !TryParseOption(args, ref i, luaArg, out value))
             {
                 logger.LogWarning("Unknown argument: {Argument}", arg);
                 continue;
@@ -195,6 +223,10 @@ public static class Program
             else if (arg.StartsWith(smokeSecondsArg, StringComparison.OrdinalIgnoreCase))
             {
                 options.SmokeDurationSeconds = ParseInt(value, smokeSecondsArg, options.SmokeDurationSeconds, 1, logger);
+            }
+            else if (arg.StartsWith(luaArg, StringComparison.OrdinalIgnoreCase))
+            {
+                options.LuaCommand = value;
             }
         }
 
@@ -277,5 +309,77 @@ public static class Program
         }
 
         return parsed;
+    }
+
+    private static async Task<bool> ExecuteOneShotLuaAsync(
+        AgentCommandProcessor processor,
+        AgentHostOptions options,
+        string lua,
+        CancellationToken cancellationToken)
+    {
+        var request = new AgentPipeRequest(
+            Version: 1,
+            CommandId: DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            Opcode: "LuaDoString",
+            OpcodeValue: 0,
+            PayloadJson: JsonSerializer.Serialize(new { code = lua }),
+            TimestampUnixMs: DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            RequestTimeoutMs: Math.Max(1, options.RequestTimeoutMs),
+            EvasionProfile: options.DisableEvasion ? "off" : options.EvasionProfile);
+
+        var response = await processor.ProcessAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.Success)
+        {
+            Console.WriteLine($"Lua execution succeeded: {response.Message}");
+            return true;
+        }
+
+        Console.Error.WriteLine($"Lua execution failed: {response.Message}");
+        if (!string.IsNullOrWhiteSpace(response.PayloadJson))
+        {
+            Console.Error.WriteLine(response.PayloadJson);
+        }
+
+        return false;
+    }
+
+    private static (string SessionId, string[] FilteredArgs) ExtractSessionContext(string[] args)
+    {
+        var filtered = new List<string>(args.Length);
+        string? cliSessionId = null;
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            var arg = args[i];
+            if (arg.Equals(SessionIdArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 < args.Length)
+                {
+                    cliSessionId = args[++i];
+                }
+
+                continue;
+            }
+
+            var prefix = SessionIdArg + "=";
+            if (arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                cliSessionId = arg[prefix.Length..];
+                continue;
+            }
+
+            filtered.Add(arg);
+        }
+
+        var sessionId = string.IsNullOrWhiteSpace(cliSessionId)
+            ? Environment.GetEnvironmentVariable(SessionIdEnv)
+            : cliSessionId;
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            sessionId = Guid.NewGuid().ToString("N");
+        }
+
+        Environment.SetEnvironmentVariable(SessionIdEnv, sessionId);
+        return (sessionId, filtered.ToArray());
     }
 }

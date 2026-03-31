@@ -1,35 +1,26 @@
-# Shared-Memory IPC Contract v1
+# Shared-Memory IPC Contract (v1)
 
-## Channels
+## Rings
 
 - Command ring: `TalosForge.Cmd.v1`
-- Event/ack ring: `TalosForge.Evt.v1`
+- Event/ACK ring: `TalosForge.Evt.v1`
 
-## Ring Header (fixed, 20 bytes)
+Both rings use the shared-memory frame format implemented by:
 
-- `Magic` (int32)
-- `Version` (int32)
-- `Capacity` (int32)
-- `WriteIndex` (int32)
-- `ReadIndex` (int32)
+- `src/Core/IPC/SharedMemoryUnlockerClient.cs`
+- `src/UnlockerHost/Host/UnlockerHostService.cs`
 
-## Frame Format
-
-Each ring payload frame is encoded as:
-
-- `PayloadLength` (int32)
-- `PayloadBytes` (byte[])
-
-## Command Payload Envelope
+## Command envelope
 
 - `CommandId` (int64)
 - `Opcode` (int32)
-- `PayloadLength` (int32)
+- `PayloadJson` (UTF-8 JSON)
 - `TimestampUnixMs` (int64)
-- `PayloadJson` (UTF-8 bytes)
 
-Opcodes:
+Representative opcodes:
+
 - `LuaDoString`
+- `LuaQuery`
 - `CastSpellByName`
 - `SetTargetGuid`
 - `Face`
@@ -37,23 +28,26 @@ Opcodes:
 - `Interact`
 - `Stop`
 
-## Ack Payload Envelope
+## ACK envelope
 
 - `CommandId` (int64)
-- `Success` (int32: 1/0)
-- `PayloadLength` (int32)
-- `TimestampUnixMs` (int64)
-- `MessageLength` (int32)
-- `Message` (UTF-8 bytes)
-- `PayloadJson` (UTF-8 bytes)
+- `Success` (bool/int)
+- `Message` (string)
+- `PayloadJson` (optional JSON string)
+- `TimestampUtc` / unix timestamp (implementation-specific model projection)
 
-## Reliability
+## Reliability model
 
-- Client uses timeout + retry.
-- Ack correlation is by `CommandId`.
-- Ring header corruption resets indices.
+- Correlation is by `CommandId`.
+- Client timeout/retry policy is handled in Core options.
+- Host performs bounded ACK write retries when event ring is temporarily full.
 
-## Reference Endpoint
+## Session metadata
 
-- `src/UnlockerHost/TalosForge.UnlockerHost.csproj` provides a standalone endpoint implementation for this contract.
-- Endpoint heartbeat status file (default): `%TEMP%/TalosForge.UnlockerHost.status.json`.
+`session_id` is a process/log trace context only (CLI/env metadata).  
+It is intentionally **not** a required field in IPC payloads for v1, so protocol compatibility is unchanged.
+
+## Related runtime status files
+
+- Host heartbeat file default: `%TEMP%/TalosForge.UnlockerHost.status.json`
+- Supervisor stack status JSON: `scripts/supervisor.ps1 -Action status -Json`

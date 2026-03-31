@@ -28,4 +28,10 @@ public sealed class BotOptions
     public int DebugObjectPreviewCount { get; set; } = 5;
     public bool EnableInGameOverlay { get; set; }
     public int InGameOverlayEveryTicks { get; set; } = 10;
+
+    /// <summary>How often the host polls the in-game pending-action queue via LuaQuery (game → host actions).</summary>
+    public int InGameLuaQueryPollEveryTicks { get; set; } = 3;
+
+    /// <summary>Max characters for user script snippets queued from the in-game Script tab.</summary>
+    public int InGameMaxUserScriptChars { get; set; } = 4096;
 }

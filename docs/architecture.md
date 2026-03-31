@@ -1,36 +1,41 @@
-# TalosForge Core Architecture
+# TalosForge Architecture
 
-## Runtime Pipeline
+## Runtime process flow
 
-`MemoryReader -> ObjectManager -> Cache -> EventBus -> BotEngine -> UnlockerClient -> PluginHost`
+`supervisor.ps1 -> dev-stack.ps1 -> (UnlockerAgentHost) + AdapterBridge + UnlockerHost + Core`
 
-`UnlockerHost (separate process) -> Command Executor -> ACK/Event ring`
+- `scripts/supervisor.ps1` is the thin entrypoint used by desktop UI and CLI operators.
+- `scripts/dev-stack.ps1` starts/stops/tracks process state and run logs.
+- `TalosForge.UI` calls supervisor `start|stop|status` and consumes status health JSON.
 
-## Components
+## Core execution pipeline
 
-- `MemoryReader`: external WoW process attach + typed reads.
-- `ObjectManagerService`: scans object chain and returns immutable snapshots.
-- `MemoryCacheService`: TTL policy cache (`Short=100ms`, `Long=15s`, `None=no-cache`).
-- `EventBus`: diffs snapshots and emits typed events.
-- `BotEngine`: adaptive scheduler (`Combat=35ms`, `Movement=70ms`, `Idle=120ms`, clamped `25-150ms`).
-- `SharedMemoryUnlockerClient`: command/ack transport over ring buffers.
-- `SharedMemoryUnlockerClient` telemetry: send/ack/timeout counters + adaptive backoff metrics.
-- `TalosForge.UnlockerHost`: standalone ring endpoint for command execution + ACK publishing.
-- `UnlockerHost` heartbeat: writes status file for UI/runtime health monitoring.
-- `PluginHost`: in-process plugin execution with sandboxed command queue context.
+`MemoryReader -> ObjectManager -> EventBus/Cache -> BotEngine -> UnlockerClient -> PluginHost`
 
-## Public Contracts
+- `TalosForge.Core` reads world state and drives command emission.
+- In-game hub rendering is read-only (Debug/Plugins tabs only) via Lua frame updates.
+- Script/routine user command surfaces are disabled in Phase 1.
 
-- `IMemoryReader`
-- `IObjectManager`
-- `ICacheService`
-- `IEventBus`
-- `IUnlockerClient`
-- `IPlugin` + `IPluginContext`
-- `IBotEngine`
+## Unlocker command path
 
-## Notes
+`Core (SharedMemoryUnlockerClient) -> UnlockerHost (ring endpoint) -> AdapterBridge (pipe) -> AgentHost (wow-agent mode)`
 
-- WoW target: 3.3.5a build 12340 (32-bit semantics).
-- Unlocker remains external and command-driven.
-- Navigation and movement are scaffolded for future MMap integration.
+- `TalosForge.UnlockerHost` reads commands from `TalosForge.Cmd.v1`, writes ACKs to `TalosForge.Evt.v1`.
+- `TalosForge.AdapterBridge` validates/forwards adapter requests.
+- `TalosForge.UnlockerAgentHost` manages native/simulated runtime and executes commands.
+
+## Session trace context
+
+All runtime processes support a shared `session_id` context:
+
+- CLI option: `--session-id <value>`
+- Env fallback: `TALOSFORGE_SESSION_ID`
+
+Supervisor startup generates one session id for a stack run and propagates it to all child processes.
+
+## Key files
+
+- Supervisor: `scripts/supervisor.ps1`, `scripts/dev-stack.ps1`
+- Desktop UI: `src/UI/TalosForge.UI/MainWindow.xaml`, `src/UI/TalosForge.UI/MainWindow.xaml.cs`
+- Core runtime: `src/Core/Program.cs`, `src/Core/Runtime/BotRuntimeHost.cs`
+- Host/Bridge/Agent startup: `src/UnlockerHost/Program.cs`, `src/AdapterBridge/Program.cs`, `src/UnlockerAgentHost/Program.cs`

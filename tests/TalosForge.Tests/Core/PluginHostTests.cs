@@ -37,20 +37,23 @@ public sealed class PluginHostTests
             using var unlocker = new CollectingUnlockerClient();
             host.LoadPlugins();
 
+            var targetObj = new WowObjectSnapshot(
+                IntPtr.Zero, 999, 3, new Vector3(10, 0, 0), 0, false, null,
+                Health: 1000, MaxHealth: 1000);
             var snapshot = new WorldSnapshot(
                 TickId: 1,
                 TimestampUtc: DateTimeOffset.UtcNow,
-                Objects: Array.Empty<WowObjectSnapshot>(),
-                Player: new PlayerSnapshot(1, new Vector3(0, 0, 0), 0, 999, false, false, false, false),
+                Objects: new[] { targetObj },
+                Player: new PlayerSnapshot(1, new Vector3(0, 0, 0), 0, 999, InCombat: true, false, false, false,
+                    Health: 100, MaxHealth: 100),
                 Success: true,
                 ErrorMessage: null);
 
-            var sent = await host.TickAsync(snapshot, Array.Empty<BotEvent>(), unlocker, CancellationToken.None);
+            await host.TickAsync(snapshot, Array.Empty<BotEvent>(), unlocker, CancellationToken.None);
 
             Assert.True(host.LoadedPluginNames.Count > 0);
-            Assert.True(sent >= 1);
-            Assert.Single(unlocker.Commands);
-            Assert.Equal(UnlockerOpcode.LuaDoString, unlocker.Commands[0].Opcode);
+            Assert.True(unlocker.Commands.Count >= 1);
+            Assert.Equal(UnlockerOpcode.CastSpellByName, unlocker.Commands[0].Opcode);
         }
         finally
         {

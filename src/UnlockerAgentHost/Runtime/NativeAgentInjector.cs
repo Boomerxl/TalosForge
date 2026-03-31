@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TalosForge.UnlockerAgentHost.Runtime;
 
-internal static class NativeAgentInjector
+public static class NativeAgentInjector
 {
     private const ushort ImageDosSignature = 0x5A4D;
     private const uint ImageNtSignature = 0x00004550;
@@ -151,11 +151,104 @@ internal static class NativeAgentInjector
     private static IntPtr ResolveRemoteLoadLibraryW(IntPtr processHandle, int processId)
     {
         if (!TryGetRemoteModuleInfo(processId, "kernel32.dll", out var remoteKernel32, out _))
-        {
             return IntPtr.Zero;
-        }
 
-        return ResolveRemoteExportByName(processHandle, processId, remoteKernel32, "LoadLibraryW", depth: 0);
+        if (!TryGetRemoteModulePath(processId, remoteKernel32, out var k32Path))
+            return IntPtr.Zero;
+
+        return ResolveExportFromDisk(remoteKernel32, k32Path, "LoadLibraryW");
+    }
+
+    private static bool TryGetRemoteModulePath(int processId, IntPtr moduleBase, out string modulePath)
+    {
+        modulePath = string.Empty;
+        var snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, (uint)processId);
+        if (snapshot == IntPtr.Zero || snapshot == new IntPtr(-1)) return false;
+        try
+        {
+            var entry = new MODULEENTRY32 { dwSize = (uint)Marshal.SizeOf<MODULEENTRY32>() };
+            if (!Module32First(snapshot, ref entry)) return false;
+            do
+            {
+                if (entry.modBaseAddr == moduleBase)
+                {
+                    modulePath = entry.szExePath;
+                    return !string.IsNullOrEmpty(modulePath);
+                }
+            } while (Module32Next(snapshot, ref entry));
+        }
+        finally { CloseHandle(snapshot); }
+        return false;
+    }
+
+    private static IntPtr ResolveExportFromDisk(IntPtr moduleBase, string dllPath, string exportName)
+    {
+        if (!File.Exists(dllPath)) return IntPtr.Zero;
+        var bytes = File.ReadAllBytes(dllPath);
+        if (bytes.Length < 256 || BitConverter.ToUInt16(bytes, 0) != ImageDosSignature) return IntPtr.Zero;
+
+        var lfanew = BitConverter.ToInt32(bytes, 0x3C);
+        if (lfanew <= 0 || lfanew + 4 >= bytes.Length) return IntPtr.Zero;
+        if (BitConverter.ToUInt32(bytes, lfanew) != ImageNtSignature) return IntPtr.Zero;
+
+        var opt = lfanew + 4 + ImageFileHeaderSize;
+        var magic = BitConverter.ToUInt16(bytes, opt);
+        var dataDirOff = magic == ImageNtOptionalHdr32Magic ? 96 : magic == ImageNtOptionalHdr64Magic ? 112 : -1;
+        if (dataDirOff < 0) return IntPtr.Zero;
+
+        var expRva = BitConverter.ToUInt32(bytes, opt + dataDirOff);
+        if (expRva == 0) return IntPtr.Zero;
+
+        var numSections = BitConverter.ToUInt16(bytes, lfanew + 4 + 2);
+        var sectionStart = opt + BitConverter.ToUInt16(bytes, lfanew + 4 + 16);
+
+        var expOff = RvaToFileOffset(bytes, expRva, numSections, sectionStart);
+        if (expOff < 0 || expOff + ImageExportDirectorySize > bytes.Length) return IntPtr.Zero;
+
+        var numFunctions = BitConverter.ToUInt32(bytes, expOff + 20);
+        var numNames = BitConverter.ToUInt32(bytes, expOff + 24);
+        var addrFunctions = BitConverter.ToUInt32(bytes, expOff + 28);
+        var addrNames = BitConverter.ToUInt32(bytes, expOff + 32);
+        var addrOrdinals = BitConverter.ToUInt32(bytes, expOff + 36);
+
+        var namesFileOff = RvaToFileOffset(bytes, addrNames, numSections, sectionStart);
+        var ordsFileOff = RvaToFileOffset(bytes, addrOrdinals, numSections, sectionStart);
+        var funcsFileOff = RvaToFileOffset(bytes, addrFunctions, numSections, sectionStart);
+        if (namesFileOff < 0 || ordsFileOff < 0 || funcsFileOff < 0) return IntPtr.Zero;
+
+        for (uint i = 0; i < numNames; i++)
+        {
+            var nameRva = BitConverter.ToUInt32(bytes, namesFileOff + (int)i * 4);
+            var nameOff = RvaToFileOffset(bytes, nameRva, numSections, sectionStart);
+            if (nameOff < 0) continue;
+            var end = nameOff;
+            while (end < bytes.Length && bytes[end] != 0) end++;
+            var name = Encoding.ASCII.GetString(bytes, nameOff, end - nameOff);
+            if (name != exportName) continue;
+
+            var ordinal = BitConverter.ToUInt16(bytes, ordsFileOff + (int)i * 2);
+            if (ordinal >= numFunctions) return IntPtr.Zero;
+            var fRva = BitConverter.ToUInt32(bytes, funcsFileOff + ordinal * 4);
+            if (fRva == 0) return IntPtr.Zero;
+            return Add(moduleBase, fRva);
+        }
+        return IntPtr.Zero;
+    }
+
+    private static int RvaToFileOffset(byte[] bytes, uint rva, ushort numSections, int sectionStart)
+    {
+        for (int i = 0; i < numSections; i++)
+        {
+            var so = sectionStart + i * 40;
+            if (so + 40 > bytes.Length) return -1;
+            var va = BitConverter.ToUInt32(bytes, so + 12);
+            var rawSz = BitConverter.ToUInt32(bytes, so + 16);
+            var rawPtr = BitConverter.ToUInt32(bytes, so + 20);
+            var vsize = BitConverter.ToUInt32(bytes, so + 8);
+            if (rva >= va && rva < va + Math.Max(rawSz, vsize))
+                return (int)(rawPtr + (rva - va));
+        }
+        return -1;
     }
 
     private static IntPtr ResolveRemoteExportByName(
@@ -288,32 +381,38 @@ internal static class NativeAgentInjector
 
         var snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, (uint)processId);
         if (snapshot == IntPtr.Zero || snapshot == new IntPtr(-1))
-        {
             return false;
-        }
 
         try
         {
-            var moduleEntry = new MODULEENTRY32
-            {
-                dwSize = (uint)Marshal.SizeOf<MODULEENTRY32>()
-            };
+            var entry = new MODULEENTRY32 { dwSize = (uint)Marshal.SizeOf<MODULEENTRY32>() };
+            if (!Module32First(snapshot, ref entry)) return false;
 
-            if (!Module32First(snapshot, ref moduleEntry))
-            {
-                return false;
-            }
-
+            IntPtr fallbackBase = IntPtr.Zero;
+            uint fallbackSize = 0;
             do
             {
-                if (moduleEntry.szModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
+                if (!entry.szModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase)) continue;
+                var addr = (ulong)entry.modBaseAddr.ToInt64();
+                if (addr < 0x100000000UL)
                 {
-                    moduleBase = moduleEntry.modBaseAddr;
-                    moduleSize = moduleEntry.modBaseSize;
+                    moduleBase = entry.modBaseAddr;
+                    moduleSize = entry.modBaseSize;
                     return true;
                 }
+                if (fallbackBase == IntPtr.Zero)
+                {
+                    fallbackBase = entry.modBaseAddr;
+                    fallbackSize = entry.modBaseSize;
+                }
+            } while (Module32Next(snapshot, ref entry));
+
+            if (fallbackBase != IntPtr.Zero)
+            {
+                moduleBase = fallbackBase;
+                moduleSize = fallbackSize;
+                return true;
             }
-            while (Module32Next(snapshot, ref moduleEntry));
         }
         finally
         {

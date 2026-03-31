@@ -41,3 +41,4 @@ AGENT_API bool AGENT_CALL AgentInitialize(const TalosForge::NativeAgent::AgentIn
 AGENT_API bool AGENT_CALL AgentShutdown();
 AGENT_API bool AGENT_CALL AgentEnqueueCommand(const char* opcode, const char* payloadJson, uint32_t timeoutMs);
 AGENT_API bool AGENT_CALL AgentTryGetStatus(TalosForge::NativeAgent::AgentStatus* status);
+AGENT_API const char* AGENT_CALL AgentGetPipeName();

@@ -9,6 +9,11 @@ public enum UnlockerOpcode
     MoveTo = 5,
     Interact = 6,
     Stop = 7,
+    LuaQuery = 10,
+    QuerySpellInfo = 11,
+    QueryBags = 12,
+    QueryAuras = 13,
+    CastSpellByID = 14,
 }
 
 public sealed record UnlockerCommand(

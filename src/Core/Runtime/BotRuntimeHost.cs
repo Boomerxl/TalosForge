@@ -10,33 +10,41 @@ using TalosForge.Core.IPC;
 using TalosForge.Core.Models;
 using TalosForge.Core.ObjectManager;
 using TalosForge.Core.Plugins;
+using TalosForge.Core.Warden;
 
 namespace TalosForge.Core.Runtime;
 
 public sealed class BotRuntimeHost
 {
+    private const string SessionIdEnv = "TALOSFORGE_SESSION_ID";
+
     private readonly BotOptions _options;
     private readonly RuntimeOptions _runtimeOptions;
     private readonly Action<string>? _logSink;
     private readonly Action<BotTickMetrics, WorldSnapshot>? _tickSink;
     private readonly Action<UnlockerHealthSnapshot>? _unlockerHealthSink;
+    private readonly Action<WardenSnapshot>? _wardenSink;
 
     public BotRuntimeHost(
         BotOptions options,
         RuntimeOptions runtimeOptions,
         Action<string>? logSink = null,
         Action<BotTickMetrics, WorldSnapshot>? tickSink = null,
-        Action<UnlockerHealthSnapshot>? unlockerHealthSink = null)
+        Action<UnlockerHealthSnapshot>? unlockerHealthSink = null,
+        Action<WardenSnapshot>? wardenSink = null)
     {
         _options = options;
         _runtimeOptions = runtimeOptions;
         _logSink = logSink;
         _tickSink = tickSink;
         _unlockerHealthSink = unlockerHealthSink;
+        _wardenSink = wardenSink;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
+        var sessionId = ResolveSessionId(_runtimeOptions.SessionId);
+
         using var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder
@@ -45,6 +53,7 @@ public sealed class BotRuntimeHost
                 {
                     console.SingleLine = true;
                     console.TimestampFormat = "HH:mm:ss ";
+                    console.IncludeScopes = true;
                 });
 
             if (_logSink != null)
@@ -54,12 +63,32 @@ public sealed class BotRuntimeHost
         });
 
         var logger = loggerFactory.CreateLogger("TalosForge");
-        logger.LogInformation("TalosForge initializing... Custodem finge!");
+        using var scope = logger.BeginScope(new Dictionary<string, object>
+        {
+            ["session_id"] = sessionId
+        });
 
+        logger.LogInformation("TalosForge initializing... Custodem finge! session_id={SessionId}", sessionId);
+
+        InternalMemoryReader? ownedInternalReader = null;
         try
         {
-            var reader = MemoryReader.Instance;
-            if (!reader.Attach())
+            IMemoryReader reader;
+            var internalReader = new InternalMemoryReader();
+            if (internalReader.Attach())
+            {
+                reader = internalReader;
+                ownedInternalReader = internalReader;
+                logger.LogInformation("Using internal memory reader (in-process agent, no external RPM).");
+            }
+            else
+            {
+                internalReader.Dispose();
+                reader = MemoryReader.Instance;
+                logger.LogInformation("Internal reader unavailable, falling back to external RPM reader.");
+            }
+
+            if (!reader.IsAttached && !reader.Attach())
             {
                 logger.LogWarning("WoW not found");
                 return;
@@ -72,6 +101,20 @@ public sealed class BotRuntimeHost
             }
 
             logger.LogInformation("Attach succeeded. BaseAddress: 0x{BaseAddress:X}", reader.BaseAddress.ToInt64());
+
+            var readerMode = ownedInternalReader != null
+                ? MemoryReaderMode.Internal
+                : MemoryReaderMode.External;
+            var wardenMonitor = new WardenMonitor(reader, readerMode);
+            if (readerMode == MemoryReaderMode.External)
+            {
+                wardenMonitor.InitializeCanary();
+                logger.LogInformation("Warden canary initialized (external mode, monitoring system function prologues).");
+            }
+            else
+            {
+                logger.LogInformation("Warden monitor active (internal mode, canary deferred to agent).");
+            }
 
             var staticClientConnectionAddress = ResolveStaticAddress(reader.BaseAddress, Offsets.STATIC_CLIENT_CONNECTION, reader);
             if (TryReadPointer(reader, staticClientConnectionAddress, out var clientConnection))
@@ -129,7 +172,7 @@ public sealed class BotRuntimeHost
                 _options,
                 loggerFactory.CreateLogger<BotEngine>(),
                 pluginHost,
-                new InGameOverlayService(unlockerClient, _options));
+                new TalosForgeHubOverlayService(unlockerClient, _options, () => pluginHost.LoadedPluginNames));
 
             if (_tickSink != null)
             {
@@ -144,6 +187,22 @@ public sealed class BotRuntimeHost
                         statusMonitor,
                         _runtimeOptions.UseMockUnlocker);
                     _unlockerHealthSink(health);
+                };
+            }
+
+            var wardenTickCounter = 0;
+            if (_wardenSink != null)
+            {
+                botEngine.TickCompleted += (_, _) =>
+                {
+                    if (Interlocked.Increment(ref wardenTickCounter) % 5 != 0)
+                        return;
+                    try
+                    {
+                        var snapshot = wardenMonitor.TakeSnapshot();
+                        _wardenSink(snapshot);
+                    }
+                    catch { }
                 };
             }
 
@@ -187,6 +246,10 @@ public sealed class BotRuntimeHost
         catch (Exception ex)
         {
             logger.LogError(ex, "Attach failed");
+        }
+        finally
+        {
+            ownedInternalReader?.Dispose();
         }
     }
 
@@ -324,5 +387,19 @@ public sealed class BotRuntimeHost
         {
             return false;
         }
+    }
+
+    private static string ResolveSessionId(string? configuredSessionId)
+    {
+        var sessionId = string.IsNullOrWhiteSpace(configuredSessionId)
+            ? Environment.GetEnvironmentVariable(SessionIdEnv)
+            : configuredSessionId;
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            sessionId = Guid.NewGuid().ToString("N");
+        }
+
+        Environment.SetEnvironmentVariable(SessionIdEnv, sessionId);
+        return sessionId;
     }
 }

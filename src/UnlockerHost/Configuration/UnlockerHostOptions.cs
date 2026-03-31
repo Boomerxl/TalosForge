@@ -5,6 +5,7 @@ namespace TalosForge.UnlockerHost.Configuration;
 /// </summary>
 public sealed class UnlockerHostOptions
 {
+    public string SessionId { get; set; } = string.Empty;
     public string CommandRingName { get; set; } = "TalosForge.Cmd.v1";
     public string EventRingName { get; set; } = "TalosForge.Evt.v1";
     public int RingCapacityBytes { get; set; } = 1_048_576;

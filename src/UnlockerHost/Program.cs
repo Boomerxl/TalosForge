@@ -8,8 +8,13 @@ namespace TalosForge.UnlockerHost;
 
 public static class Program
 {
+    private const string SessionIdArg = "--session-id";
+    private const string SessionIdEnv = "TALOSFORGE_SESSION_ID";
+
     public static async Task Main(string[] args)
     {
+        var (sessionId, filteredArgs) = ExtractSessionContext(args);
+
         using var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder
@@ -18,12 +23,20 @@ public static class Program
                 {
                     console.SingleLine = true;
                     console.TimestampFormat = "HH:mm:ss ";
+                    console.IncludeScopes = true;
                 });
         });
 
         var logger = loggerFactory.CreateLogger("TalosForge.UnlockerHost");
-        var options = ParseArgs(args, logger);
+        using var scope = logger.BeginScope(new Dictionary<string, object>
+        {
+            ["session_id"] = sessionId
+        });
+
+        var options = ParseArgs(filteredArgs, logger);
+        options.SessionId = sessionId;
         var executor = CreateExecutor(options, logger);
+        logger.LogInformation("Session context initialized. session_id={SessionId}", sessionId);
 
         using var cts = new CancellationTokenSource();
         Console.CancelKeyPress += (_, e) =>
@@ -257,5 +270,45 @@ public static class Program
         }
 
         return parsed;
+    }
+
+    private static (string SessionId, string[] FilteredArgs) ExtractSessionContext(string[] args)
+    {
+        var filtered = new List<string>(args.Length);
+        string? cliSessionId = null;
+
+        for (var i = 0; i < args.Length; i++)
+        {
+            var arg = args[i];
+            if (arg.Equals(SessionIdArg, StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 < args.Length)
+                {
+                    cliSessionId = args[++i];
+                }
+
+                continue;
+            }
+
+            var prefix = SessionIdArg + "=";
+            if (arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                cliSessionId = arg[prefix.Length..];
+                continue;
+            }
+
+            filtered.Add(arg);
+        }
+
+        var sessionId = string.IsNullOrWhiteSpace(cliSessionId)
+            ? Environment.GetEnvironmentVariable(SessionIdEnv)
+            : cliSessionId;
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            sessionId = Guid.NewGuid().ToString("N");
+        }
+
+        Environment.SetEnvironmentVariable(SessionIdEnv, sessionId);
+        return (sessionId, filtered.ToArray());
     }
 }

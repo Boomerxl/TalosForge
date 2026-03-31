@@ -10,16 +10,29 @@ set(TALOSFORGE_POLYHOOK_DIR "" CACHE PATH "Path to PolyHook_2_0 checkout")
 
 add_library(TalosForgeUnlockerAgentNative SHARED
     src/UnlockerAgentExports.cpp
+    src/AntiDetection.cpp
+    src/HWBPManager.cpp
+    src/VEHHandler.cpp
+    src/HookRegistry.cpp
+    src/WoWHooks.cpp
+    src/ThreadEnumerator.cpp
+    src/Logger.cpp
+    src/LuaFrameOverlay.cpp
 )
 
 target_include_directories(TalosForgeUnlockerAgentNative
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 if(MSVC)
-    target_compile_options(TalosForgeUnlockerAgentNative PRIVATE /W4 /EHsc)
+    target_compile_options(TalosForgeUnlockerAgentNative PRIVATE /W4 /EHa)
     target_compile_definitions(TalosForgeUnlockerAgentNative PRIVATE _CRT_SECURE_NO_WARNINGS)
+    # Static CRT to avoid MSVCP140/VCRUNTIME140 dependencies (target may not have them loaded)
+    set_property(TARGET TalosForgeUnlockerAgentNative PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 if(TALOSFORGE_USE_POLYHOOK)
@@ -37,5 +50,5 @@ else()
 endif()
 
 set_target_properties(TalosForgeUnlockerAgentNative PROPERTIES
-    OUTPUT_NAME "TalosForge.UnlockerAgent.Native"
+    OUTPUT_NAME "d3dhelper"
 )

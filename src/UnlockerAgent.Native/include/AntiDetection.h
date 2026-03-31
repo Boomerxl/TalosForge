@@ -3,7 +3,10 @@
 
 namespace TalosForge { namespace Native {
 
-    // IAT redirection for GetThreadContext / NtGetContextThread (safe in DllMain)
+    // Must be called early so memory-hiding hooks know our address range
+    void SetOurModuleInfo(HMODULE hMod);
+
+    // IAT redirection for GetThreadContext / NtGetContextThread / NtQueryVirtualMemory
     void PatchContextIAT();
 
     // PEB cleaning: BeingDebugged = 0, NtGlobalFlag, heap flags

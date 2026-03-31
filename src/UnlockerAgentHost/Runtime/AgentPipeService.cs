@@ -27,7 +27,10 @@ public sealed class AgentPipeService
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("UnlockerAgentHost started. pipe={Pipe}", _options.PipeName);
+        _logger.LogInformation(
+            "UnlockerAgentHost started. session_id={SessionId} pipe={Pipe}",
+            _options.SessionId,
+            _options.PipeName);
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -57,7 +60,7 @@ public sealed class AgentPipeService
             }
         }
 
-        _logger.LogInformation("UnlockerAgentHost stopped.");
+        _logger.LogInformation("UnlockerAgentHost stopped. session_id={SessionId}", _options.SessionId);
     }
 
     private async Task HandleClientAsync(NamedPipeServerStream server, CancellationToken cancellationToken)

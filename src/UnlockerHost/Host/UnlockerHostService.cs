@@ -49,7 +49,8 @@ public sealed class UnlockerHostService : IDisposable
         var nextStatusAt = DateTimeOffset.UtcNow;
 
         _logger.LogInformation(
-            "UnlockerHost started. cmd_ring={CommandRing} evt_ring={EventRing} executor={Executor}",
+            "UnlockerHost started. session_id={SessionId} cmd_ring={CommandRing} evt_ring={EventRing} executor={Executor}",
+            _options.SessionId,
             _options.CommandRingName,
             _options.EventRingName,
             _options.ExecutorMode);
@@ -117,7 +118,7 @@ public sealed class UnlockerHostService : IDisposable
         {
             WriteStatus(running: false);
             EmitStats(force: true);
-            _logger.LogInformation("UnlockerHost stopped.");
+            _logger.LogInformation("UnlockerHost stopped. session_id={SessionId}", _options.SessionId);
         }
     }
 

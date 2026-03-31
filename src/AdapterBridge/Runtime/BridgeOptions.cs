@@ -3,6 +3,7 @@ namespace TalosForge.AdapterBridge.Runtime;
 public sealed class BridgeOptions
 {
     public string PipeName { get; set; } = "TalosForge.UnlockerAdapter.v1";
+    public string SessionId { get; set; } = string.Empty;
     public string Mode { get; set; } = "mock";
     public string? CommandPath { get; set; }
     public string CommandArgs { get; set; } = string.Empty;
